@@ -1,0 +1,25 @@
+/* Book Page */
+.large_book_cover{
+    display: inline-block;
+}
+.large_book_cover img{
+    width: 150px;
+}
+
+.book_details {
+    display: inline-block;
+    max-width: calc(100% - 170px);
+    padding: 1em;
+}
+.book_current_loans{
+    max-width: 500px;
+}
+.book_current_loans table{
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.book_current_loans th, .book_current_loans td {
+    padding: 0.5em;
+    text-align: left;
+}

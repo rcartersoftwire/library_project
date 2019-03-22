@@ -1,0 +1,32 @@
+/* Join Library Page */
+
+.join_form label {
+    min-width: 138px;
+    display: inline-block;
+    margin: 0.2em;
+}
+
+.join_form input{
+    width: 65%;
+    display: inline-block;
+    background-color: inherit;
+    border: none;
+    border-bottom: var(--text-color) 1.1px solid;
+    color: var(--text-color);
+    margin: 0.2em;
+}
+
+.join_form button {
+    background-color: transparent;
+    border: none;  
+    color: var(--text-color);
+    margin: 0.5em 0.2em;
+    font-variant: small-caps;
+    font-size: 1.2em;
+    padding: 0;
+}
+
+.join_form button:hover {
+    text-decoration: underline;
+    color: var(--mid-blue);
+}

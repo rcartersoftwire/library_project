@@ -1,0 +1,55 @@
+/* Browse by filter list */
+.browse_filters{
+    list-style-type: none;
+    padding: 0;
+}
+.browse_filters li {
+    float: left;
+    padding: 0.5em;
+    color: var(--text-color);
+}
+
+.browse_filters li a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Book Display */
+
+.book_display {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-gap: 0.8em;
+    grid-auto-rows: minmax(150px,auto);
+    clear: left;
+    padding: 1em 1em;
+}
+
+.book_tile{
+    border: var(--light-blue) 2px solid;
+    border-radius: 5px;
+    padding: 0.5em;
+}
+
+.book_cover{
+    max-width: 75px;
+    float: left;
+    margin: 0.5em;
+}
+
+
+.tile_details h3, .tile_details h4, .tile_details p{
+    margin: 0.5em 0.5em;
+    font-weight: normal;
+}
+
+.tile_details h3 {
+    font-variant: small-caps;
+    font-weight: 500;
+}
+
+.tile_details a {
+    text-decoration: none;
+    color: inherit;
+}
