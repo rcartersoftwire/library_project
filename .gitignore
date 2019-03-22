@@ -1,0 +1,9 @@
+*.sqlite
+*.db
+testing/
+extended/
+pages/
+library_project/
+*.sql
+.vscode/
+*.exe
