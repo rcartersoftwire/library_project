@@ -9,6 +9,7 @@
 .book_details {
     display: inline-block;
     max-width: calc(100% - 370px);
+    min-width: calc(100% - 500px);
     padding: 1em;
     vertical-align: top;
 }
