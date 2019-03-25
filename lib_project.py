@@ -239,6 +239,24 @@ def find_book_id(db, title, author_id, isbn, description,
         return book_id
 
 
+def get_user_list(db):
+    user_results = db.execute("""SELECT id FROM user WHERE type = 0;
+                              """).fetchall()
+
+    user_list = []
+
+    for user in user_results:
+        (user_id, user_first_name, user_last_name, user_loan_count,
+         user_loans) = get_user_details(db, user['id'])
+
+        user_name = user_first_name + ' ' + user_last_name
+
+        user_list.append({'user_id': user_id, 'name': user_name,
+                          'loan_count': user_loan_count,
+                          'loans': user_loans})
+
+    return user_list
+
 # Routes
 
 
@@ -547,6 +565,18 @@ def add_book(db, user_id):
                VALUES (?, ?, ?);""", (book_id, location, hire_period))
 
     redirect(f'/librarian/{user_id}/home')
+
+
+@get('/librarian/<user_id>/users/view')
+def view_users(db, user_id):
+    libr_names = db.execute("""SELECT first_name, last_name FROM  user
+                            WHERE id = ?;""", (user_id,)).fetchone()
+
+    name = libr_names['first_name'] + ' ' + libr_names['last_name']
+
+    user_list = get_user_list(db)
+
+    return template('view_users', name=name, user_id=user_id, user_list=user_list)
 
 
 run(host='localhost', port=8080, debug=True)
