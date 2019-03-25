@@ -26,7 +26,8 @@
 }
 
 .user_book_details .book_details {
-    max-width: calc(100% - 500px);
+    max-width: calc(100% - 375px);
+    min-width: calc(100% - 400px);
 }
 .user_book_info {
     display: inline-block;

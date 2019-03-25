@@ -10,7 +10,7 @@
     <body>
         % include('header_bar.tpl')
         % include('visitor_pages/visitor_side_bar.tpl')
-        <div class="page_body">
+        <div class="main_page">
             {{!base}}
         </div>
     </body>
