@@ -7,7 +7,6 @@
     <div class="sidebar_links">
         <ul>
             <li><a href="/my_account">My Account</a></li>
-            <!-- <li><a href="/myaccount/fines">Pay Fines</a></li> -->
             <li><a href="/logout">Log Out</a></li>
         </ul>
     </div>

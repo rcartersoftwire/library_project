@@ -31,7 +31,7 @@ conn.execute("""CREATE TABLE IF NOT EXISTS copy (
 conn.execute("""CREATE TABLE IF NOT EXISTS user (
                 id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 first_name VARCHAR(255) NOT NULL,
-                last_name VARCHAR(255) NOT NULL,
+                last_name VARCHAR(255) NULL,
                 username VARCHAR(255) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
                 type INT NOT NULL -- 0 = borrower, 1 =  librarian
@@ -66,12 +66,14 @@ def get_user_details(db, id):
                       WHERE user.id = ?;""", (id,)).fetchone()
 
     user_loan_results = db.execute("""SELECT book.id as book_id, book.title as title,
-                                   author.first_name as first_name, author.last_name as
-                                   last_name, loan.due_date as due_date
+                                   author.first_name as first_name,
+                                   author.last_name as last_name,
+                                   loan.due_date as due_date
                                    FROM loan
                                    INNER JOIN copy on copy.id = loan.copy_id
                                    INNER JOIN book on book.id = copy.book_id
-                                   INNER JOIN author on author.id = book.author_id
+                                   INNER JOIN author on
+                                   author.id = book.author_id
                                    WHERE loan.borrower_id = ? AND
                                    loan.returned = 0;""", (id,))
 
@@ -110,6 +112,7 @@ def get_book_list(db):
             book['available'] = 'Unavailable'
 
     return books
+
 
 def get_search_results(db, search_query):
     search_results = db.execute("""SELECT book.id as book_id, book.title as title,
@@ -202,6 +205,44 @@ def next_due_back(db, book_id):
         next_due_back = min(due_dates_conv).strftime("%d/%m/%y")
 
     return next_due_back
+
+
+def find_author_id(db, author_name):
+    names = author_name.split(" ", 1)
+    first_name = names[0]
+    last_name = names[1]
+
+    author_id = db.execute("""SELECT id FROM author WHERE first_name = ?
+                    AND last_name = ?""", (first_name, last_name)).fetchone()
+
+    if author_id:
+        return author_id[0]
+    else:
+        db.execute("""INSERT INTO author(first_name, last_name)
+                   VALUES (?,?)""", (first_name, last_name))
+        author_id = db.execute("""SELECT id FROM author WHERE first_name = ?
+                               AND last_name = ?""",
+                               (first_name, last_name)).fetchone()[0]
+        return author_id
+
+
+def find_book_id(db, title, author_id, isbn, description,
+                 publisher, year):
+    book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
+                         AND isbn=? ;""", (title, author_id, isbn, )
+                         ).fetchall()
+
+    if book_id:
+        return book_id[0]
+    else:
+        db.execute("""INSERT INTO book(title, author_id, isbn, description, publisher, year)
+                   VALUES (?, ?, ?, ?, ?, ?)""", (title, author_id, isbn,
+                   description, publisher, year))
+        book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
+                             AND isbn=?;""", (title, author_id, isbn)
+                             ).fetchone()[0]
+        return book_id
+
 
 # Routes
 
@@ -471,35 +512,45 @@ def join(db):
 
     else:
         db.execute("""INSERT INTO user (first_name, last_name, username, password, type)
-               VALUES (?, ?, ?, ?, ?);""", (first_name, last_name, username,
-               password, 0))
+                   VALUES (?, ?, ?, ?, ?);""", (first_name, last_name,
+                   username, password, 0))
 
-        user_id = db.execute("SELECT id FROM user WHERE username = ?",
-                         (username,)).fetchone()[0]
+        user_id = db.execute("SELECT id FROM user WHERE username = ?;",
+                             (username,)).fetchone()[0]
 
         redirect(f'/user/{user_id}/home')
 
 
-@get('/author/add')
-def add_author(db):
-    first_name = request.query['first_name']
-    last_name = request.query.get('last_name')
-    db.execute("""INSERT INTO author(first_name, last_name) VALUES (?, ?)""",
-               (first_name, last_name))
+@get('/librarian/<user_id>/books/add')
+def add_books(db, user_id):
+    libr_names = db.execute("""SELECT first_name, last_name FROM  user
+                            WHERE id = ?;""", (user_id,)).fetchone()
+
+    name = libr_names['first_name'] + ' ' + libr_names['last_name']
+
+    return template('add_books', name=name, user_id=user_id)
 
 
-@get('/books/add')
-def add_book(db):
-    title = request.query['title']
-    author_id = request.query['author_id']
-    isbn = request.query['isbn']
-    cover = request.query.get('cover')
-    description = request.query.get('description')
-    publisher = request.query.get('publisher')
-    year = request.query.get('year')
-    db.execute("""INSERT INTO book (title, author_id, isbn, cover, description,
-               publisher, year) VALUES (?,?,?,?)""", (title, author_id, isbn,
-               cover, description, publisher, year))
+@post('/librarian/<user_id>/add')
+def add_book(db, user_id):
+    title = request.forms.get('title')
+    author_name = request.forms.get('author_name')
+    isbn = request.forms.get('isbn')
+    description = request.forms.get('description')
+    publisher = request.forms.get('publisher')
+    year = request.forms.get('year')
+    location = request.forms.get('location')
+    hire_period = request.forms.get('hire_period')
+
+    author_id = find_author_id(db, author_name)
+
+    book_id = find_book_id(db, title, author_id, isbn, description,
+                           publisher, year)
+
+    db.execute("""INSERT INTO copy(book_id, location, hire_period)
+               VALUES (?, ?, ?);""", (book_id, location, hire_period))
+
+    redirect(f'/librarian/{user_id}/home')
 
 
 run(host='localhost', port=8080, debug=True)

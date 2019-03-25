@@ -4,8 +4,8 @@
             </div>
             <div class="sidebar_links">
                 <ul>
-                    <li><a href="/book/add">Add a Book</a></li>
-                    <li><a href="/users/view">View Users</a></li>
+                    <li><a href="/librarian/{{user_id}}/books/add">Add a Book</a></li>
+                    <li><a href="/librarian/{{user_id}}/users/view">View Users</a></li>
                     <li><a href="/logout">Log Out</a></li>
                 </ul>
             </div>

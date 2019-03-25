@@ -37,9 +37,8 @@
                 <div>
                     <button type="submit" id="join_button">Join</button>
                 </div>
-            </form>
+                </form>
             </div>
-            
         </div>
     </body>
 
