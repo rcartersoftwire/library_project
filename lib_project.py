@@ -19,8 +19,10 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 # Functions
 from author import (find_author_id)
 from book import (get_book_list, get_book_details, check_copies_available,
-                  next_due_back, find_book_id, find_loan_id, renew_loan)
+                  next_due_back, find_book_id, find_loan_id)
 from user import get_user_details, get_user_list
+from librarian import get_librarian_name
+from loan import get_user_book_details, create_loan, end_loan, renew_loan
 
 
 def get_search_results(db, search_query):
@@ -68,7 +70,7 @@ def serve_static(filename):
 def home(db):
     books = get_book_list(db)
 
-    return template('home', books=books)
+    return template('visitor_pages/home', books=books)
 
 
 @get('/user/<id>/home')
@@ -78,7 +80,7 @@ def user_home(db, id):
 
     books = get_book_list(db)
 
-    return template('user_home', books=books, user_id=user_id,
+    return template('user_pages/user_home', books=books, user_id=user_id,
                     user_first_name=user_first_name,
                     user_last_name=user_last_name,
                     user_loan_count=user_loan_count, user_loans=user_loans)
@@ -86,14 +88,12 @@ def user_home(db, id):
 
 @get('/librarian/<user_id>/home')
 def librarian_home(db, user_id):
-    libr_names = db.execute("""SELECT first_name, last_name FROM  user
-                            WHERE id = ?;""", (user_id,)).fetchone()
-
-    name = libr_names['first_name'] + ' ' + libr_names['last_name']
+    name = get_librarian_name(db, user_id)
 
     books = get_book_list(db)
 
-    return template('librarian_home', user_id=user_id, books=books, name=name,)
+    return template('librarian_pages/librarian_home', user_id=user_id,
+                    books=books, name=name,)
 
 
 @post('/search')
@@ -101,7 +101,8 @@ def search(db):
     search_query = request.forms.get('search_query')
     results = get_search_results(db, search_query)
 
-    return template('search', search_query=search_query, results=results)
+    return template('visitor_pages/search', search_query=search_query,
+                    results=results)
 
 
 @post('/user/<id>/search')
@@ -112,8 +113,9 @@ def user_search(db, id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans) = get_user_details(db, id)
 
-    return template('user_search', search_query=search_query, results=results,
-                    user_id=user_id, user_first_name=user_first_name,
+    return template('user_pages/user_search', search_query=search_query,
+                    results=results, user_id=user_id,
+                    user_first_name=user_first_name,
                     user_last_name=user_last_name,
                     user_loan_count=user_loan_count, user_loans=user_loans)
 
@@ -123,12 +125,10 @@ def librarian_search(db, user_id):
     search_query = request.forms.get('search_query')
     results = get_search_results(db, search_query)
 
-    libr_names = db.execute("""SELECT first_name, last_name FROM  user
-                            WHERE id = ?;""", (user_id,)).fetchone()
+    name = get_librarian_name(db, user_id)
 
-    name = libr_names['first_name'] + ' ' + libr_names['last_name']
-
-    return template('librarian_search', search_query=search_query,
+    return template('librarian_pages/librarian_search',
+                    search_query=search_query,
                     results=results, name=name, user_id=user_id)
 
 
@@ -145,7 +145,7 @@ def book_details(db, book_id):
     else:
         next_due = ''
 
-    return template('book_page', title=title, author=author,
+    return template('visitor_pages/book_page', title=title, author=author,
                     publisher=publisher, year=year, cover=cover,
                     description=description, isbn=isbn, copies=copies,
                     copies_available=copies_available, next_due=next_due)
@@ -158,21 +158,6 @@ def user_book_details(db, user_id, book_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans) = get_user_details(db, user_id)
 
-    book_loan_details = db.execute("""SELECT due_date FROM loan
-                                   INNER JOIN copy on copy.id = loan.copy_id
-                                   WHERE loan.borrower_id = ?
-                                   AND copy.book_id = ?
-                                   AND loan.returned = 0
-                                   ORDER BY loan.due_date;""",
-                                   (user_id, book_id)).fetchone()
-
-    if book_loan_details:
-        book_loaned = 1
-        due_date = book_loan_details['due_date']
-    else:
-        book_loaned = 0
-        due_date = ''
-
     copies, copies_loaned = check_copies_available(db, book_id)
     copies_available = copies - copies_loaned
 
@@ -181,7 +166,9 @@ def user_book_details(db, user_id, book_id):
     else:
         next_due = ''
 
-    return template('user_book_page', book_id=book_id, title=title,
+    book_loaned, due_date = get_user_book_details(db, user_id, book_id)
+
+    return template('user_pages/user_book_page', book_id=book_id, title=title,
                     author=author, publisher=publisher, year=year,
                     cover=cover, description=description, isbn=isbn,
                     user_id=user_id,
@@ -206,13 +193,10 @@ def librarian_book_details(db, user_id, book_id):
     else:
         next_due = ''
 
-    libr_names = db.execute("""SELECT first_name, last_name FROM  user
-                            WHERE id = ?;""", (user_id,)).fetchone()
+    name = get_librarian_name(db, user_id)
 
-    name = libr_names['first_name'] + ' ' + libr_names['last_name']
-
-    return template('librarian_book_page', title=title, author=author,
-                    publisher=publisher, year=year, cover=cover,
+    return template('librarian_pages/librarian_book_page', title=title,
+                    author=author, publisher=publisher, year=year, cover=cover,
                     description=description, isbn=isbn, copies=copies,
                     copies_available=copies_available, next_due=next_due,
                     name=name, user_id=user_id)
@@ -220,33 +204,14 @@ def librarian_book_details(db, user_id, book_id):
 
 @get('/user/<user_id>/borrow/<book_id>')
 def borrow(db, user_id, book_id):
-    copy = db.execute("""SELECT copy.id, copy.hire_period FROM copy WHERE NOT EXISTS
-                      (SELECT loan.id FROM loan WHERE loan.copy_id = copy.id
-                      AND returned = 0)
-                      AND copy.book_id = ?""",
-                      (book_id,)).fetchone()
-
-    copy_id = copy['id']
-    hire_period = copy['hire_period']
-
-    due_date = (dt.now() + timedelta(days=hire_period)).strftime('%d/%m/%y')
-
-    db.execute("""INSERT INTO loan (copy_id, borrower_id, due_date, returned)
-               VALUES (?, ?, ?, ?);""", (copy_id, user_id, due_date, 0))
+    create_loan(db, user_id, book_id)
 
     redirect(f'/user/{user_id}/book/{book_id}')
 
 
 @get('/user/<user_id>/return/<book_id>')
 def return_book(db, user_id, book_id):
-    loan_id = db.execute("""SELECT loan.id
-                         FROM loan
-                         INNER JOIN copy on copy.id = loan.copy_id
-                         WHERE copy.book_id = ?
-                         AND loan.borrower_id = ? AND returned = 0""",
-                         (book_id, user_id)).fetchone()[0]
-
-    db.execute("""UPDATE loan SET returned = 1 WHERE id=?;""", (loan_id,))
+    end_loan(db, user_id, book_id)
 
     redirect(f'/user/{user_id}/book/{book_id}')
 
@@ -289,7 +254,7 @@ def logout(db):
 
 @get('/join')
 def join_library(db):
-    return template('join_library', message=request.message)
+    return template('visitor_pages/join_library', message=request.message)
 
 
 @post('/join')
@@ -329,7 +294,7 @@ def add_books(db, user_id):
 
     name = libr_names['first_name'] + ' ' + libr_names['last_name']
 
-    return template('add_books', name=name, user_id=user_id)
+    return template('librarian_pages/add_books', name=name, user_id=user_id)
 
 
 @post('/librarian/<user_id>/add')
@@ -363,7 +328,7 @@ def view_users(db, user_id):
 
     user_list = get_user_list(db)
 
-    return template('view_users', name=name, user_id=user_id,
+    return template('librarian_pages/view_users', name=name, user_id=user_id,
                     user_list=user_list)
 
 

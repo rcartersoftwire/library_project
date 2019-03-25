@@ -1,3 +1,7 @@
+@import "book_display.css";
+@import "book_page.css";
+@import "forms.css";
+
 :root {
     --text-color: #030303;
     --text-color-transparent: rgba(3, 3, 3, 0.77);

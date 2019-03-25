@@ -1,6 +1,6 @@
 # Book based functions
 
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt
 
 
 def get_book_list(db):
@@ -107,16 +107,3 @@ def find_loan_id(db, user_id, book_id):
     loan_id = loan['id']
 
     return loan_id
-
-
-def renew_loan(db, loan_id):
-    loan = db.execute("""SELECT due_date,  hire_period FROM loan
-                      WHERE id = ?""", (loan_id,)).fetchone()
-
-    current_due = dt.strptime(loan['due_date'], '%d/%m/%y')
-    hire_period = loan['hire_period']
-    new_due = current_due + timedelta(days=hire_period)
-    new_due_date = new_due.strftime('%d/%m/%y')
-
-    db.execute("""UPDATE loan SET due_date = ? WHERE id = ?;""",
-               (new_due_date, loan_id))
