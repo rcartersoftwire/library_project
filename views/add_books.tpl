@@ -28,7 +28,8 @@
                 </div>
                 <div>
                     <label for="description">Description</label>
-                    <input type="textarea" id="description" name="description">
+                    <textarea id="description" name="description">
+                    </textarea>
                 </div>
                 <div>
                     <label for="publisher">Publisher</label>

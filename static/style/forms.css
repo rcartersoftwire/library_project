@@ -4,6 +4,7 @@
     min-width: 138px;
     display: inline-block;
     margin: 0.2em;
+    vertical-align: top;
 }
 
 .form input{
@@ -29,4 +30,27 @@
 .form button:hover {
     text-decoration: underline;
     color: var(--mid-blue);
+}
+
+.form textarea {
+    width: 65%;
+    height: 100px;
+    display: inline-block;
+    background-color: inherit;
+    border: var(--text-color) 1.1px solid;
+    color: var(--text-color);
+    border-radius: 2px;
+    margin: 0.3em 0.2em;
+    padding: 0.2em;
+}
+
+.form select { 
+    width: 65%;
+    padding: 0.em;
+    margin: 0.3em 0.2em;
+    display: inline-block;
+    background-color: inherit;
+    border: var(--text-color) 1.1px solid;
+    color: var(--text-color);
+    border-radius: 2px;
 }
