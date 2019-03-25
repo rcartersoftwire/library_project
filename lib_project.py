@@ -1,3 +1,9 @@
+# Set Up
+
+from bottle import (get, post, run, debug, install, request, response,
+                    redirect, template, static_file)
+from bottle_utils.flash import message_plugin
+from bottle_sqlite import SQLitePlugin
 
 # Configuration
 import caribou
@@ -7,71 +13,14 @@ version = '20190325114200'
 
 caribou.upgrade(database_file, migrations_path)
 
-# Backend
-
-# Set Up
-
-from bottle import (get, post, run, debug, install, request, response,
-                    redirect, template, static_file)
-from bottle_utils.flash import message_plugin
-from bottle_sqlite import SQLitePlugin
 install(message_plugin)
 install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # Functions
-
-
-def get_user_details(db, id):
-    user_details = db.execute("""SELECT id, first_name, last_name FROM user
-                      WHERE user.id = ?;""", (id,)).fetchone()
-
-    user_loan_results = db.execute("""SELECT book.id as book_id, book.title as title,
-                                   author.first_name as first_name,
-                                   author.last_name as last_name,
-                                   loan.due_date as due_date
-                                   FROM loan
-                                   INNER JOIN copy on copy.id = loan.copy_id
-                                   INNER JOIN book on book.id = copy.book_id
-                                   INNER JOIN author on
-                                   author.id = book.author_id
-                                   WHERE loan.borrower_id = ? AND
-                                   loan.returned = 0;""", (id,))
-
-    user_id = user_details['id']
-    user_first_name = user_details['first_name']
-    user_last_name = user_details['last_name']
-
-    user_loans = [{'book_id': l['book_id'], 'title': l['title'],
-                   'author': l['first_name'] + ' ' + l['last_name'],
-                   'due_date': l['due_date']} for l in user_loan_results]
-
-    user_loan_count = len(user_loans)
-
-    return (user_id, user_first_name, user_last_name, user_loan_count,
-            user_loans)
-
-
-def get_book_list(db):
-    book_results = db.execute("""SELECT book.id as book_id, book.title as title,
-                                author.first_name as first_name,
-                                author.last_name as last_name
-                                FROM book
-                                INNER JOIN author on author.id = book.author_id
-                                ORDER BY title;""").fetchall()
-
-    books = [{'id': b['book_id'], 'title': b['title'],
-              'author': b['first_name']
-              + ' ' + b['last_name']} for b in book_results]
-
-    for book in books:
-        num_copies, active_loans = check_copies_available(db, book['id'])
-
-        if num_copies != 0 and num_copies > active_loans:
-            book['available'] = 'Available'
-        else:
-            book['available'] = 'Unavailable'
-
-    return books
+from author import (find_author_id)
+from book import (get_book_list, get_book_details, check_copies_available,
+                  next_due_back, find_book_id, find_loan_id, renew_loan)
+from user import get_user_details, get_user_list
 
 
 def get_search_results(db, search_query):
@@ -106,117 +55,6 @@ def get_search_results(db, search_query):
             book['available'] = 'Unvailable'
 
     return results
-
-
-def get_book_details(db, id):
-    book_info = db.execute("""SELECT book.title as title, book.publisher as publisher,
-                           book.year as year, author.first_name as first_name,
-                           author.last_name as last_name, book.isbn as isbn,
-                           book.description as description
-                           FROM book
-                           INNER JOIN author ON book.author_id = author.id
-                           WHERE book.id = ?""", (id,)).fetchone()
-    title = book_info['title']
-    author = book_info['first_name'] + ' ' + book_info['last_name']
-    publisher = book_info['publisher']
-    year = book_info['year']
-    cover = "/static/images/missing_book_cover.jpg"
-    description = book_info['description']
-    isbn = book_info['isbn']
-
-    return (title, author, publisher, year, cover, description, isbn)
-
-
-def check_copies_available(db, book_id):
-    num_copies = db.execute("""SELECT COUNT (copy.id)
-                               FROM copy
-                               WHERE book_id = ?;
-                               """, (book_id,)).fetchone()[0]
-    active_loans = db.execute("""SELECT COUNT(loan.id)
-                              FROM copy
-                              INNER JOIN loan on loan.copy_id = copy.id
-                              WHERE copy.book_id=? AND loan.returned = 0;""",
-                              (book_id,)).fetchone()[0]
-
-    return num_copies, active_loans
-
-
-from datetime import datetime as dt, timedelta
-
-
-def next_due_back(db, book_id):
-    current_loans = db.execute("""SELECT loan.due_date
-                               FROM copy
-                               INNER JOIN loan on loan.copy_id = copy.id
-                               WHERE copy.book_id=? AND loan.returned = 0;""",
-                               (book_id,)).fetchall()
-
-    due_dates = [l['due_date'] for l in current_loans]
-
-    if len(due_dates) == 1:
-        next_due_back = due_dates[0]
-    else:
-        due_dates_conv = [dt.strptime(due_date, "%d/%m/%y")
-                          for due_date in due_dates]
-        next_due_back = min(due_dates_conv).strftime("%d/%m/%y")
-
-    return next_due_back
-
-
-def find_author_id(db, author_name):
-    names = author_name.split(" ", 1)
-    first_name = names[0]
-    last_name = names[1]
-
-    author_id = db.execute("""SELECT id FROM author WHERE first_name = ?
-                    AND last_name = ?""", (first_name, last_name)).fetchone()
-
-    if author_id:
-        return author_id[0]
-    else:
-        db.execute("""INSERT INTO author(first_name, last_name)
-                   VALUES (?,?)""", (first_name, last_name))
-        author_id = db.execute("""SELECT id FROM author WHERE first_name = ?
-                               AND last_name = ?""",
-                               (first_name, last_name)).fetchone()[0]
-        return author_id
-
-
-def find_book_id(db, title, author_id, isbn, description,
-                 publisher, year):
-    book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
-                         AND isbn=? ;""", (title, author_id, isbn, )
-                         ).fetchall()
-
-    if book_id:
-        return book_id[0]
-    else:
-        db.execute("""INSERT INTO book(title, author_id, isbn, description, publisher, year)
-                   VALUES (?, ?, ?, ?, ?, ?)""", (title, author_id, isbn,
-                   description, publisher, year))
-        book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
-                             AND isbn=?;""", (title, author_id, isbn)
-                             ).fetchone()[0]
-        return book_id
-
-
-def get_user_list(db):
-    user_results = db.execute("""SELECT id FROM user WHERE type = 0;
-                              """).fetchall()
-
-    user_list = []
-
-    for user in user_results:
-        (user_id, user_first_name, user_last_name, user_loan_count,
-         user_loans) = get_user_details(db, user['id'])
-
-        user_name = user_first_name + ' ' + user_last_name
-
-        user_list.append({'user_id': user_id, 'name': user_name,
-                          'loan_count': user_loan_count,
-                          'loans': user_loans})
-
-    return user_list
 
 # Routes
 
@@ -415,21 +253,9 @@ def return_book(db, user_id, book_id):
 
 @get('/user/<user_id>/renew/<book_id>')
 def renew_book(db, user_id, book_id):
-    loan = db.execute("""SELECT loan.id, loan.due_date, copy.hire_period
-                      FROM loan
-                      INNER JOIN copy on copy.id = loan.copy_id
-                      WHERE copy.book_id = ?
-                      AND loan.borrower_id = ? AND returned = 0;""",
-                      (book_id, user_id)).fetchone()
+    loan_id = find_loan_id(db, user_id, book_id)
 
-    loan_id = loan['id']
-    current_due = dt.strptime(loan['due_date'], '%d/%m/%y')
-    hire_period = loan['hire_period']
-    new_due = current_due + timedelta(days=hire_period)
-    new_due_date = new_due.strftime('%d/%m/%y')
-
-    db.execute("""UPDATE loan SET due_date = ? WHERE id = ?;""",
-               (new_due_date, loan_id))
+    renew_loan(loan_id)
 
     redirect(f'/user/{user_id}/book/{book_id}')
 
