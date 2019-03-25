@@ -5,9 +5,6 @@ database_file = 'library_project.db'
 migrations_path = 'migrations/'
 version = '20190325114200'
 
-# Database Seeding
-# import sqlite3
-
 caribou.upgrade(database_file, migrations_path)
 
 # Backend
@@ -78,13 +75,14 @@ def get_book_list(db):
 
 
 def get_search_results(db, search_query):
+    search_pattern = '%' + search_query + '%'
     search_results = db.execute("""SELECT book.id as book_id, book.title as title,
                                 author.first_name as first_name,
                                 author.last_name as last_name
                                 FROM book
                                 INNER JOIN author on author.id = book.author_id
                                 WHERE book.title LIKE ?;""",
-                                (search_query,)).fetchall()
+                                (search_pattern,)).fetchall()
 
     results = [{'id': b['book_id'], 'title': b['title'],
                 'author': b['first_name']
@@ -539,7 +537,8 @@ def view_users(db, user_id):
 
     user_list = get_user_list(db)
 
-    return template('view_users', name=name, user_id=user_id, user_list=user_list)
+    return template('view_users', name=name, user_id=user_id,
+                    user_list=user_list)
 
 
 run(host='localhost', port=8080, debug=True)

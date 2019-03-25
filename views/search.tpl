@@ -7,20 +7,7 @@
             % include('header_bar.tpl')
             % include('visitor_side_bar.tpl')
         <div class="main_page">
-           <p>
-               Search Results for: "{{search_query}}"
-           </p>
-           <div class="search_results">
-               <ul>
-                    % for book in results:
-                        <li>
-                            <a href="/book/{{book['id']}}"><h3>{{book['title']}}</h3></a>
-                            <h4>{{book['author']}}</h4>
-                            <p>{{book['available']}}</p>
-                        </li>
-                    % end 
-               </ul>
-           </div>
+            % include('search_results.tpl', search_query=search_query, results=results)
         </div>
     </body>
 
