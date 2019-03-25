@@ -2,16 +2,17 @@
         <head>
             <title>Library </title>
             <link rel="stylesheet" type="text/css" href="/static/style/global.css">
+            <link rel="stylesheet" type="text/css" href="/static/style/forms.css">
         </head>
     <body>
         % include('librarian_header_bar.tpl')
         % include('librarian_sidebar.tpl')
         <div class="main_page">
-            <h2>Join the Library</h2>
+            <h2>Add Book</h2>
             % if defined('message'):
               <p class="flash">{{ message }}</p>
             % end 
-            <div class = "add_form">
+            <div class = "form">
                 <form action="/librarian/{{user_id}}/add" method="post">
                 <div>
                     <label for="title">Title</label>
@@ -23,7 +24,7 @@
                 </div>
                 <div>
                     <label for="isbn">ISBN</label>
-                    <input type="number" id ="isbn" name="isbn" required=required>                        
+                    <input type="text" id ="isbn" name="isbn" required=required>                        
                 </div>
                 <div>
                     <label for="description">Description</label>
@@ -35,7 +36,7 @@
                 </div>
                 <div>
                     <label for="year">Year</label>
-                    <input type="text" id="year" name="publisher">
+                    <input type="text" id="year" name="year">
                 </div>
                 <div>
                     <label for="hire_period">Hire Period (days)</label>

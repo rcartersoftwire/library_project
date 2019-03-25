@@ -10,6 +10,7 @@
     display: inline-block;
     max-width: calc(100% - 370px);
     padding: 1em;
+    vertical-align: top;
 }
 .book_current_loans{
     max-width: 500px;

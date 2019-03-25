@@ -2,7 +2,7 @@
     <head>
         <title>Library | Join</title>
         <link rel="stylesheet" type="text/css" href="/static/style/global.css">
-        <link rel="stylesheet" type="text/css" href="/static/style/join_library.css">
+        <link rel="stylesheet" type="text/css" href="/static/style/forms.css">
     </head>
     <body>
         % include('header_bar.tpl')
@@ -12,7 +12,7 @@
             % if defined('message'):
               <p class="flash">{{ message }}</p>
             % end 
-            <div class = "join_form">
+            <div class = "form">
                 <form action="/join" method="post">
                 <div>
                     <label for="first_name">First Name</label>

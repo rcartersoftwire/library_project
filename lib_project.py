@@ -150,7 +150,8 @@ def get_search_results(db, search_query):
 def get_book_details(db, id):
     book_info = db.execute("""SELECT book.title as title, book.publisher as publisher,
                            book.year as year, author.first_name as first_name,
-                           author.last_name as last_name
+                           author.last_name as last_name, book.isbn as isbn,
+                           book.description as description
                            FROM book
                            INNER JOIN author ON book.author_id = author.id
                            WHERE book.id = ?""", (id,)).fetchone()
@@ -159,16 +160,10 @@ def get_book_details(db, id):
     publisher = book_info['publisher']
     year = book_info['year']
     cover = "/static/images/missing_book_cover.jpg"
-    description = '''Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                  sed do eiusmod tempor incididunt ut labore et dolore magna
-                  aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                  ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                  Duis aute irure dolor in reprehenderit in voluptate velit
-                  esse cillum dolore eu fugiat nulla pariatur. Excepteur
-                  sint occaecat cupidatat non proident, sunt in culpa qui
-                  officia deserunt mollit anim id est laborum.'''
+    description = book_info['description']
+    isbn = book_info['isbn']
 
-    return (title, author, publisher, year, cover, description)
+    return (title, author, publisher, year, cover, description, isbn)
 
 
 def check_copies_available(db, book_id):
@@ -323,7 +318,7 @@ def librarian_search(db, user_id):
 @get('/book/<book_id>')
 def book_details(db, book_id):
     (title, author, publisher, year, cover,
-     description) = get_book_details(db, book_id)
+     description, isbn) = get_book_details(db, book_id)
 
     copies, copies_loaned = check_copies_available(db, book_id)
     copies_available = copies - copies_loaned
@@ -335,14 +330,14 @@ def book_details(db, book_id):
 
     return template('book_page', title=title, author=author,
                     publisher=publisher, year=year, cover=cover,
-                    description=description, copies=copies,
+                    description=description, isbn=isbn, copies=copies,
                     copies_available=copies_available, next_due=next_due)
 
 
 @get('/user/<user_id>/book/<book_id>')
 def user_book_details(db, user_id, book_id):
     (title, author, publisher, year, cover,
-     description) = get_book_details(db, book_id)
+     description, isbn) = get_book_details(db, book_id)
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans) = get_user_details(db, user_id)
 
@@ -371,7 +366,8 @@ def user_book_details(db, user_id, book_id):
 
     return template('user_book_page', book_id=book_id, title=title,
                     author=author, publisher=publisher, year=year,
-                    cover=cover, description=description, user_id=user_id,
+                    cover=cover, description=description, isbn=isbn,
+                    user_id=user_id,
                     user_first_name=user_first_name,
                     user_last_name=user_last_name,
                     user_loan_count=user_loan_count, user_loans=user_loans,
@@ -383,7 +379,7 @@ def user_book_details(db, user_id, book_id):
 @get('/librarian/<user_id>/book/<book_id>')
 def librarian_book_details(db, user_id, book_id):
     (title, author, publisher, year, cover,
-     description) = get_book_details(db, book_id)
+     description, isbn) = get_book_details(db, book_id)
 
     copies, copies_loaned = check_copies_available(db, book_id)
     copies_available = copies - copies_loaned
@@ -400,7 +396,7 @@ def librarian_book_details(db, user_id, book_id):
 
     return template('librarian_book_page', title=title, author=author,
                     publisher=publisher, year=year, cover=cover,
-                    description=description, copies=copies,
+                    description=description, isbn=isbn, copies=copies,
                     copies_available=copies_available, next_due=next_due,
                     name=name, user_id=user_id)
 
@@ -535,7 +531,7 @@ def add_books(db, user_id):
 def add_book(db, user_id):
     title = request.forms.get('title')
     author_name = request.forms.get('author_name')
-    isbn = request.forms.get('isbn')
+    isbn = int(request.forms.get('isbn'))
     description = request.forms.get('description')
     publisher = request.forms.get('publisher')
     year = request.forms.get('year')
