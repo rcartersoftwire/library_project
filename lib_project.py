@@ -199,7 +199,7 @@ def librarian_book_details(db, user_id, book_id):
                     author=author, publisher=publisher, year=year, cover=cover,
                     description=description, isbn=isbn, copies=copies,
                     copies_available=copies_available, next_due=next_due,
-                    name=name, user_id=user_id)
+                    name=name, user_id=user_id, book_id=book_id)
 
 
 @get('/user/<user_id>/borrow/<book_id>')
