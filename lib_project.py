@@ -295,12 +295,21 @@ def join(db):
 
         redirect(f'/user/{user_id}/home')
 
+@get('/get_username_list/<username>')
+def get_username_list(db, username):
+    username_in_db = db.execute("SELECT id FROM user WHERE username =?",
+                                 (username,)).fetchall() 
+    if username_in_db:
+        return {'nameTaken': True}
+    else:
+        return {'nameTaken': False}
 
 @get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
 
     return template('librarian_pages/add_books', name=name, user_id=user_id)
+
 
 
 @post('/librarian/<user_id>/add')
