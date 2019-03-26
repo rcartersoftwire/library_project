@@ -217,14 +217,7 @@ def return_book(db, user_id, book_id):
 
 @get('/user/<user_id>/renew/<book_id>')
 def renew_book(db, user_id, book_id):
-    loan = db.execute("""SELECT loan.id FROM loan
-                      INNER JOIN copy on copy.id = loan.copy_id
-                      WHERE loan.borrower_id = ?
-                      AND copy.book_id = ?
-                      AND loan.returned = 0;""",
-                      (user_id, book_id)).fetchone()
-
-    loan_id = loan['id']
+    loan_id = find_loan_id(db, user_id, book_id)
 
     renew_loan(db, loan_id)
 
