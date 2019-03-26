@@ -4,6 +4,7 @@ from bottle import (get, post, run, debug, install, request, response,
                     redirect, template, static_file)
 from bottle_utils.flash import message_plugin
 from bottle_sqlite import SQLitePlugin
+from datetime import datetime as dt
 
 # Configuration
 import caribou
@@ -19,7 +20,8 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 from author import (find_author_id)
 from book import (get_book_list, get_book_details, check_copies_available,
                   next_due_back, find_book_id, find_loan_id)
-from user import get_user_details, get_user_list, get_user_past_loans
+from user import (get_user_details, get_user_list, get_user_past_loans,
+                  get_user_join_date)
 from librarian import get_librarian_name
 from loan import get_user_book_details, create_loan, end_loan, renew_loan
 
@@ -264,6 +266,9 @@ def join(db):
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
 
+    now = dt.now()
+    join_date = now.strftime("%d/%m/%y")
+
     username_in_db = db.execute("SELECT id FROM user WHERE username =?",
                                 (username,)).fetchall()
 
@@ -276,9 +281,10 @@ def join(db):
         redirect('/join')
 
     else:
-        db.execute("""INSERT INTO user (first_name, last_name, username, password, type)
-                   VALUES (?, ?, ?, ?, ?);""", (first_name, last_name,
-                   username, password, 0))
+        db.execute("""INSERT INTO user (first_name, last_name, username,
+                   password, type, join_date)
+                   VALUES (?, ?, ?, ?, ?, ?);""", (first_name, last_name,
+                   username, password, 0, join_date))
 
         user_id = db.execute("SELECT id FROM user WHERE username = ?;",
                              (username,)).fetchone()[0]
@@ -345,14 +351,15 @@ def view_users(db, user_id):
 def user_account(db, user_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans) = get_user_details(db, user_id)
-
+    user_join_date = get_user_join_date(db, user_id)
     user_past_loans = get_user_past_loans(db, user_id)
 
     return template('user_pages/user_account', user_id=user_id,
                     user_first_name=user_first_name,
                     user_last_name=user_last_name,
                     user_loan_count=user_loan_count, user_loans=user_loans,
-                    user_past_loans=user_past_loans)
+                    user_past_loans=user_past_loans,
+                    user_join_date=user_join_date)
 
 
 run(host='localhost', port=8080, debug=True)

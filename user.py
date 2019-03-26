@@ -68,3 +68,10 @@ def get_user_past_loans(db, id):
                   for l in past_loan_results]
 
     return past_loans
+
+
+def get_user_join_date(db, id):
+    join_date = db.execute("SELECT join_date FROM user WHERE id =?;",
+                           (id,)).fetchone()[0]
+
+    return join_date

@@ -2,8 +2,7 @@
 
             <h2>{{user_first_name}}'s Account</h2>
 
-            <p>Joined Library DD/MM/YY</p> <!-- Need to actually add a join date column -->
-
+            <p>Joined Library {{user_join_date}}</p>
             <h3>Your Loans</h4>
             % if user_loan_count > 0:
             <table class="user_loans_table">
