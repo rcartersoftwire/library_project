@@ -30,5 +30,3 @@ let loan_panels = userDisplay.getElementsByClassName("user_info");
 for (let i = 0; i < loan_panels.length; i++){
     loan_panels[i].addEventListener("click", handlePanelClick);
 }
-
-alert(loan_panels.length);
