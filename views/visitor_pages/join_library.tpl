@@ -4,6 +4,19 @@
 % if defined('message'):
     <p class="flash">{{ message }}</p>
 % end 
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/static/passwordmatch.js"></script>
+
+  <style>
+  .red {
+    color: red;
+  }
+  .green {
+      color: green;
+  }
+  </style>
+
+
 <div class = "form">
     <form action="/join" method="post">
     <div>
@@ -16,15 +29,18 @@
     </div>
     <div>
         <label for="username">Username</label>
-        <input type="text" id ="username" name="username" required=required>                        
+        <input type="text" id ="new_username" name="username" required=required>                        
     </div>
     <div>
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required=required>
+        <input type="password" id="new_password" name="password" required=required>
     </div>
     <div>
         <label for="conf_password">Confirm Password</label>
-        <input type="password" id="conf_password" name="conf_password" required=required>
+        <input type="password" id="conf_password" name="conf_password" required=required onChange="checkPasswordMatch()">
+    </div>
+    <div class="registrationFormAlert" id="divCheckPasswordMatch">
+        <label id="password_matching_status"></label>
     </div>
     <div>
         <button type="submit" id="join_button">Join</button>
