@@ -33,6 +33,11 @@ html {
     clear: left;
 }
 
+.main_page a{
+    color: inherit;
+    text-decoration: none;
+}
+
 .main_page a:hover {
     text-decoration: underline;
     color: var(--mid-blue);
