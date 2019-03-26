@@ -97,12 +97,12 @@ def find_book_id(db, title, author_id, isbn, description,
 
 
 def find_loan_id(db, user_id, book_id):
-    loan = db.execute("""SELECT loan.id
-                      FROM loan
+    loan = db.execute("""SELECT loan.id FROM loan
                       INNER JOIN copy on copy.id = loan.copy_id
-                      WHERE copy.book_id = ?
-                      AND loan.borrower_id = ? AND returned = 0;""",
-                      (book_id, user_id)).fetchone()
+                      WHERE loan.borrower_id = ?
+                      AND copy.book_id = ?
+                      AND loan.returned = 0;""",
+                      (user_id, book_id)).fetchone()
 
     loan_id = loan['id']
 
