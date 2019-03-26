@@ -4,12 +4,12 @@ from bottle import (get, post, run, debug, install, request, response,
                     redirect, template, static_file)
 from bottle_utils.flash import message_plugin
 from bottle_sqlite import SQLitePlugin
+from datetime import datetime as dt
 
 # Configuration
 import caribou
 database_file = 'library_project.db'
 migrations_path = 'migrations/'
-version = '20190325114200'
 
 caribou.upgrade(database_file, migrations_path)
 
@@ -20,7 +20,8 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 from author import (find_author_id)
 from book import (get_book_list, get_book_details, check_copies_available,
                   next_due_back, find_book_id, find_loan_id)
-from user import get_user_details, get_user_list
+from user import (get_user_details, get_user_list, get_user_past_loans,
+                  get_user_join_date)
 from librarian import get_librarian_name
 from loan import get_user_book_details, create_loan, end_loan, renew_loan
 
@@ -220,7 +221,7 @@ def return_book(db, user_id, book_id):
 def renew_book(db, user_id, book_id):
     loan_id = find_loan_id(db, user_id, book_id)
 
-    renew_loan(loan_id)
+    renew_loan(db, loan_id)
 
     redirect(f'/user/{user_id}/book/{book_id}')
 
@@ -265,9 +266,16 @@ def join(db):
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
 
+    now = dt.now()
+    join_date = now.strftime("%d/%m/%y")
+
     username_in_db = db.execute("SELECT id FROM user WHERE username =?",
                                 (username,)).fetchall()
 
+    if len(password) < 8:
+        response.flash("Password must be at least 8 characters")
+        redirect('/join')
+        
     if password != conf_password:
         response.flash("Your passwords do not match")
         redirect('/join')
@@ -277,9 +285,10 @@ def join(db):
         redirect('/join')
 
     else:
-        db.execute("""INSERT INTO user (first_name, last_name, username, password, type)
-                   VALUES (?, ?, ?, ?, ?);""", (first_name, last_name,
-                   username, password, 0))
+        db.execute("""INSERT INTO user (first_name, last_name, username,
+                   password, type, join_date)
+                   VALUES (?, ?, ?, ?, ?, ?);""", (first_name, last_name,
+                   username, password, 0, join_date))
 
         user_id = db.execute("SELECT id FROM user WHERE username = ?;",
                              (username,)).fetchone()[0]
@@ -299,11 +308,11 @@ def add_books(db, user_id):
 
 @get('/librarian/<user_id>/remove/<book_id>')
 def remove_books(db, user_id, book_id):
-    print (book_id)
-    print (user_id)
-    print ('removing books')
+    print(book_id)
+    print(user_id)
+    print('removing books')
     db.execute("""DELETE FROM copy WHERE book_id = ?;""", (book_id,))
-    db.execute("""DELETE FROM book WHERE id = ?;""",(book_id,))
+    db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
     redirect(f'/librarian/{user_id}/home')
 
 
@@ -340,6 +349,21 @@ def view_users(db, user_id):
 
     return template('librarian_pages/view_users', name=name, user_id=user_id,
                     user_list=user_list)
+
+
+@get('/user/<user_id>/account')
+def user_account(db, user_id):
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans) = get_user_details(db, user_id)
+    user_join_date = get_user_join_date(db, user_id)
+    user_past_loans = get_user_past_loans(db, user_id)
+
+    return template('user_pages/user_account', user_id=user_id,
+                    user_first_name=user_first_name,
+                    user_last_name=user_last_name,
+                    user_loan_count=user_loan_count, user_loans=user_loans,
+                    user_past_loans=user_past_loans,
+                    user_join_date=user_join_date)
 
 
 run(host='localhost', port=8080, debug=True)

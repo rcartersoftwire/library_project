@@ -2,5 +2,6 @@
 *.db
 .vscode/
 *.exe
-*.pyc
-src/
+__pycache__/
+*.py[cod]
+*$py.class

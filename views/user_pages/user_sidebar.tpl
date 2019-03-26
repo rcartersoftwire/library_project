@@ -6,7 +6,7 @@
     </div>
     <div class="sidebar_links">
         <ul>
-            <li><a href="/user/{{user_id}}/my_account">My Account</a></li>
+            <li><a href="/user/{{user_id}}/account">My Account</a></li>
             <li><a href="/logout">Log Out</a></li>
         </ul>
     </div>

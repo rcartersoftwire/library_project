@@ -32,7 +32,7 @@ def get_user_details(db, id):
 
 
 def get_user_list(db):
-    user_results = db.execute("""SELECT id FROM user WHERE type = 0;
+    user_results = db.execute("""SELECT id FROM user WHERE type = 0 ORDER BY last_name;
                               """).fetchall()
 
     user_list = []
@@ -48,3 +48,30 @@ def get_user_list(db):
                           'loans': user_loans})
 
     return user_list
+
+
+def get_user_past_loans(db, id):
+    past_loan_results = db.execute("""SELECT book.id as book_id, book.title as title,
+                                   author.first_name as first_name,
+                                   author.last_name as last_name,
+                                   loan.due_date as due_date
+                                   FROM loan
+                                   INNER JOIN copy on copy.id = loan.copy_id
+                                   INNER JOIN book on book.id = copy.book_id
+                                   INNER JOIN author on
+                                   author.id = book.author_id
+                                   WHERE loan.borrower_id = ? AND
+                                   loan.returned = 1;""", (id,))
+
+    past_loans = [{'book_id': l['book_id'], 'title': l['title'],
+                  'author': l['first_name'] + ' ' + l['last_name']}
+                  for l in past_loan_results]
+
+    return past_loans
+
+
+def get_user_join_date(db, id):
+    join_date = db.execute("SELECT join_date FROM user WHERE id =?;",
+                           (id,)).fetchone()[0]
+
+    return join_date
