@@ -45,3 +45,18 @@
     color: inherit;
     text-decoration: none;
 }
+
+.librarian_book_details .book_details{
+    max-width: calc(100% - 375px);
+    min-width: calc(100% - 400px);
+}
+.librarian_book_options {
+    display: inline-block;
+    max-width: 200px;
+    vertical-align: top;
+    margin-top: 3em;
+}
+.librarian_book_options ul {
+    list-style-type: none;
+    padding: 0;
+}

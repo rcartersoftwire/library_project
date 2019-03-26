@@ -35,7 +35,7 @@ def get_book_details(db, id):
                            INNER JOIN author ON book.author_id = author.id
                            WHERE book.id = ?""", (id,)).fetchone()
     title = book_info['title']
-    author = book_info['first_name'] + ' ' + book_info['last_name']
+    author = f"{book_info['first_name']} {book_info['last_name']}"
     publisher = book_info['publisher']
     year = book_info['year']
     cover = "/static/images/missing_book_cover.jpg"

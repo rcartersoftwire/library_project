@@ -298,22 +298,9 @@ def join(db):
 
 @get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
-    libr_names = db.execute("""SELECT first_name, last_name FROM  user
-                            WHERE id = ?;""", (user_id,)).fetchone()
-
-    name = libr_names['first_name'] + ' ' + libr_names['last_name']
+    name = get_librarian_name(db, user_id)
 
     return template('librarian_pages/add_books', name=name, user_id=user_id)
-
-
-@get('/librarian/<user_id>/remove/<book_id>')
-def remove_books(db, user_id, book_id):
-    print(book_id)
-    print(user_id)
-    print('removing books')
-    db.execute("""DELETE FROM copy WHERE book_id = ?;""", (book_id,))
-    db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
-    redirect(f'/librarian/{user_id}/home')
 
 
 @post('/librarian/<user_id>/add')
@@ -336,6 +323,44 @@ def add_book(db, user_id):
                VALUES (?, ?, ?);""", (book_id, location, hire_period))
 
     redirect(f'/librarian/{user_id}/home')
+
+@get('/librarian/<user_id>/remove/<book_id>')
+def remove_books(db, user_id, book_id):
+    print(book_id)
+    print(user_id)
+    print('removing books')
+    db.execute("""DELETE FROM copy WHERE book_id = ?;""", (book_id,))
+    db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
+    redirect(f'/librarian/{user_id}/home')
+
+
+@get('/librarian/<user_id>/edit/<book_id>')
+def edit_book(db, user_id, book_id):
+    name = get_librarian_name(db, user_id)
+
+    (title, author, publisher, year, cover, description,
+     isbn) = get_book_details(db, book_id)
+
+    return template('librarian_pages/edit_book', user_id=user_id, name=name,
+                    title=title, author=author, publisher=publisher, year=year,
+                    cover=cover, description=description, isbn=isbn,
+                    book_id=book_id)
+
+
+@post('/librarian/<user_id>/edit')
+def edit_book_details(db, user_id):
+    book_id = request.forms.get('book_id')
+    description = request.forms.get('description')
+    publisher = request.forms.get('publisher')
+    year = request.forms.get('year')
+
+    db.execute("""UPDATE book SET
+               description = ?,
+               publisher = ?,
+               year = ?
+               WHERE id = ?;""", (description, publisher, year, book_id))
+
+    redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
 @get('/librarian/<user_id>/users/view')
