@@ -9,7 +9,6 @@ from bottle_sqlite import SQLitePlugin
 import caribou
 database_file = 'library_project.db'
 migrations_path = 'migrations/'
-version = '20190325114200'
 
 caribou.upgrade(database_file, migrations_path)
 
