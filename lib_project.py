@@ -198,7 +198,7 @@ def librarian_book_details(db, user_id, book_id):
                     author=author, publisher=publisher, year=year, cover=cover,
                     description=description, isbn=isbn, copies=copies,
                     copies_available=copies_available, next_due=next_due,
-                    name=name, user_id=user_id)
+                    name=name, user_id=user_id, book_id=book_id)
 
 
 @get('/user/<user_id>/borrow/<book_id>')
@@ -301,6 +301,16 @@ def add_books(db, user_id):
     name = libr_names['first_name'] + ' ' + libr_names['last_name']
 
     return template('librarian_pages/add_books', name=name, user_id=user_id)
+
+
+@get('/librarian/<user_id>/remove/<book_id>')
+def remove_books(db, user_id, book_id):
+    print (book_id)
+    print (user_id)
+    print ('removing books')
+    db.execute("""DELETE FROM copy WHERE book_id = ?;""", (book_id,))
+    db.execute("""DELETE FROM book WHERE id = ?;""",(book_id,))
+    redirect(f'/librarian/{user_id}/home')
 
 
 @post('/librarian/<user_id>/add')

@@ -2,6 +2,6 @@
 *.db
 .vscode/
 *.exe
-
 __pycache__/
 *.pyc
+src/
