@@ -107,3 +107,10 @@ def find_loan_id(db, user_id, book_id):
     loan_id = loan['id']
 
     return loan_id
+
+
+def insert_copy(db, book_id, hire_period, location):
+    db.execute("""INSERT INTO copy(book_id, location, hire_period)
+               VALUES (?, ?, ?);""", (book_id, location, hire_period))
+
+    return

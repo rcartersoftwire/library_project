@@ -19,7 +19,7 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 # Functions
 from author import (find_author_id)
 from book import (get_book_list, get_book_details, check_copies_available,
-                  next_due_back, find_book_id, find_loan_id)
+                  next_due_back, find_book_id, find_loan_id, insert_copy)
 from user import (get_user_details, get_user_list, get_user_past_loans,
                   get_user_join_date)
 from librarian import get_librarian_name
@@ -319,10 +319,10 @@ def add_book(db, user_id):
     book_id = find_book_id(db, title, author_id, isbn, description,
                            publisher, year)
 
-    db.execute("""INSERT INTO copy(book_id, location, hire_period)
-               VALUES (?, ?, ?);""", (book_id, location, hire_period))
+    insert_copy(db, book_id, hire_period, location)
 
     redirect(f'/librarian/{user_id}/home')
+
 
 @get('/librarian/<user_id>/remove/<book_id>')
 def remove_books(db, user_id, book_id):
@@ -362,6 +362,15 @@ def edit_book_details(db, user_id):
 
     redirect(f'/librarian/{user_id}/book/{book_id}')
 
+
+@post('/librarian/<user_id>/add_copy')
+def add_copy(db, user_id):
+    book_id = request.forms.get('book_id')
+    hire_period = request.forms.get('hire_period')
+    location = request.forms.get('location')
+
+    insert_copy(db, book_id, hire_period, location)
+    redirect(f'/librarian/{user_id}/book/{book_id}')
 
 @get('/librarian/<user_id>/users/view')
 def view_users(db, user_id):

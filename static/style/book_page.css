@@ -60,3 +60,11 @@
     list-style-type: none;
     padding: 0;
 }
+
+.add_copy_container .form{
+    display: none;
+    padding: 0.5em;
+}
+ .active .form{
+    display: block;
+}
