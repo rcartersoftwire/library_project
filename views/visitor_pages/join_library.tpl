@@ -39,8 +39,7 @@
         <label for="conf_password">Confirm Password</label>
         <input type="password" id="conf_password" name="conf_password" required=required onChange="checkPasswordMatch()">
     </div>
-    <div class="registrationFormAlert" id="divCheckPasswordMatch">
-        <label id="password_matching_status"></label>
+    <div class="registrationFormAlert" id="divCheckPassword">
     </div>
     <div>
         <button type="submit" id="join_button">Join</button>
