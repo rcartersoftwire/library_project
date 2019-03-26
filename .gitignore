@@ -2,3 +2,4 @@
 *.db
 .vscode/
 *.exe
+*.pyc
