@@ -308,9 +308,6 @@ def add_books(db, user_id):
 
 @get('/librarian/<user_id>/remove/<book_id>')
 def remove_books(db, user_id, book_id):
-    print(book_id)
-    print(user_id)
-    print('removing books')
     db.execute("""DELETE FROM copy WHERE book_id = ?;""", (book_id,))
     db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
     redirect(f'/librarian/{user_id}/home')

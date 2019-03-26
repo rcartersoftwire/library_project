@@ -5,6 +5,14 @@
 % if defined('message'):
     <p class="flash">{{ message }}</p>
 % end 
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/static/authorword.js"></script>
+
+<style>
+  .red {
+    color: red;
+  }
+</style>
 
 <div class = "form">
     <form action="/librarian/{{user_id}}/add" method="post">
@@ -14,7 +22,7 @@
     </div>
     <div>
         <label for="author_name">Author Name</label>
-        <input type="text" id="author_name" name="author_name" required=required>
+        <input type="text" id="author_name" name="author_name" required=required onChange="checkAuthorName()">
     </div>
     <div>
         <label for="isbn">ISBN</label>
@@ -43,6 +51,8 @@
             <option value=1>Downstairs</option>
             <option value=2>Upstairs</option>
         </select>
+    </div>
+    <div class="registrationFormAlert" id="divCheckAuthor">
     </div>
     <div>
         <button type="submit" id="add_book_button">Add</button>
