@@ -1,6 +1,10 @@
+@import "header.css";
+@import "sidebar.css";
 @import "book_display.css";
 @import "book_page.css";
 @import "forms.css";
+@import "user_list.css";
+@import "user_account.css";
 
 :root {
     --text-color: #030303;
@@ -21,148 +25,6 @@ html {
     color: var(--text-color);
 }
 
-/* Header Styling */
-.header_bar {
-    width: 78%;
-    float:left;
-    padding: 1.5em;
-    height: 125px;
-}
-
-.logo_container {
-    width: 30%;
-    display: inline-block;
-    height: 100%;
-}
-#logo {
-    max-height: 90px;
-    margin: 0.2em 0;
-    float: left;
-}
-.logo_container h1{
-    font-size: 1.8em;
-    font-weight: normal;
-    font-variant: small-caps;
-    padding: 0.2em;
-    margin: 0;
-    margin-top: 0.4em;
-    color: var(--text-color);
-    display: inline-block;
-}
-
-.search_container {
-    display: inline-block;
-    width: 65%;
-    height: 100%;
-}
-.search_bar {
-    height: 2em;
-    border: var(--dark-blue) 1.2px solid;
-    border-radius: 2.5px;
-    margin-top: 1em;
-}
-
-.search_bar #search_input{
-    width: 85%;
-    height: 100%;
-    border: none;
-    padding: 0.8em;
-    font-size: 1em;
-    color: var(--text-color-transparent);
-    opacity: 0.8;
-}
-
-.search_bar #search_button{
-    height: 100%;
-    border: none;
-    background-color: var(--mid-blue);
-    color: var(--sidebar-text-color);
-    float: right;
-    font-size: 1.1em;
-    letter-spacing: 0.12em;
-    font-variant: small-caps;
-}
-
-/* Sidebar Styling */
-
-.side_bar {
-    width: 20%;
-    float: right;
-    padding: 1.5em;
-    height: 100%;
-    margin: 0;
-    background-color: var(--mid-blue);
-    color: var(--sidebar-text-color);
-    position: relative;
-}
-
-.login_container {
-    margin-bottom: 1em;
-}
-
-.login_container div{
-    margin-top: 0.5em;
-    width: 100%;
-}
-
-.login_container label {
-    width: 30%;
-    display: inline-block;
-}
-
-.login_container input{
-    width: 65%;
-    display: inline-block;
-    background-color: inherit;
-    border: none;
-    border-bottom: var(--sidebar-text-color) 1.1px solid;
-    color: var(--sidebar-text-color);
-}
-
-.login_container button {
-    float: right;
-    background-color: transparent;
-    border: none;  
-    color: var(--sidebar-text-color);
-}
-
-.login_container button:hover {
-    text-decoration: underline;
-}
-
-.sidebar_links {
-    font-variant: small-caps;
-}
-
-.side_bar ul{
-    padding: 1em;
-    margin: 2em 0;
-}
-
-.side_bar a {
-    text-decoration: none;
-    color: var(--sidebar-text-color);
-}
-
-.side_bar a:hover {
-    text-decoration: underline;
-}
-
-.library_info {
-    width: 90%;
-    position: absolute;
-    padding: 1em 0;
-    bottom: 0;
-    text-align: center;
-}
-
-.library_info h3, .library_info p {
-    margin: 0.5em 0;
-}
-
-.library_info h3 {
-    font-variant: small-caps;
-}
 /* Main page styling */
 .main_page {
     width: 78%;
@@ -180,42 +42,8 @@ h2 {
     font-variant: small-caps;
     font-weight: normal;
 }
-/* Search Results */
 
-.search_results ul{
-    list-style-type: none;
-    padding: 1em;
-}
-
-.search_results li{
-    margin-bottom: 1em;
-}
-
-.search_results h3, .search_results h4, .search_results p {
-    margin: 0.2em;
-}
-
-.search_results a {
-    color: var(--text-color);
-    text-decoration: none;
-}
-
-/* User List */
-
-.user_info {
-    padding: 0.5em;
-}
-
-.user_info h3 {
+h3 {
     font-variant: small-caps;
-}
-
-.user_loan_details ul{
-    list-style-type: none;
-    padding: 0.1em;
-}
-
-.user_loan_details a{
-    color: inherit;
-    text-decoration: none;
+    font-weight: normal;
 }

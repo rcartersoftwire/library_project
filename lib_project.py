@@ -20,7 +20,7 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 from author import (find_author_id)
 from book import (get_book_list, get_book_details, check_copies_available,
                   next_due_back, find_book_id, find_loan_id)
-from user import get_user_details, get_user_list
+from user import get_user_details, get_user_list, get_user_past_loans
 from librarian import get_librarian_name
 from loan import get_user_book_details, create_loan, end_loan, renew_loan
 
@@ -330,6 +330,20 @@ def view_users(db, user_id):
 
     return template('librarian_pages/view_users', name=name, user_id=user_id,
                     user_list=user_list)
+
+
+@get('/user/<user_id>/account')
+def user_account(db, user_id):
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans) = get_user_details(db, user_id)
+
+    user_past_loans = get_user_past_loans(db, user_id)
+
+    return template('user_pages/user_account', user_id=user_id,
+                    user_first_name=user_first_name,
+                    user_last_name=user_last_name,
+                    user_loan_count=user_loan_count, user_loans=user_loans,
+                    user_past_loans=user_past_loans)
 
 
 run(host='localhost', port=8080, debug=True)

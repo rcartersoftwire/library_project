@@ -1,0 +1,17 @@
+.user_loans_table {
+    max-width: 90%;
+    
+}
+
+.user_loans_table th{
+    text-align: left;
+    font-weight: normal;
+    font-variant: small-caps;
+    font-size: 1.1em;
+    min-width: 300px;
+}
+
+.user_loans_table td a{
+    color: inherit;
+    text-decoration: none;
+}

@@ -1,0 +1,19 @@
+/* User List */
+
+.user_info {
+    padding: 0.5em;
+}
+
+.user_info h3 {
+    font-variant: small-caps;
+}
+
+.user_loan_details ul{
+    list-style-type: none;
+    padding: 0.1em;
+}
+
+.user_loan_details a{
+    color: inherit;
+    text-decoration: none;
+}

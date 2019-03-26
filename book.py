@@ -82,7 +82,7 @@ def find_book_id(db, title, author_id, isbn, description,
                  publisher, year):
     book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
                          AND isbn=? ;""", (title, author_id, isbn, )
-                         ).fetchall()
+                         ).fetchone()
 
     if book_id:
         return book_id[0]

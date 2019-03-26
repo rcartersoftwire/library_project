@@ -1,0 +1,80 @@
+/* Sidebar Styling */
+
+.side_bar {
+    width: 20%;
+    float: right;
+    padding: 1.5em;
+    height: 100%;
+    margin: 0;
+    background-color: var(--mid-blue);
+    color: var(--sidebar-text-color);
+    position: relative;
+}
+
+.login_container {
+    margin-bottom: 1em;
+}
+
+.login_container div{
+    margin-top: 0.5em;
+    width: 100%;
+}
+
+.login_container label {
+    width: 30%;
+    display: inline-block;
+}
+
+.login_container input{
+    width: 65%;
+    display: inline-block;
+    background-color: inherit;
+    border: none;
+    border-bottom: var(--sidebar-text-color) 1.1px solid;
+    color: var(--sidebar-text-color);
+}
+
+.login_container button {
+    float: right;
+    background-color: transparent;
+    border: none;  
+    color: var(--sidebar-text-color);
+}
+
+.login_container button:hover {
+    text-decoration: underline;
+}
+
+.sidebar_links {
+    font-variant: small-caps;
+}
+
+.side_bar ul{
+    padding: 1em;
+    margin: 2em 0;
+}
+
+.side_bar a {
+    text-decoration: none;
+    color: var(--sidebar-text-color);
+}
+
+.side_bar a:hover {
+    text-decoration: underline;
+}
+
+.library_info {
+    width: 90%;
+    position: absolute;
+    padding: 1em 0;
+    bottom: 0;
+    text-align: center;
+}
+
+.library_info h3, .library_info p {
+    margin: 0.5em 0;
+}
+
+.library_info h3 {
+    font-variant: small-caps;
+}
