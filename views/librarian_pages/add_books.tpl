@@ -35,7 +35,7 @@
     </div>
     <div>
         <label for="hire_period">Hire Period (days)</label>
-        <input type="number" id="hire_period" name="hire_period" required=required  value=14 min="1" max="21">
+        <input type="number" id="hire_period" name="hire_period" value="14" required=required min="1" max="21">
     </div>
     <div>
         <label for="location">Location</label>

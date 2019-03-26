@@ -55,7 +55,8 @@ def end_loan(db, user_id, book_id):
 
 def renew_loan(db, loan_id):
     loan = db.execute("""SELECT due_date,  hire_period FROM loan
-                      WHERE id = ?""", (loan_id,)).fetchone()
+                      INNER JOIN copy on copy.id = loan.copy_id
+                      WHERE loan.id = ?""", (loan_id,)).fetchone()
 
     current_due = dt.strptime(loan['due_date'], '%d/%m/%y')
     hire_period = loan['hire_period']
