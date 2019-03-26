@@ -7,13 +7,15 @@
 .user_info h3 {
     font-variant: small-caps;
 }
+.loan_details{
+    display: none;
+}
 
-.user_loan_details ul{
+.active .loan_details{
+    display: block;
+}
+.loan_details ul{
     list-style-type: none;
     padding: 0.1em;
 }
 
-.user_loan_details a{
-    color: inherit;
-    text-decoration: none;
-}
