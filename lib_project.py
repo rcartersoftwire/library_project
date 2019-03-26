@@ -272,6 +272,10 @@ def join(db):
     username_in_db = db.execute("SELECT id FROM user WHERE username =?",
                                 (username,)).fetchall()
 
+    if len(password) < 8:
+        response.flash("Password must be at least 8 characters")
+        redirect('/join')
+        
     if password != conf_password:
         response.flash("Your passwords do not match")
         redirect('/join')

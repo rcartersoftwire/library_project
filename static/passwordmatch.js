@@ -2,12 +2,24 @@ function checkPasswordMatch() {
     var password = $("#new_password").val();
     var confirmPassword = $("#conf_password").val();
     if (password != confirmPassword){
-        $("#divCheckPasswordMatch").html("<span class='red'><b>Passwords do not Match!</b></span>");
+        $("#divCheckPassword").html("<span class='red'><b>Passwords do not Match!</b></span>");
+        document.getElementById("join_button").disabled = true;
     }else{
-        $("#divCheckPasswordMatch").html("<span class='green'><b>Passwords Match!</b></span>");
+        $("#divCheckPassword").html("<span class='green'><b>Passwords Match!</b></span>");
+        document.getElementById("join_button").disabled = false;
+    }
+    checkPasswordLength();
+}
+
+function checkPasswordLength() {
+    var password = $("#new_password").val();
+    if (password.length < 8){
+        $("#divCheckPassword").html("<span class='red'><b>Passwords too short!</b></span>");
+        document.getElementById("join_button").disabled = true;
     }
 }
 
+
 $(document).ready(function () {
-   $("#password, #conf_password").keyup(checkPasswordMatch);
+   $("#new_password, #conf_password").keyup(checkPasswordMatch);
 });
