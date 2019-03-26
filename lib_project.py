@@ -295,6 +295,14 @@ def join(db):
 
         redirect(f'/user/{user_id}/home')
 
+@get('/get_username_list/<username>')
+def get_username_list(db, username):
+    username_in_db = db.execute("SELECT id FROM user WHERE username =?",
+                                 (username,)).fetchall() 
+    if username_in_db:
+        return {'nameTaken': True}
+    else:
+        return {'nameTaken': False}
 
 @get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
