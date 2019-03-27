@@ -118,11 +118,14 @@ def user_search(db, id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans) = get_user_details(db, id)
 
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count, 
+                loans=user_loans)
+
     return template('user_pages/user_search', search_query=search_query,
-                    results=results, user_id=user_id,
-                    user_first_name=user_first_name,
-                    user_last_name=user_last_name,
-                    user_loan_count=user_loan_count, user_loans=user_loans)
+                    results=results, user=user)
 
 
 @post('/librarian/<user_id>/search')
