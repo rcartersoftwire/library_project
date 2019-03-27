@@ -366,7 +366,7 @@ def add_book(db, user_id):
 
         cover_path = '/' + cover_save_path + '/' + cover.filename
     else:
-        cover_path = ""
+        cover_path = "/static/images/missing_book_cover.jpg"
     book_id = find_book_id(db, title, author_id, isbn, description,
                            publisher, year, cover_path)
 
@@ -444,7 +444,6 @@ def edit_book_details(db, user_id):
                       WHERE id = ?;""", (description, publisher, year,
                                          cover_path, book_id))
     else:
-        print("no")
         db.execute("""UPDATE book SET
                 description = ?,
                 publisher = ?,
