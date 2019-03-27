@@ -334,7 +334,6 @@ def add_book(db, user_id):
         redirect('/librarian/<user_id>/add')
 
     cover_save_path = get_cover_save_path(title, author_name)
-    print(cover_save_path)
 
     cover.save(cover_save_path)
 
@@ -376,16 +375,40 @@ def edit_book(db, user_id, book_id):
 @post('/librarian/<user_id>/edit')
 def edit_book_details(db, user_id):
     book_id = request.forms.get('book_id')
+    title = request.forms.get('title')
+    author_name = request.forms.get('author_name')
     description = request.forms.get('description')
     publisher = request.forms.get('publisher')
     year = request.forms.get('year')
 
-    db.execute("""UPDATE book SET
-               description = ?,
-               publisher = ?,
-               year = ?
-               WHERE id = ?;""", (description, publisher, year, book_id))
+    cover = request.files.get('cover')
+    if cover:
+        name, ext = os.path.splitext(cover.filename)
 
+        if ext not in ('.png', '.jpg', '.jpeg'):
+            response.flash('File extension not allowed. Add Book failed')
+            redirect('/librarian/<user_id>/add')
+
+        cover_save_path = get_cover_save_path(title, author_name)
+
+        cover.save(cover_save_path)
+
+        cover_path = '/' + cover_save_path + '/' + cover.filename
+
+        db.execute("""UPDATE book SET
+                      description = ?,
+                      publisher = ?,
+                      year = ?,
+                      cover = ?
+                      WHERE id = ?;""", (description, publisher, year,
+                                         cover_path, book_id))
+    else:
+        print("no")
+        db.execute("""UPDATE book SET
+                description = ?,
+                publisher = ?,
+                year = ?
+                WHERE id = ?;""", (description, publisher, year, book_id))
     redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
