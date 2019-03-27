@@ -6,6 +6,7 @@
 % end 
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="/static/passwordmatch.js"></script>
+<script type="text/javascript" src="/static/usernamematch.js"></script>
 
   <style>
   .red {
@@ -29,7 +30,7 @@
     </div>
     <div>
         <label for="username">Username</label>
-        <input type="text" id ="new_username" name="username" required=required>                        
+        <input type="text" id ="new_username" name="username" required=required onfocusout="checkUsernameMatch()">                        
     </div>
     <div>
         <label for="password">Password</label>
@@ -39,8 +40,8 @@
         <label for="conf_password">Confirm Password</label>
         <input type="password" id="conf_password" name="conf_password" required=required onChange="checkPasswordMatch()">
     </div>
-    <div class="registrationFormAlert" id="divCheckPassword">
-    </div>
+    <div class="registrationFormAlert" id="divCheckUsername"></div>
+    <div class="registrationFormAlert" id="divCheckPassword"></div>
     <div>
         <button type="submit" id="join_button">Join</button>
     </div>

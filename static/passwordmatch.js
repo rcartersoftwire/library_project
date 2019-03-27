@@ -14,7 +14,7 @@ function checkPasswordMatch() {
 function checkPasswordLength() {
     var password = $("#new_password").val();
     if (password.length < 8){
-        $("#divCheckPassword").html("<span class='red'><b>Passwords too short!</b></span>");
+        $("#divCheckPassword").html("<span class='red'><b>Password needs to have at least 8 characters!</b></span>");
         document.getElementById("join_button").disabled = true;
     }
 }
