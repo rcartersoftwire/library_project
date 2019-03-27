@@ -341,17 +341,21 @@ def add_book(db, user_id):
     hire_period = request.forms.get('hire_period')
 
     cover = request.files.get('cover')
-    name, ext = os.path.splitext(cover.filename)
+    try:
+        name, ext = os.path.splitext(cover.filename)
 
-    if ext not in ('.png', '.jpg', '.jpeg'):
-        response.flash('File extension not allowed. Add Book failed')
-        redirect('/librarian/<user_id>/add')
+        if ext not in ('.png', '.jpg', '.jpeg'):
+            response.flash('File extension not allowed. Add Book failed')
+            redirect('/librarian/<user_id>/add')
 
-    cover_save_path = get_cover_save_path(title, author_name)
+        cover_save_path = get_cover_save_path(title, author_name)
 
-    cover.save(cover_save_path)
+        cover.save(cover_save_path)
 
-    cover_path = '/' + cover_save_path + '/' + cover.filename
+        cover_path = '/' + cover_save_path + '/' + cover.filename
+
+    except AttributeError:
+        cover_path = '/static/images/missing_book_cover.jpg'
 
     author_id = find_author_id(db, author_name)
 
