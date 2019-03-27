@@ -21,3 +21,11 @@
     </div>
     % include('copy_book_details.tpl', copy_availability_details=copy_availability_details)
         
+<div>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <input type="hidden" id="book_id" value={{book_id}}>
+    <script type="text/javascript" src="/static/book_location.js"></script>
+    <div class="bookLocation" id="divBookLocation">
+    </div>
+</div>
+        
