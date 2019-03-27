@@ -93,12 +93,12 @@ def find_book_id(db, title, author_id, isbn, description,
     if book_id:
         return book_id[0]
     else:
-        book_id = db.execute("""INSERT INTO book(title, author_id, isbn, description, publisher, year, cover)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""", (title, author_id, isbn,
-                   description, publisher, year, cover_save_path)).lastrowid
-        # book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
-                            #  AND isbn=?;""", (title, author_id, isbn)
-                            #  ).fetchone()[0]
+        book_id = db.execute("""INSERT INTO book(title, author_id, isbn,
+                             description, publisher, year, cover)
+                             VALUES (?, ?, ?, ?, ?, ?, ?)""", (title,
+                             author_id, isbn,
+                             description, publisher, year,
+                             cover_save_path)).lastrowid
         return book_id
 
 

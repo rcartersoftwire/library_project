@@ -5,7 +5,7 @@
     <div class="librarian_book_options">
         <ul>
             <li><a href="/librarian/{{user_id}}/edit/{{book_id}}">Edit Book</a></li>
-            <li><a href="/librarian/{{user_id}}/remove/{{book_id}}">Remove Book</a></li>
+            <li><a href="/librarian/{{user_id}}/remove/{{book_id}}">Remove a Copy</a></li>
             <li id="add_copy_option">Add a Copy</li>
                 <div class="add_copy_container">
                     <form class="form" action="/librarian/{{user_id}}/add_copy" method="POST">
@@ -32,3 +32,10 @@
 </div>
 % include('copy_book_details.tpl', copies=copies,
 %         copies_available=copies_available, next_due=next_due )
+<div>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <input type="hidden" id="book_id" value={{book_id}}>
+    <script type="text/javascript" src="/static/book_loan_detail.js"></script>
+    <div class="loan_list" id="divLoanDetails">
+    </div>
+</div>

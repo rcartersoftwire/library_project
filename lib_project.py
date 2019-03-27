@@ -315,6 +315,20 @@ def add_books(db, user_id):
     return template('librarian_pages/add_books', name=name, user_id=user_id)
 
 
+@get('/get_loan_list/<book_id>')
+def get_loan_list(db, book_id):
+    borrower_list = db.execute("""SELECT first_name, last_name FROM loan
+                               JOIN copy on copy_id=copy.id
+                               JOIN user on borrower_id=user.id
+                               HERE book_id = ?""",
+                               (book_id,)).fetchall()
+
+    list_of_borrowers = [x['first_name']+' '+x['last_name']
+                         for x in borrower_list]
+
+    return {'borrower_names': list_of_borrowers}
+
+
 @post('/librarian/<user_id>/add')
 def add_book(db, user_id):
     title = request.forms.get('title').strip()
@@ -350,13 +364,28 @@ def add_book(db, user_id):
 
 
 @get('/librarian/<user_id>/remove/<book_id>')
-def remove_books(db, user_id, book_id):
-    print(book_id)
-    print(user_id)
-    print('removing books')
-    db.execute("""DELETE FROM copy WHERE book_id = ?;""", (book_id,))
-    db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
-    redirect(f'/librarian/{user_id}/home')
+def remove_copy(db, user_id, book_id):
+    # Find one copy ID to be removed
+    result = db.execute("""SELECT id FROM copy where book_id = ?;""",
+                        (book_id,)).fetchone()
+    copy_id = result['id']
+
+    # Remove associated child loans
+    db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
+
+    # Remove book if last copy
+    num_copies = db.execute("""SELECT COUNT (copy.id)
+                               FROM copy
+                               WHERE book_id = ?;
+                               """, (book_id,)).fetchone()[0]
+
+    db.execute("""DELETE FROM copy WHERE id = ?;""", (copy_id,))
+    if num_copies == 1:
+        db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
+        redirect(f'/librarian/{user_id}/home')
+        return
+
+    redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
 @get('/librarian/<user_id>/edit/<book_id>')
