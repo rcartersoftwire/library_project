@@ -289,7 +289,7 @@ def get_username_list(db, username):
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/add_books', name=name, user_id=user_id, message=request.message)
+    return template('librarian_pages/add_books', name=name, user_id=user_id)
 
 
 @get('/get_loan_list/<book_id>')
@@ -336,7 +336,7 @@ def get_book_location(db, book_id):
 def add_book(db, user_id):
     title = request.forms.get('title').strip()
     author_name = request.forms.get('author_name').strip()
-    isbn = request.forms.get('isbn')
+    isbn = request.forms.get('isbn').strip()
     description = request.forms.get('description').strip()
     publisher = request.forms.get('publisher').strip()
     year = request.forms.get('year')
@@ -347,30 +347,32 @@ def add_book(db, user_id):
     valid_isbn, isbn_message = check_isbn(db, isbn, title, author_id)
 
     if not valid_isbn:
-        response.flash(isbn_message)
+        print(isbn_message)
         redirect(f'/librarian/{user_id}/books/add')
 
     isbn = int(isbn)
 
     cover = request.files.get('cover')
-    name, ext = os.path.splitext(cover.filename)
 
-    if ext not in ('.png', '.jpg', '.jpeg'):
-        response.flash('File extension not allowed. Add Book failed')
-        redirect(f'/librarian/{user_id}/books/add')
+    if cover:
+        name, ext = os.path.splitext(cover.filename)
 
-    cover_save_path = get_cover_save_path(title, author_name)
+        if ext not in ('.png', '.jpg', '.jpeg'):
+            redirect(f'/librarian/{user_id}/books/add')
 
-    cover.save(cover_save_path)
+        cover_save_path = get_cover_save_path(title, author_name)
 
-    cover_path = '/' + cover_save_path + '/' + cover.filename
+        cover.save(cover_save_path)
 
+        cover_path = '/' + cover_save_path + '/' + cover.filename
+    else:
+        cover_path = ""
     book_id = find_book_id(db, title, author_id, isbn, description,
                            publisher, year, cover_path)
 
     insert_copy(db, book_id, hire_period, location)
 
-    redirect(f'/librarian/{user_id}/home')
+    redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
 @get('/librarian/<user_id>/remove/<book_id>')

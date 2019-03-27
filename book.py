@@ -147,8 +147,25 @@ def get_cover_save_path(title, author_name):
 
 def check_isbn(db, isbn, title, author_id):
     if len(isbn) == 10:
-        valid = False
-        message = "Invalid ISBN - please use ISBN 13"
+        check_digit = 0
+        alt_sum = 0
+
+        for i in range(0, 9):
+            mult = 10 - i
+            term = mult * int(isbn[i])
+
+            alt_sum += term
+
+            alt_sum = alt_sum % 11
+        check_digit -= alt_sum
+        check_digit = check_digit % 11
+
+        if check_digit == int(isbn[9]):
+            valid = True
+            message = ""
+        else:
+            valid = False
+            message = "Invalid ISBN 10 - check"
     elif len(isbn) == 13:
         check_sum = 0
         for i in range(12):
@@ -164,10 +181,10 @@ def check_isbn(db, isbn, title, author_id):
             message = ""
         else:
             valid = False
-            message = "Invalid ISBN"
+            message = "Invalid ISBN 13 - check"
     else:
         valid = False
-        message = "Invalid ISBN"
+        message = "Invalid ISBN length"
 
     if valid:
         isbn_results = db.execute("""SELECT title, author_id
