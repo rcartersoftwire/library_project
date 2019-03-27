@@ -320,7 +320,7 @@ def get_loan_list(db, book_id):
     borrower_list = db.execute("""SELECT first_name, last_name FROM loan
                                JOIN copy on copy_id=copy.id
                                JOIN user on borrower_id=user.id
-                               HERE book_id = ?""",
+                               WHERE book_id = ? AND returned = 0""",
                                (book_id,)).fetchall()
 
     list_of_borrowers = [x['first_name']+' '+x['last_name']
