@@ -319,6 +319,29 @@ def get_loan_list(db, book_id):
 
     return {'borrower_names':list_of_borrowers}
 
+@get('/get_book_location/<book_id>')
+def get_book_location(db, book_id):
+
+    all_copies_location = db.execute("SELECT copy.id, location FROM copy WHERE book_id = ?",
+                                (book_id,)).fetchall()
+
+    unavailable_copies = db.execute("SELECT copy.id FROM copy JOIN loan on copy_id=copy.id WHERE loan.returned = 0 AND book_id = ?",
+                            (book_id,)).fetchall()
+
+    list_of_unavailable_copies = [x['id'] for x in unavailable_copies]
+
+    downstairs = 0
+    upstairs = 0
+    for copy in all_copies_location:
+        if copy['id'] not in list_of_unavailable_copies:
+            if copy['location'] == 1:
+                downstairs+=1
+            else:
+                upstairs+=1
+    
+    return {'downstairs': downstairs, 'upstairs':upstairs}
+
+
 @post('/librarian/<user_id>/add')
 def add_book(db, user_id):
     title = request.forms.get('title')

@@ -1,5 +1,4 @@
 var book_id = document.getElementById("book_id").value;
-console.log(book_id);
 
 fetch('/get_loan_list/'+book_id)
 .then(function(response){
