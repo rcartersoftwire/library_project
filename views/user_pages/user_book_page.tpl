@@ -23,7 +23,7 @@
         
 <div>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-    <input type="hidden" id="book_id" value={{book_id}}>
+    <input type="hidden" id="book_id" value={{book_details['id']}}>
     <script type="text/javascript" src="/static/book_location.js"></script>
     <div class="bookLocation" id="divBookLocation">
     </div>
