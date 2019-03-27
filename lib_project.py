@@ -390,10 +390,13 @@ def edit_book_details(db, user_id):
             redirect('/librarian/<user_id>/add')
 
         cover_save_path = get_cover_save_path(title, author_name)
+        cover_path = cover_save_path + '/' + cover.filename
 
+        if os.path.exists(cover_path):
+            os.remove(cover_path)
+
+        cover_path = '/' + cover_path
         cover.save(cover_save_path)
-
-        cover_path = '/' + cover_save_path + '/' + cover.filename
 
         db.execute("""UPDATE book SET
                       description = ?,
