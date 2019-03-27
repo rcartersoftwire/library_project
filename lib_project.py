@@ -21,7 +21,7 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 from author import (find_author_id)
 from book import (get_book_list, get_book_details, check_copies_available,
                   next_due_back, find_book_id, find_loan_id, insert_copy,
-                  get_cover_save_path)
+                  get_cover_save_path, check_isbn)
 from user import (get_user_details, get_user_list, get_user_past_loans,
                   get_user_join_date)
 from librarian import get_librarian_name
@@ -86,7 +86,7 @@ def user_home(db, id):
     user = dict(id=user_id,
                 first_name=user_first_name,
                 last_name=user_last_name,
-                loan_count=user_loan_count, 
+                loan_count=user_loan_count,
                 loans=user_loans)
     return template('user_pages/user_home', books=books, user=user)
 
@@ -121,7 +121,7 @@ def user_search(db, id):
     user = dict(id=user_id,
                 first_name=user_first_name,
                 last_name=user_last_name,
-                loan_count=user_loan_count, 
+                loan_count=user_loan_count,
                 loans=user_loans)
 
     return template('user_pages/user_search', search_query=search_query,
@@ -162,7 +162,7 @@ def user_book_details(db, user_id, book_id):
     user = dict(id=user_id,
                 first_name=user_first_name,
                 last_name=user_last_name,
-                loan_count=user_loan_count, 
+                loan_count=user_loan_count,
                 loans=user_loans)
 
     return template('user_pages/user_book_page', book_details=book_details,
@@ -289,7 +289,7 @@ def get_username_list(db, username):
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/add_books', name=name, user_id=user_id)
+    return template('librarian_pages/add_books', name=name, user_id=user_id, message=request.message)
 
 
 @get('/get_loan_list/<book_id>')
@@ -309,11 +309,14 @@ def get_loan_list(db, book_id):
 @get('/get_book_location/<book_id>')
 def get_book_location(db, book_id):
 
-    all_copies_location = db.execute("SELECT copy.id, location FROM copy WHERE book_id = ?",
-                                (book_id,)).fetchall()
+    all_copies_location = db.execute("""SELECT copy.id, location
+                                     FROM copy WHERE book_id = ?""",
+                                     (book_id,)).fetchall()
 
-    unavailable_copies = db.execute("SELECT copy.id FROM copy JOIN loan on copy_id=copy.id WHERE loan.returned = 0 AND book_id = ?",
-                            (book_id,)).fetchall()
+    unavailable_copies = db.execute("""SELECT copy.id FROM copy
+                                    JOIN loan on copy_id=copy.id
+                                    WHERE loan.returned = 0 AND book_id = ?""",
+                                    (book_id,)).fetchall()
 
     list_of_unavailable_copies = [x['id'] for x in unavailable_copies]
 
@@ -322,38 +325,45 @@ def get_book_location(db, book_id):
     for copy in all_copies_location:
         if copy['id'] not in list_of_unavailable_copies:
             if copy['location'] == 1:
-                downstairs+=1
+                downstairs += 1
             else:
-                upstairs+=1
-    
-    return {'downstairs': downstairs, 'upstairs':upstairs}
+                upstairs += 1
+
+    return {'downstairs': downstairs, 'upstairs': upstairs}
 
 
 @post('/librarian/<user_id>/add')
 def add_book(db, user_id):
     title = request.forms.get('title').strip()
     author_name = request.forms.get('author_name').strip()
-    isbn = int(request.forms.get('isbn'))
+    isbn = request.forms.get('isbn')
     description = request.forms.get('description').strip()
     publisher = request.forms.get('publisher').strip()
     year = request.forms.get('year')
     location = request.forms.get('location')
     hire_period = request.forms.get('hire_period')
 
+    author_id = find_author_id(db, author_name)
+    valid_isbn, isbn_message = check_isbn(db, isbn, title, author_id)
+
+    if not valid_isbn:
+        response.flash(isbn_message)
+        redirect(f'/librarian/{user_id}/books/add')
+
+    isbn = int(isbn)
+
     cover = request.files.get('cover')
     name, ext = os.path.splitext(cover.filename)
 
     if ext not in ('.png', '.jpg', '.jpeg'):
         response.flash('File extension not allowed. Add Book failed')
-        redirect('/librarian/<user_id>/add')
+        redirect(f'/librarian/{user_id}/books/add')
 
     cover_save_path = get_cover_save_path(title, author_name)
 
     cover.save(cover_save_path)
 
     cover_path = '/' + cover_save_path + '/' + cover.filename
-
-    author_id = find_author_id(db, author_name)
 
     book_id = find_book_id(db, title, author_id, isbn, description,
                            publisher, year, cover_path)
@@ -474,7 +484,7 @@ def user_account(db, user_id):
     user = dict(id=user_id,
                 first_name=user_first_name,
                 last_name=user_last_name,
-                loan_count=user_loan_count, 
+                loan_count=user_loan_count,
                 loans=user_loans,
                 past_loans=user_past_loans,
                 join_date=user_join_date)

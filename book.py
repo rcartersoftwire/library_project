@@ -2,6 +2,7 @@
 
 from datetime import datetime as dt
 import os
+from author import get_author_name_from_id
 
 
 def get_book_list(db):
@@ -142,3 +143,44 @@ def get_cover_save_path(title, author_name):
         os.makedirs(cover_save_path)
 
     return cover_save_path
+
+
+def check_isbn(db, isbn, title, author_id):
+    if len(isbn) == 10:
+        valid = False
+        message = "Invalid ISBN - please use ISBN 13"
+    elif len(isbn) == 13:
+        check_sum = 0
+        for i in range(12):
+            if i % 2 == 0:
+                check_sum += int(isbn[i])
+            else:
+                check_sum += 3 * int(isbn[i])
+
+        check_sum = check_sum % 10
+
+        if check_sum == int(isbn[12]):
+            valid = True
+            message = ""
+        else:
+            valid = False
+            message = "Invalid ISBN"
+    else:
+        valid = False
+        message = "Invalid ISBN"
+
+    if valid:
+        isbn_results = db.execute("""SELECT title, author_id
+                                  FROM book
+                                  WHERE isbn = ?;""", (isbn,)).fetchone()
+
+        if isbn_results:
+            existing_title = isbn_results['title']
+            existing_author_id = isbn_results['author_id']
+            if title != existing_title or author_id != existing_author_id:
+                valid = False
+                existing_author = get_author_name_from_id(db,
+                                                          existing_author_id)
+                message = f"ISBN already assigned to {existing_title} by {existing_author}"
+
+    return valid, message

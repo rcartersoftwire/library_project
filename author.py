@@ -18,3 +18,15 @@ def find_author_id(db, author_name):
                                AND last_name = ?""",
                                (first_name, last_name)).fetchone()[0]
         return author_id
+
+
+def get_author_name_from_id(db, id):
+    author_result = db.execute("""SELECT first_name, last_name
+                               FROM author
+                               WHERE id = ?;""", (id,))
+    first_name = author_result['first_name']
+    last_name = author_result['first_name']
+
+    author_name = first_name + ' ' + last_name
+
+    return author_name
