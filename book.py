@@ -1,6 +1,7 @@
 # Book based functions
 
 from datetime import datetime as dt
+import os
 
 
 def get_book_list(db):
@@ -30,7 +31,7 @@ def get_book_details(db, id):
     book_info = db.execute("""SELECT book.title as title, book.publisher as publisher,
                            book.year as year, author.first_name as first_name,
                            author.last_name as last_name, book.isbn as isbn,
-                           book.description as description
+                           book.description as description, cover
                            FROM book
                            INNER JOIN author ON book.author_id = author.id
                            WHERE book.id = ?""", (id,)).fetchone()
@@ -38,7 +39,10 @@ def get_book_details(db, id):
     author = f"{book_info['first_name']} {book_info['last_name']}"
     publisher = book_info['publisher']
     year = book_info['year']
-    cover = "/static/images/missing_book_cover.jpg"
+    if book_info['cover']:
+        cover = book_info['cover']
+    else:
+        cover = "/static/images/missing_book_cover.jpg"
     description = book_info['description']
     isbn = book_info['isbn']
 
@@ -79,7 +83,7 @@ def next_due_back(db, book_id):
 
 
 def find_book_id(db, title, author_id, isbn, description,
-                 publisher, year):
+                 publisher, year, cover_save_path):
     book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
                          AND isbn=? ;""", (title, author_id, isbn, )
                          ).fetchone()
@@ -87,12 +91,12 @@ def find_book_id(db, title, author_id, isbn, description,
     if book_id:
         return book_id[0]
     else:
-        db.execute("""INSERT INTO book(title, author_id, isbn, description, publisher, year)
-                   VALUES (?, ?, ?, ?, ?, ?)""", (title, author_id, isbn,
-                   description, publisher, year))
-        book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
-                             AND isbn=?;""", (title, author_id, isbn)
-                             ).fetchone()[0]
+        book_id = db.execute("""INSERT INTO book(title, author_id, isbn, description, publisher, year, cover)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""", (title, author_id, isbn,
+                   description, publisher, year, cover_save_path)).lastrowid
+        # book_id = db.execute("""SELECT id FROM book WHERE title=? AND author_id= ?
+                            #  AND isbn=?;""", (title, author_id, isbn)
+                            #  ).fetchone()[0]
         return book_id
 
 
@@ -114,3 +118,14 @@ def insert_copy(db, book_id, hire_period, location):
                VALUES (?, ?, ?);""", (book_id, location, hire_period))
 
     return
+
+
+def get_cover_save_path(title, author_name):
+    stripped_title = "".join(x for x in title if x.isalnum())
+    stripped_author_name = "".join(x for x in author_name if x.isalnum())
+    cover_save_path = f"""static/images/covers/{stripped_author_name}/{stripped_title}"""
+
+    if not os.path.exists(cover_save_path):
+        os.makedirs(cover_save_path)
+
+    return cover_save_path

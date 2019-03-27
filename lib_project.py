@@ -5,6 +5,7 @@ from bottle import (get, post, run, debug, install, request, response,
 from bottle_utils.flash import message_plugin
 from bottle_sqlite import SQLitePlugin
 from datetime import datetime as dt
+import os
 
 # Configuration
 import caribou
@@ -19,7 +20,8 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 # Functions
 from author import (find_author_id)
 from book import (get_book_list, get_book_details, check_copies_available,
-                  next_due_back, find_book_id, find_loan_id, insert_copy)
+                  next_due_back, find_book_id, find_loan_id, insert_copy,
+                  get_cover_save_path)
 from user import (get_user_details, get_user_list, get_user_past_loans,
                   get_user_join_date)
 from librarian import get_librarian_name
@@ -275,7 +277,7 @@ def join(db):
     if len(password) < 8:
         response.flash("Password must be at least 8 characters")
         redirect('/join')
-        
+
     if password != conf_password:
         response.flash("Your passwords do not match")
         redirect('/join')
@@ -295,14 +297,16 @@ def join(db):
 
         redirect(f'/user/{user_id}/home')
 
+
 @get('/get_username_list/<username>')
 def get_username_list(db, username):
     username_in_db = db.execute("SELECT id FROM user WHERE username =?",
-                                 (username,)).fetchall() 
+                                (username,)).fetchall()
     if username_in_db:
         return {'nameTaken': True}
     else:
         return {'nameTaken': False}
+
 
 @get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
@@ -311,22 +315,35 @@ def add_books(db, user_id):
     return template('librarian_pages/add_books', name=name, user_id=user_id)
 
 
-
 @post('/librarian/<user_id>/add')
 def add_book(db, user_id):
-    title = request.forms.get('title')
-    author_name = request.forms.get('author_name')
+    title = request.forms.get('title').strip()
+    author_name = request.forms.get('author_name').strip()
     isbn = int(request.forms.get('isbn'))
-    description = request.forms.get('description')
-    publisher = request.forms.get('publisher')
+    description = request.forms.get('description').strip()
+    publisher = request.forms.get('publisher').strip()
     year = request.forms.get('year')
     location = request.forms.get('location')
     hire_period = request.forms.get('hire_period')
 
+    cover = request.files.get('cover')
+    name, ext = os.path.splitext(cover.filename)
+
+    if ext not in ('.png', '.jpg', '.jpeg'):
+        response.flash('File extension not allowed. Add Book failed')
+        redirect('/librarian/<user_id>/add')
+
+    cover_save_path = get_cover_save_path(title, author_name)
+    print(cover_save_path)
+
+    cover.save(cover_save_path)
+
+    cover_path = '/' + cover_save_path + '/' + cover.filename
+
     author_id = find_author_id(db, author_name)
 
     book_id = find_book_id(db, title, author_id, isbn, description,
-                           publisher, year)
+                           publisher, year, cover_path)
 
     insert_copy(db, book_id, hire_period, location)
 
