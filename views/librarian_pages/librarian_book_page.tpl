@@ -32,3 +32,10 @@
 </div>
 % include('copy_book_details.tpl', copies=copies,
 %         copies_available=copies_available, next_due=next_due )
+<div>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <input type="hidden" id="book_id" value={{book_id}}>
+    <script type="text/javascript" src="/static/book_loan_detail.js"></script>
+    <div class="loan_list" id="divLoanDetails">
+    </div>
+</div>
