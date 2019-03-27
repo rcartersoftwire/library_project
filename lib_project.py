@@ -372,6 +372,7 @@ def add_copy(db, user_id):
     insert_copy(db, book_id, hire_period, location)
     redirect(f'/librarian/{user_id}/book/{book_id}')
 
+
 @get('/librarian/<user_id>/users/view')
 def view_users(db, user_id):
     libr_names = db.execute("""SELECT first_name, last_name FROM  user
