@@ -5,7 +5,7 @@
     <div class="librarian_book_options">
         <ul>
             <li><a href="/librarian/{{user_id}}/edit/{{book_id}}">Edit Book</a></li>
-            <li><a href="/librarian/{{user_id}}/remove/{{book_id}}">Remove Book</a></li>
+            <li><a href="/librarian/{{user_id}}/remove/{{book_id}}">Remove a Copy</a></li>
             <li id="add_copy_option">Add a Copy</li>
                 <div class="add_copy_container">
                     <form class="form" action="/librarian/{{user_id}}/add_copy" method="POST">
