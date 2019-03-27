@@ -1,6 +1,4 @@
-% rebase('visitor_pages/visitor_base.tpl', subtitle=title)
-    % include('book_details', title=title, author=author, publisher=publisher,
-    %         year=year, description=description)
-    % include('copy_book_details.tpl', copies=copies,
-    %         copies_available=copies_available, next_due=next_due )
+% rebase('visitor_pages/visitor_base.tpl', subtitle=book_details['title'])
+% include('book_details', book_details=book_details)
+% include('copy_book_details.tpl', copy_availability_details=copy_availability_details)
         

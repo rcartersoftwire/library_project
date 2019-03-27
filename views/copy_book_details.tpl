@@ -1,12 +1,12 @@
 <div class="copy_info">
     <p>
-    % if copies == 1:
-        {{copies}} copy, {{copies_available}} currently available.
+    % if copy_availability_details['num_copies'] == 1:
+        {{copy_availability_details['num_copies']}} copy, {{copy_availability_details['num_available']}} currently available.
     % else:
-        {{copies}} copies, {{copies_available}} currently available. 
+        {{copy_availability_details['num_copies']}} copies, {{copy_availability_details['num_available']}} currently available. 
     % end
-    % if copies_available == 0:   
-        Next due back: {{next_due}}
+    % if copy_availability_details['num_available'] == 0:   
+        Next due back: {{copy_availability_details['next_due']}}
     % end
     </p>
 </div>

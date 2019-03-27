@@ -1,17 +1,17 @@
 <div class="large_book_cover">
-    <img src={{cover}}>
+    <img src={{book_details['cover']}}>
 </div>
 <div class="book_details">
-    <h2>{{title}}</h2>
-    <h3>{{author}}</h3>
-    % if publisher is not None:
-        <h5>{{publisher}}</h5> 
+    <h2>{{book_details['title']}}</h2>
+    <h3>{{book_details['author']}}</h3>
+    % if book_details['publisher'] is not None:
+        <h5>{{book_details['publisher']}}</h5> 
     % end
-    % if year is not None:
-        <h5>{{year}}</h5>
+    % if book_details['year'] is not None:
+        <h5>{{book_details['year']}}</h5>
     % end
-    % if description is not None:
-        <p>{{description}}</p>
+    % if book_details['description'] is not None:
+        <p>{{book_details['description']}}</p>
     % end
-    <p>ISBN: {{isbn}}</p>
+    <p>ISBN: {{book_details['isbn']}}</p>
 </div>
