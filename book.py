@@ -7,14 +7,16 @@ import os
 def get_book_list(db):
     book_results = db.execute("""SELECT book.id as book_id, book.title as title,
                                 author.first_name as first_name,
-                                author.last_name as last_name
+                                author.last_name as last_name,
+                                book.cover as cover
                                 FROM book
                                 INNER JOIN author on author.id = book.author_id
                                 ORDER BY title;""").fetchall()
 
     books = [{'id': b['book_id'], 'title': b['title'],
               'author': b['first_name']
-              + ' ' + b['last_name']} for b in book_results]
+              + ' ' + b['last_name'], 'cover':b['cover']}
+             for b in book_results]
 
     for book in books:
         num_copies, active_loans = check_copies_available(db, book['id'])
