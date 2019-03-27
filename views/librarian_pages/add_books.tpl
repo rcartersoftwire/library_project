@@ -15,7 +15,7 @@
 </style>
 
 <div class = "form">
-    <form action="/librarian/{{user_id}}/add" method="post">
+    <form action="/librarian/{{user_id}}/add" method="post" enctype="multipart/form-data">
     <div>
         <label for="title">Title</label>
         <input type="text" id="title" name="title" required=required>
@@ -51,6 +51,10 @@
             <option value=1>Downstairs</option>
             <option value=2>Upstairs</option>
         </select>
+    </div>
+    <div>
+        <label for="cover">Cover</label>
+        <input type="file" id="cover" name="cover" accept="image/*">
     </div>
     <div class="registrationFormAlert" id="divCheckAuthor">
     </div>

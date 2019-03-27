@@ -7,7 +7,7 @@
 % end 
 
 <div class = "form">
-    <form action="/librarian/{{user_id}}/edit" method="post">
+    <form action="/librarian/{{user_id}}/edit" method="post" enctype="multipart/form-data">
     <input type="hidden" id="book_id" name="book_id" value={{book_id}}>
     <div>
         <label for="title">Title</label>
@@ -33,6 +33,10 @@
     <div>
         <label for="year">Year</label>
         <input type="text" id="year" name="year" value={{year}}>
+    </div>
+    <div>
+        <label for="cover">Cover</label>
+        <input type="file" id="cover" name="cover" accept="image/*" value={{cover}}>
     </div>
     <div>
         <button type="submit" id="edit_book_button">Update</button>
