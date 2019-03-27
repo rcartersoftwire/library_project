@@ -160,12 +160,15 @@ def check_isbn(db, isbn, title, author_id):
         check_digit -= alt_sum
         check_digit = check_digit % 11
 
-        if check_digit == int(isbn[9]):
+        if check_digit == 10 and isbn[9] == 'X':
+            valid = True
+            message = ""
+        elif check_digit == int(isbn[9]):
             valid = True
             message = ""
         else:
             valid = False
-            message = "Invalid ISBN 10 - check"
+            message = "Invalid ISBN 10"
     elif len(isbn) == 13:
         check_sum = 0
         for i in range(12):

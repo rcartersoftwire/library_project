@@ -347,10 +347,8 @@ def add_book(db, user_id):
     valid_isbn, isbn_message = check_isbn(db, isbn, title, author_id)
 
     if not valid_isbn:
-        print(isbn_message)
+        response.flash(isbn_message + '. Add Book failed')
         redirect(f'/librarian/{user_id}/books/add')
-
-    isbn = int(isbn)
 
     cover = request.files.get('cover')
 
