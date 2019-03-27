@@ -137,72 +137,42 @@ def librarian_search(db, user_id):
 
 @get('/book/<book_id>')
 def book_details(db, book_id):
-    (title, author, publisher, year, cover,
-     description, isbn) = get_book_details(db, book_id)
+    book_details = get_book_details(db, book_id)
+    copy_availability_details = check_copies_available(db, book_id)
 
-    copies, copies_loaned = check_copies_available(db, book_id)
-    copies_available = copies - copies_loaned
-
-    if copies_available == 0:
-        next_due = next_due_back(db, book_id)
-    else:
-        next_due = ''
-
-    return template('visitor_pages/book_page', title=title, author=author,
-                    publisher=publisher, year=year, cover=cover,
-                    description=description, isbn=isbn, copies=copies,
-                    copies_available=copies_available, next_due=next_due)
+    return template('visitor_pages/book_page', book_details=book_details,
+                    copy_availability_details=copy_availability_details)
 
 
 @get('/user/<user_id>/book/<book_id>')
 def user_book_details(db, user_id, book_id):
-    (title, author, publisher, year, cover,
-     description, isbn) = get_book_details(db, book_id)
+    book_details = get_book_details(db, book_id)
+    copy_availability_details = check_copies_available(db, book_id)
+
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans) = get_user_details(db, user_id)
 
-    copies, copies_loaned = check_copies_available(db, book_id)
-    copies_available = copies - copies_loaned
-
-    if copies_available == 0:
-        next_due = next_due_back(db, book_id)
-    else:
-        next_due = ''
-
     book_loaned, due_date = get_user_book_details(db, user_id, book_id)
 
-    return template('user_pages/user_book_page', book_id=book_id, title=title,
-                    author=author, publisher=publisher, year=year,
-                    cover=cover, description=description, isbn=isbn,
+    return template('user_pages/user_book_page', book_details=book_details,
                     user_id=user_id,
                     user_first_name=user_first_name,
                     user_last_name=user_last_name,
                     user_loan_count=user_loan_count, user_loans=user_loans,
                     book_loaned=book_loaned, due_date=due_date,
-                    copies=copies, copies_available=copies_available,
-                    next_due=next_due)
+                    copy_availability_details=copy_availability_details)
 
 
 @get('/librarian/<user_id>/book/<book_id>')
 def librarian_book_details(db, user_id, book_id):
-    (title, author, publisher, year, cover,
-     description, isbn) = get_book_details(db, book_id)
-
-    copies, copies_loaned = check_copies_available(db, book_id)
-    copies_available = copies - copies_loaned
-
-    if copies_available == 0:
-        next_due = next_due_back(db, book_id)
-    else:
-        next_due = ''
-
+    book_details = get_book_details(db, book_id)
+    copy_availability_details = check_copies_available(db, book_id)
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/librarian_book_page', title=title,
-                    author=author, publisher=publisher, year=year, cover=cover,
-                    description=description, isbn=isbn, copies=copies,
-                    copies_available=copies_available, next_due=next_due,
-                    name=name, user_id=user_id, book_id=book_id)
+    return template('librarian_pages/librarian_book_page',
+                    book_details=book_details,
+                    copy_availability_details=copy_availability_details,
+                    name=name, user_id=user_id)
 
 
 @get('/user/<user_id>/borrow/<book_id>')
@@ -392,13 +362,10 @@ def remove_copy(db, user_id, book_id):
 def edit_book(db, user_id, book_id):
     name = get_librarian_name(db, user_id)
 
-    (title, author, publisher, year, cover, description,
-     isbn) = get_book_details(db, book_id)
+    book_details = get_book_details(db, book_id)
 
     return template('librarian_pages/edit_book', user_id=user_id, name=name,
-                    title=title, author=author, publisher=publisher, year=year,
-                    cover=cover, description=description, isbn=isbn,
-                    book_id=book_id)
+                    book_details=book_details)
 
 
 @post('/librarian/<user_id>/edit')

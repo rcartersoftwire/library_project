@@ -5,23 +5,17 @@ import os
 
 
 def get_book_list(db):
-    book_results = db.execute("""SELECT book.id as book_id, book.title as title,
-                                author.first_name as first_name,
-                                author.last_name as last_name,
-                                book.cover as cover
+    book_id_results = db.execute("""SELECT id
                                 FROM book
-                                INNER JOIN author on author.id = book.author_id
                                 ORDER BY title;""").fetchall()
 
-    books = [{'id': b['book_id'], 'title': b['title'],
-              'author': b['first_name']
-              + ' ' + b['last_name'], 'cover':b['cover']}
-             for b in book_results]
+    books = [get_book_details(db, book['id'])
+             for book in book_id_results]
 
     for book in books:
-        num_copies, active_loans = check_copies_available(db, book['id'])
+        copy_availability_details = check_copies_available(db, book['id'])
 
-        if num_copies != 0 and num_copies > active_loans:
+        if copy_availability_details['num_available'] > 0:
             book['available'] = 'Available'
         else:
             book['available'] = 'Unavailable'
@@ -48,7 +42,12 @@ def get_book_details(db, id):
     description = book_info['description']
     isbn = book_info['isbn']
 
-    return (title, author, publisher, year, cover, description, isbn)
+    book_details = {'id': id, 'title': title, 'author': author,
+                    'publisher': publisher, 'year': year,
+                    'cover': cover, 'description': description,
+                    'isbn': isbn}
+
+    return book_details
 
 
 def check_copies_available(db, book_id):
@@ -62,7 +61,19 @@ def check_copies_available(db, book_id):
                               WHERE copy.book_id=? AND loan.returned = 0;""",
                               (book_id,)).fetchone()[0]
 
-    return num_copies, active_loans
+    copies_available = num_copies - active_loans
+
+    if copies_available == 0:
+        next_due = next_due_back(db, book_id)
+    else:
+        next_due = ''
+
+    copy_availability_details = {'num_copies': num_copies,
+                                 'num_loaned': active_loans,
+                                 'num_available': copies_available,
+                                 'next_due': next_due}
+
+    return copy_availability_details
 
 
 def next_due_back(db, book_id):
