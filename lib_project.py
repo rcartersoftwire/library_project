@@ -83,10 +83,12 @@ def user_home(db, id):
 
     books = get_book_list(db)
 
-    return template('user_pages/user_home', books=books, user_id=user_id,
-                    user_first_name=user_first_name,
-                    user_last_name=user_last_name,
-                    user_loan_count=user_loan_count, user_loans=user_loans)
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count, 
+                loans=user_loans)
+    return template('user_pages/user_home', books=books, user=user)
 
 
 @get('/librarian/<user_id>/home')
@@ -116,11 +118,14 @@ def user_search(db, id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans) = get_user_details(db, id)
 
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count, 
+                loans=user_loans)
+
     return template('user_pages/user_search', search_query=search_query,
-                    results=results, user_id=user_id,
-                    user_first_name=user_first_name,
-                    user_last_name=user_last_name,
-                    user_loan_count=user_loan_count, user_loans=user_loans)
+                    results=results, user=user)
 
 
 @post('/librarian/<user_id>/search')
@@ -154,12 +159,14 @@ def user_book_details(db, user_id, book_id):
 
     book_loaned, due_date = get_user_book_details(db, user_id, book_id)
 
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count, 
+                loans=user_loans)
+
     return template('user_pages/user_book_page', book_details=book_details,
-                    user_id=user_id,
-                    user_first_name=user_first_name,
-                    user_last_name=user_last_name,
-                    user_loan_count=user_loan_count, user_loans=user_loans,
-                    book_loaned=book_loaned, due_date=due_date,
+                    user=user, book_loaned=book_loaned, due_date=due_date,
                     copy_availability_details=copy_availability_details)
 
 
@@ -464,12 +471,15 @@ def user_account(db, user_id):
     user_join_date = get_user_join_date(db, user_id)
     user_past_loans = get_user_past_loans(db, user_id)
 
-    return template('user_pages/user_account', user_id=user_id,
-                    user_first_name=user_first_name,
-                    user_last_name=user_last_name,
-                    user_loan_count=user_loan_count, user_loans=user_loans,
-                    user_past_loans=user_past_loans,
-                    user_join_date=user_join_date)
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count, 
+                loans=user_loans,
+                past_loans=user_past_loans,
+                join_date=user_join_date)
+
+    return template('user_pages/user_account', user=user)
 
 
 run(host='localhost', port=8080, debug=True)

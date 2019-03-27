@@ -15,7 +15,7 @@ function checkAuthorName() {
     }
 
     if (!validName){
-        $("#divCheckAuthor").html("<span class='red'><b>At least two words required for Author's Name!</b></span>");
+        $("#divCheckAuthor").html("<span class='red'>At least two words required for Author's Name!</span>");
         document.getElementById("add_book_button").disabled = true;
     }else{
         $("#divCheckAuthor").html("<span class='green'><b></b></span>");
