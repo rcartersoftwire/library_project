@@ -1,4 +1,4 @@
-% rebase('user_pages/user_base.tpl', subtitle="Add Book")
+% rebase('user_pages/user_base.tpl', subtitle="Submit Book Request")
 
 <h2>Submit a Book Request</h2>
 

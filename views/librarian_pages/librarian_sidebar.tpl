@@ -6,6 +6,7 @@
                 <ul>
                     <li><a href="/librarian/{{user_id}}/books/add">Add a Book</a></li>
                     <li><a href="/librarian/{{user_id}}/users/view">View Users</a></li>
+                    <li><a href="/librarian/{{user_id}}/book_requests">View Book Requests</a></li>
                     <li><a href="/logout">Log Out</a></li>
                 </ul>
             </div>
