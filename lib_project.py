@@ -360,10 +360,13 @@ def add_book(db, user_id):
             redirect('/librarian/<user_id>/add')
 
         cover_save_path = get_cover_save_path(title, author_name)
+        cover_path = cover_save_path + '/' + cover.filename
 
+        if os.path.exists(cover_path):
+            os.remove(cover_path)
+
+        cover_path = '/' + cover_path
         cover.save(cover_save_path)
-
-        cover_path = '/' + cover_save_path + '/' + cover.filename
 
     except AttributeError:
         cover_path = '/static/images/missing_book_cover.jpg'
