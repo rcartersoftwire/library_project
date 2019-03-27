@@ -366,26 +366,40 @@ def add_book(db, user_id):
 @get('/librarian/<user_id>/remove/<book_id>')
 def remove_copy(db, user_id, book_id):
     # Find one copy ID to be removed
-    result = db.execute("""SELECT id FROM copy where book_id = ?;""",
-                        (book_id,)).fetchone()
-    copy_id = result['id']
+    all_copies = db.execute("""SELECT id FROM copy where book_id = ?;""",
+                        (book_id,)).fetchall()
 
-    # Remove associated child loans
-    db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
+    unavailable_copies = db.execute("SELECT copy.id FROM copy JOIN loan on copy_id=copy.id WHERE loan.returned = 0 AND book_id = ?",
+                            (book_id,)).fetchall()
 
-    # Remove book if last copy
-    num_copies = db.execute("""SELECT COUNT (copy.id)
-                               FROM copy
-                               WHERE book_id = ?;
-                               """, (book_id,)).fetchone()[0]
+    all_copies_list = [x['id'] for x in all_copies]
+    unavailable_copies_list = [x['id'] for x in unavailable_copies]
 
-    db.execute("""DELETE FROM copy WHERE id = ?;""", (copy_id,))
-    if num_copies == 1:
-        db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
-        redirect(f'/librarian/{user_id}/home')
-        return
+    available_copies = [x for x in all_copies_list if x not in unavailable_copies_list]
 
-    redirect(f'/librarian/{user_id}/book/{book_id}')
+    if len(available_copies)>0:
+        copy_id = available_copies[0]
+
+        # Remove associated child loans
+        db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
+
+        # Remove book if last copy
+        num_copies = db.execute("""SELECT COUNT (copy.id)
+                                FROM copy
+                                WHERE book_id = ?;
+                                """, (book_id,)).fetchone()[0]
+
+        db.execute("""DELETE FROM copy WHERE id = ?;""", (copy_id,))
+        if num_copies == 1:
+            db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
+            redirect(f'/librarian/{user_id}/home')
+            return
+
+        redirect(f'/librarian/{user_id}/book/{book_id}')
+
+    else:
+        response.flash("All copies are checked out at the moment!")
+        redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
 @get('/librarian/<user_id>/edit/<book_id>')
