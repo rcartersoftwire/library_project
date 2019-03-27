@@ -14,12 +14,11 @@ def upgrade(connection):
 
     connection.execute(sql)
 
-
     # Adding photo path
     sql = """ALTER TABLE user ADD COLUMN
-             prof_pic VARCHAR(255) DEFAULT '/static/images/unknown-user.jpg';"""
+             prof_pic VARCHAR(255)
+             DEFAULT '/static/images/unknown-user.jpg';"""
     connection.execute(sql)
-
 
     connection.commit()
 

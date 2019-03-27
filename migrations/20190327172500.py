@@ -43,7 +43,6 @@ def upgrade(connection):
                                 \"{}\", \"{}\", \"{}\"
                             );""".format(id, title, author_id, isbn, cover,
                                          description, publisher, year)
-        print(sql)
         connection.execute(sql)
 
     sql = """DROP TABLE book_old;"""
@@ -87,7 +86,8 @@ def downgrade(connection):
 
         sql = """INSERT INTO book (title, author_id, isbn, cover, description,
                             publisher, year)
-                            VALUES (\"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\", \"{}\"
+                            VALUES (\"{}\", \"{}\", \"{}\", \"{}\",
+                                    \"{}\", \"{}\", \"{}\"
                             );""".format(title, author_id, isbn, cover,
                                          description, publisher, year)
         print(sql)
