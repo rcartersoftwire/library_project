@@ -205,6 +205,56 @@ def renew_book(db, user_id, book_id):
     redirect(f'/user/{user_id}/book/{book_id}')
 
 
+@get('/librarian/<user_id>/book_requests')
+def view_book_requests(db, user_id):
+    name = get_librarian_name(db, user_id)
+
+    data = db.execute("SELECT id, title, author_first_name, author_last_name FROM book_request").fetchall()
+    req_id = [x['id'] for x in data]
+    book_title = [x['title'] for x in data]
+    book_first_name = [x['author_first_name'] for x in data]
+    book_last_name = [x['author_last_name'] for x in data]
+    book_author = ["{} {}".format(a_, b_) for a_, b_ in zip(book_first_name, book_last_name)]
+    
+    return template('librarian_pages/view_book_requests', name=name, user_id=user_id, book_title=book_title, book_author=book_author, req_id=req_id)
+
+@get('/librarian/<user_id>/book_request/remove/<req_id>')
+def remove_book_request(db, user_id, req_id):
+    db.execute("DELETE FROM book_request WHERE id = ?",(req_id,))
+    redirect(f'/librarian/{user_id}/book_requests')
+
+
+@get('/user/<user_id>/book_request')
+def book_request(db, user_id):
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans) = get_user_details(db, user_id)
+    user_join_date = get_user_join_date(db, user_id)
+    user_past_loans = get_user_past_loans(db, user_id)
+
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count, 
+                loans=user_loans,
+                past_loans=user_past_loans,
+                join_date=user_join_date)
+
+    return template('user_pages/user_book_request', user=user)
+
+@post('/user/<user_id>/book_request')
+def add_book_request(db, user_id):
+    title = request.forms.get('title').strip()
+    author_name = request.forms.get('author_name').strip()
+
+    names = author_name.split(" ", 1)
+    first_name = names[0]
+    last_name = names[1]    
+    
+    db.execute("""INSERT INTO book_request(title, author_first_name, author_last_name)
+                   VALUES (?,?,?)""", (title, first_name, last_name))
+
+    redirect(f'/user/{user_id}/home')
+
 @post('/login')
 def login(db):
     username = request.forms.get('username')
