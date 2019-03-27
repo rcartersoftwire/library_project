@@ -6,16 +6,16 @@ function checkUsernameMatch() {
         })
         .then(function(jsonObj){
             if (jsonObj['nameTaken']){
-                $("#divCheckUsername").html("<span class='red'><b>Username already being used!</b></span>");
+                $("#divCheckUsername").html("<span class='red'>Username already being used!</span>");
                 document.getElementById("join_button").disabled = true;
             }else{
-                $("#divCheckUsername").html("<span class='green'><b>Username is valid!</b></span>");
+                $("#divCheckUsername").html("<span class='green'>Username is valid!</span>");
                 document.getElementById("join_button").disabled = false;
             }
         });
 
     if (username.length == 0){
-        $("#divCheckUsername").html("<span class='green'><b>Username cannot be NULL!</b></span>");
+        $("#divCheckUsername").html("<span class='green'>Username cannot be NULL!</span>");
         document.getElementById("join_button").disabled = true;
     }
 
