@@ -310,7 +310,14 @@ def add_books(db, user_id):
 
     return template('librarian_pages/add_books', name=name, user_id=user_id)
 
+@get('/get_loan_list/<book_id>')
+def get_loan_list(db, book_id):
+    borrower_list = db.execute("SELECT first_name, last_name FROM loan JOIN copy on copy_id=copy.id JOIN user on borrower_id=user.id WHERE book_id = ?",
+                                (book_id,)).fetchall()
 
+    list_of_borrowers = [x['first_name']+' '+x['last_name'] for x in borrower_list] 
+
+    return {'borrower_names':list_of_borrowers}
 
 @post('/librarian/<user_id>/add')
 def add_book(db, user_id):
