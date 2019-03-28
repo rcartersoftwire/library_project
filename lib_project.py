@@ -219,8 +219,8 @@ def view_book_requests(db, user_id):
     book_first_name = [x['author_first_name'] for x in data]
     book_last_name = [x['author_last_name'] for x in data]
     book_author = ["{} {}".format(a_, b_) for a_, b_ in zip(book_first_name, book_last_name)]
-
-    return template('librarian_pages/view_book_requests', name=name, user_id=user_id, book_title=book_title, book_author=book_author, req_id=req_id)
+    
+    return template('librarian_pages/librarian_view_book_requests', name=name, user_id=user_id, book_title=book_title, book_author=book_author, req_id=req_id)
 
 
 @get('/librarian/<user_id>/book_request/remove/<req_id>')
