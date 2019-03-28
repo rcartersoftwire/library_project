@@ -594,4 +594,4 @@ def user_account(db, user_id):
     return template('user_pages/user_account', user=user)
 
 
-run(host='10.214.4.108', port=8080, debug=True)
+run(host='localhost', port=8080, debug=True)
