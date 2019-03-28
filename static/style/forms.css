@@ -25,6 +25,7 @@
     font-variant: small-caps;
     font-size: 1.2em;
     padding: 0;
+    cursor: pointer;
 }
 
 .form button:hover {

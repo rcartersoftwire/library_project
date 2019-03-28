@@ -61,6 +61,11 @@
     padding: 0;
 }
 
+.librarian_book_options li:hover {
+    text-decoration: underline;
+    color: var(--mid-blue);
+    cursor: pointer;
+}
 .add_copy_container .form{
     display: none;
     padding: 0.5em;
