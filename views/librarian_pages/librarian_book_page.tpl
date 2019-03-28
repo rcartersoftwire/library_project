@@ -1,5 +1,8 @@
 % rebase('librarian_pages/librarian_base.tpl', subtitle=book_details['title'])
 <div class="librarian_book_details">
+    % if defined('message'):
+        <p class="flash">{{ message }}</p>
+    % end
     % include('book_details', book_details=book_details)
     <div class="librarian_book_options">
         <ul>

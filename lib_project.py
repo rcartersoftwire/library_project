@@ -176,10 +176,14 @@ def librarian_book_details(db, user_id, book_id):
     copy_availability_details = check_copies_available(db, book_id)
     name = get_librarian_name(db, user_id)
 
+    message = request.get_cookie('book_message', default="")
+    if message:
+        response.delete_cookie("book_message", path=f"/librarian/{user_id}/")
+
     return template('librarian_pages/librarian_book_page',
                     book_details=book_details,
                     copy_availability_details=copy_availability_details,
-                    name=name, user_id=user_id)
+                    name=name, user_id=user_id, message=message)
 
 
 @get('/user/<user_id>/borrow/<book_id>')
@@ -305,8 +309,8 @@ def join(db):
         name, ext = os.path.splitext(prof_pic.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            response.flash('File extension not allowed. Add Book failed')
-            redirect('/librarian/<user_id>/add')
+            response.flash('File extension not allowed. Join library failed.')
+            redirect('/join')
 
         save_path = f"""static/images/prof_pics/{username}"""
         if not os.path.exists(save_path):
@@ -435,8 +439,9 @@ def add_book(db, user_id):
         name, ext = os.path.splitext(cover.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            response.set_cookie('book_message', 'File extension not allowed. Add Book failed.')
-            redirect('/librarian/<user_id>/add')
+            response.set_cookie('book_message',
+                                'File extension not allowed. Add Book failed.')
+            redirect(f'/librarian/{user_id}/books/add')
 
         cover_save_path = get_cover_save_path(title, author_name)
         cover_path = cover_save_path + '/' + cover.filename
@@ -496,7 +501,7 @@ def remove_copy(db, user_id, book_id):
         redirect(f'/librarian/{user_id}/book/{book_id}')
 
     else:
-        response.flash("All copies are checked out at the moment!")
+        response.set_cookie('book_message', "All copies are checked out at the moment!", path=f"/librarian/{user_id}/")
         redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
@@ -524,8 +529,10 @@ def edit_book_details(db, user_id):
         name, ext = os.path.splitext(cover.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            response.flash('File extension not allowed. Add Book failed')
-            redirect('/librarian/<user_id>/add')
+            response.set_cookie('book_message',
+                                'File extension not allowed. Failed to edit book.',
+                                path=f"/librarian/{user_id}/")
+            redirect(f'/librarian/{user_id}/book/{book_id}')
 
         cover_save_path = get_cover_save_path(title, author_name)
         cover_path = cover_save_path + '/' + cover.filename
