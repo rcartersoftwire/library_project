@@ -1,11 +1,11 @@
 /* Header Styling */
 .header_bar {
     padding: 1.5em;
-    padding-bottom: 0;
     flex-shrink: 0;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    max-height: 125px;
 }
 
 .logo_container {
