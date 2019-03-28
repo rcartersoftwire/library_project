@@ -19,7 +19,11 @@
 
 
 <div class = "form">
-    <form action="/join" method="post">
+    <form action="/join" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="prof_pic">Profile Picture</label>
+        <input type="file" id="prof_pic" name="prof_pic" accept="image/*">
+    </div>
     <div>
         <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name" required=required>
