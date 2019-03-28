@@ -20,6 +20,7 @@ install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 ADD_BOOK_COOKIE = 'add_book_message'
 BOOK_COOKIE = 'book_message'
 JOIN_COOKIE = 'join_message'
+LOGIN_COOKIE = 'login_message'
 
 # Functions
 from author import (find_author_id, get_author_list)
@@ -78,8 +79,9 @@ def serve_static(filename):
 @get('/')
 def home(db):
     books = get_book_list(db)
+    message = get_cookie(LOGIN_COOKIE)
 
-    return template('visitor_pages/home', books=books)
+    return template('visitor_pages/home', books=books, message=message)
 
 
 @get('/user/<id>/home')
@@ -361,10 +363,13 @@ def login(db):
             elif check_user['type'] == 1:
                 redirect(f'/librarian/{str(check_user["id"])}/home')
             else:
+                set_cookie(LOGIN_COOKIE, 'Login failed.')
                 redirect('/')
         else:
+            set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
             redirect('/')
     else:
+        set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         redirect('/')
 
 
