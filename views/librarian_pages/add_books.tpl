@@ -3,7 +3,7 @@
 <h2>Add Book</h2>
 
 % if defined('message'):
-    <p class="flash">{{ message }}</p>
+    <p class="flash">Failed to add book: {{ message }}</p>
 % end 
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="/static/authorword.js"></script>

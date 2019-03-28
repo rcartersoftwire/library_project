@@ -2,6 +2,7 @@
 
 from datetime import datetime as dt
 import os
+from author import get_author_name_from_id
 
 
 def get_book_list(db):
@@ -142,3 +143,64 @@ def get_cover_save_path(title, author_name):
         os.makedirs(cover_save_path)
 
     return cover_save_path
+
+
+def check_isbn(db, isbn, title, author_id):
+    if len(isbn) == 10:
+        check_digit = 0
+        alt_sum = 0
+
+        for i in range(0, 9):
+            mult = 10 - i
+            term = mult * int(isbn[i])
+
+            alt_sum += term
+
+            alt_sum = alt_sum % 11
+        check_digit -= alt_sum
+        check_digit = check_digit % 11
+
+        if check_digit == 10 and isbn[9] == 'X':
+            valid = True
+            message = ""
+        elif check_digit == int(isbn[9]):
+            valid = True
+            message = ""
+        else:
+            valid = False
+            message = "Invalid ISBN 10"
+    elif len(isbn) == 13:
+        check_sum = 0
+        for i in range(12):
+            if i % 2 == 0:
+                check_sum += int(isbn[i])
+            else:
+                check_sum += 3 * int(isbn[i])
+
+        check_sum = check_sum % 10
+
+        if check_sum == int(isbn[12]):
+            valid = True
+            message = ""
+        else:
+            valid = False
+            message = "Invalid ISBN 13 - check"
+    else:
+        valid = False
+        message = "Invalid ISBN length"
+
+    if valid:
+        isbn_results = db.execute("""SELECT title, author_id
+                                  FROM book
+                                  WHERE isbn = ?;""", (isbn,)).fetchone()
+
+        if isbn_results:
+            existing_title = isbn_results['title']
+            existing_author_id = isbn_results['author_id']
+            if title != existing_title or author_id != existing_author_id:
+                valid = False
+                existing_author = get_author_name_from_id(db,
+                                                          existing_author_id)
+                message = f"ISBN already assigned to {existing_title} by {existing_author}"
+
+    return valid, message
