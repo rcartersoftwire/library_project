@@ -173,14 +173,11 @@ def check_isbn(db, isbn, title, author_id):
         check_sum = 0
         for i in range(13):
             if i % 2 == 0:
-                print(1)
                 check_sum += int(isbn[i])
             else:
-                print(3)
                 check_sum += 3 * int(isbn[i])
 
         check_sum = check_sum % 10
-        print(check_sum)
 
         if check_sum == 0:
             valid = True

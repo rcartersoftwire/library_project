@@ -1,5 +1,6 @@
 function checkISBN() {
-    var isbn =$("#isbn").val();
+    let isbnInput =$("#isbn").val();
+    let isbn = isbnInput.trim();
     let validISBN = false;
 
     if (isbn.length == 10) {
@@ -29,7 +30,7 @@ function checkISBN() {
             if (i%2 == 0) {
                 check_digit += parseInt(isbn[i], 10);
             } else {
-                check_digit += parseInt(isbn[i], 10);
+                check_digit += 3 * parseInt(isbn[i], 10);
             }
         }
 
