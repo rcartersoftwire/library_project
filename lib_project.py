@@ -27,8 +27,8 @@ from author import *
 from book import *
 from user import *
 from librarian import *
-from loan import get_user_book_details, create_loan, end_loan, renew_loan
-from cookies import get_cookie, set_cookie
+from loan import *
+from cookies import *
 
 
 def get_search_results(db, search_query):
@@ -42,8 +42,8 @@ def get_search_results(db, search_query):
                                 (search_pattern,)).fetchall()
 
     results = [{'id': b['book_id'], 'title': b['title'],
-                'author': b['first_name']
-                + ' ' + b['last_name']} for b in search_results]
+                'author': b['first_name'] + ' ' + b['last_name']}
+               for b in search_results]
 
     for book in results:
         num_copies = db.execute("""SELECT COUNT (copy.id)
@@ -65,8 +65,6 @@ def get_search_results(db, search_query):
     return results
 
 # Routes
-
-
 @get('/static/<filename:path>')
 def serve_static(filename):
     return static_file(filename, root='./static')
@@ -229,8 +227,8 @@ def librarian_browse_authors(db, user_id):
 
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/librarian_browse_authors', authors=authors,
-                    name=name, user_id=user_id)
+    return template('librarian_pages/librarian_browse_authors',
+                    authors=authors, name=name, user_id=user_id)
 
 
 @get('/user/<user_id>/book/<book_id>')
@@ -266,7 +264,8 @@ def librarian_book_details(db, user_id, book_id):
     return template('librarian_pages/librarian_book_page',
                     book_details=book_details,
                     copy_availability_details=copy_availability_details,
-                    name=name, user_id=user_id, loan_list=loan_list, message=message)
+                    name=name, user_id=user_id, loan_list=loan_list,
+                    message=message)
 
 
 @get('/user/<user_id>/borrow/<book_id>')
@@ -296,14 +295,18 @@ def renew_book(db, user_id, book_id):
 def view_book_requests(db, user_id):
     name = get_librarian_name(db, user_id)
 
-    data = db.execute("SELECT id, title, author_first_name, author_last_name FROM book_request").fetchall()
+    data = db.execute("""SELECT id, title, author_first_name, author_last_name
+                      FROM book_request""").fetchall()
     req_id = [x['id'] for x in data]
     book_title = [x['title'] for x in data]
     book_first_name = [x['author_first_name'] for x in data]
     book_last_name = [x['author_last_name'] for x in data]
-    book_author = ["{} {}".format(a_, b_) for a_, b_ in zip(book_first_name, book_last_name)]
+    book_author = ["{} {}".format(a_, b_) for a_, b_
+                   in zip(book_first_name, book_last_name)]
 
-    return template('librarian_pages/librarian_view_book_requests', name=name, user_id=user_id, book_title=book_title, book_author=book_author, req_id=req_id)
+    return template('librarian_pages/librarian_view_book_requests',
+                    name=name, user_id=user_id, book_title=book_title,
+                    book_author=book_author, req_id=req_id)
 
 
 @get('/librarian/<user_id>/book_request/remove/<req_id>')
@@ -322,7 +325,7 @@ def book_request(db, user_id):
     user = dict(id=user_id,
                 first_name=user_first_name,
                 last_name=user_last_name,
-                loan_count=user_loan_count, 
+                loan_count=user_loan_count,
                 loans=user_loans,
                 past_loans=user_past_loans,
                 join_date=user_join_date)
@@ -397,7 +400,8 @@ def join(db):
         name, ext = os.path.splitext(prof_pic.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            set_cookie(JOIN_COOKIE, 'File extension not allowed. Join library failed.')
+            set_cookie(JOIN_COOKIE,
+                       'File extension not allowed. Join library failed.')
             redirect('/join')
 
         save_path = f"""static/images/prof_pics/{username}"""
@@ -546,15 +550,15 @@ def add_book(db, user_id):
 def remove_copy(db, user_id, book_id):
     # Find one copy ID to be removed
     available_copy_ids_rows = db.execute("""SELECT copy.id FROM copy
-                                    LEFT JOIN loan ON copy_id=copy.id
-                                    AND returned=0 
-                                    WHERE loan.id is NULL
-                                    AND book_id = ?""",
-                                    (book_id,)).fetchall()
+                                         LEFT JOIN loan ON copy_id=copy.id
+                                         AND returned=0
+                                         WHERE loan.id is NULL
+                                         AND book_id = ?""",
+                                         (book_id,)).fetchall()
 
     available_copy_ids = [x['id'] for x in available_copy_ids_rows]
 
-    if len(available_copy_ids)>0:
+    if len(available_copy_ids) > 0:
         copy_id = available_copy_ids[0]
 
         # Remove associated child loans
@@ -675,7 +679,8 @@ def view_user_profile(db, librarian_id, view_user_profile_id):
 
     name = get_librarian_name(db, librarian_id)
 
-    return template('librarian_pages/view_user_profile', name=name, user_id=librarian_id, user=user)
+    return template('librarian_pages/view_user_profile', name=name,
+                    user_id=librarian_id, user=user)
 
 
 
