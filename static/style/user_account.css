@@ -7,8 +7,12 @@
     text-align: left;
     font-weight: normal;
     font-variant: small-caps;
+    padding: 0 0.5em;
     font-size: 1.1em;
-    min-width: 300px;
+}
+
+.user_loans_table td{
+    padding: 0 0.5em;
 }
 
 .user_loans_table td a{
@@ -24,4 +28,3 @@
 .user_prof_pic_list {
     max-width: 10%;
 }
-

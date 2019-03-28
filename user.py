@@ -23,9 +23,10 @@ def get_user_details(db, id):
 
     user_loans = [{'book_id': l['book_id'], 'title': l['title'],
                    'author': l['first_name'] + ' ' + l['last_name'],
-                   'due_date': l['due_date'], 'checkout_date': l['checkout_date'],
-                   'copy_id': l['copy_id']} 
-                   for l in user_loan_results]
+                   'due_date': l['due_date'],
+                   'checkout_date': l['checkout_date'],
+                   'copy_id': l['copy_id']}
+                  for l in user_loan_results]
 
     user_loan_count = len(user_loans)
 

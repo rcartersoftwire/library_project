@@ -683,7 +683,6 @@ def view_user_profile(db, librarian_id, view_user_profile_id):
                     user_id=librarian_id, user=user)
 
 
-
 @get('/user/<user_id>/account')
 def user_account(db, user_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
