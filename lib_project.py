@@ -469,22 +469,17 @@ def add_book(db, user_id):
 @get('/librarian/<user_id>/remove/<book_id>')
 def remove_copy(db, user_id, book_id):
     # Find one copy ID to be removed
-    all_copies = db.execute("""SELECT id FROM copy where book_id = ?;""",
-                            (book_id,)).fetchall()
-
-    unavailable_copies = db.execute("""SELECT copy.id FROM copy
-                                    JOIN loan on copy_id=copy.id
-                                    WHERE loan.returned = 0
+    available_copy_ids_rows = db.execute("""SELECT copy.id FROM copy
+                                    LEFT JOIN loan ON copy_id=copy.id
+                                    AND returned=0 
+                                    WHERE loan.id is NULL
                                     AND book_id = ?""",
                                     (book_id,)).fetchall()
 
-    all_copies_list = [x['id'] for x in all_copies]
-    unavailable_copies_list = [x['id'] for x in unavailable_copies]
+    available_copy_ids = [x['id'] for x in available_copy_ids_rows]
 
-    available_copies = [x for x in all_copies_list if x not in unavailable_copies_list]
-
-    if len(available_copies)>0:
-        copy_id = available_copies[0]
+    if len(available_copy_ids)>0:
+        copy_id = available_copy_ids[0]
 
         # Remove associated child loans
         db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
@@ -583,6 +578,28 @@ def view_users(db, user_id):
 
     return template('librarian_pages/view_users', name=name, user_id=user_id,
                     user_list=user_list)
+
+
+@get('/librarian/<librarian_id>/users/view/<view_user_profile_id>')
+def view_user_profile(db, librarian_id, view_user_profile_id):
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans, user_prof_pic) = get_user_details(db, view_user_profile_id)
+    user_join_date = get_user_join_date(db, view_user_profile_id)
+    user_past_loans = get_user_past_loans(db, view_user_profile_id)
+
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count,
+                loans=user_loans,
+                prof_pic=user_prof_pic,
+                past_loans=user_past_loans,
+                join_date=user_join_date)
+
+    name = get_librarian_name(db, librarian_id)
+
+    return template('librarian_pages/view_user_profile', name=name, user_id=librarian_id, user=user)
+
 
 
 @get('/user/<user_id>/account')
