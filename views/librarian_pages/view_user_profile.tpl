@@ -1,9 +1,9 @@
-% rebase('user_pages/user_base.tpl', subtitle="My Account")
+% rebase('librarian_pages/librarian_base.tpl', subtitle='View User Account')
             <img class ="user_prof_pic" src="{{user['prof_pic']}}">
             <h2>{{user['first_name']}}'s Account</h2>
 
             <p>Joined Library {{user['join_date']}}</p>
-            <h3>Current Loans</h4>
+            <h3>Your Loans</h4>
             % if user['loan_count'] > 0:
             <table class="user_loans_table">
                 <tr>
@@ -20,11 +20,11 @@
                 % end
             </table>
             % else:
-                <p>You have no current loans</p>
+                <p>{{user['first_name']}} has no current loans</p>
             % end
 
             % if len(user['past_loans']) > 0:
-                <h3>Past Loans</h4>
+                <h3>Your Past Loans</h4>
                 <table class="user_loans_table">
                     <tr>
                         <th>Title</th>

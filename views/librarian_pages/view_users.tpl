@@ -4,7 +4,7 @@
     % for user in user_list:
         <div class="user_info">
             <img class ="user_prof_pic_list" src="{{user['prof_pic']}}">
-            <h3>{{user['name']}}</h3>
+            <a href="/librarian/{{user_id}}/users/view/{{user['id']}}"><h3>{{user['name']}}</h3></a>
             % if user['loan_count'] == 1:
             <h5 class = "loan_count">{{user['loan_count']}} active loan</h5>
             % else:

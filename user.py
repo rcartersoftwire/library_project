@@ -45,7 +45,7 @@ def get_user_list(db):
 
         user_name = user_first_name + ' ' + user_last_name
 
-        user_list.append({'user_id': user_id, 'name': user_name,
+        user_list.append({'id': user_id, 'name': user_name,
                           'loan_count': user_loan_count,
                           'loans': user_loans, 'prof_pic': user_prof_pic})
 
