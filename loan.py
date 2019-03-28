@@ -32,10 +32,11 @@ def create_loan(db, user_id, book_id):
     copy_id = copy['id']
     hire_period = copy['hire_period']
 
+    checkout_date = dt.now().strftime('%d/%m/%y')
     due_date = (dt.now() + timedelta(days=hire_period)).strftime('%d/%m/%y')
 
-    db.execute("""INSERT INTO loan (copy_id, borrower_id, due_date, returned)
-               VALUES (?, ?, ?, ?);""", (copy_id, user_id, due_date, 0))
+    db.execute("""INSERT INTO loan (copy_id, borrower_id, due_date, returned, checkout_date)
+               VALUES (?, ?, ?, ?, ?);""", (copy_id, user_id, due_date, 0, checkout_date))
 
     return
 
@@ -48,7 +49,10 @@ def end_loan(db, user_id, book_id):
                          AND loan.borrower_id = ? AND returned = 0""",
                          (book_id, user_id)).fetchone()[0]
 
+    returned_date = dt.now().strftime('%d/%m/%y')
+
     db.execute("""UPDATE loan SET returned = 1 WHERE id=?;""", (loan_id,))
+    db.execute("""UPDATE loan SET returned_date = ? WHERE id=?;""", (returned_date, loan_id))
 
     return
 

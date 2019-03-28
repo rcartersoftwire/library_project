@@ -27,8 +27,8 @@ from author import *
 from book import *
 from user import *
 from librarian import *
-from loan import get_user_book_details, create_loan, end_loan, renew_loan
-from cookies import get_cookie, set_cookie
+from loan import *
+from cookies import *
 
 
 def get_search_results(db, search_query):
@@ -65,8 +65,6 @@ def get_search_results(db, search_query):
     return results
 
 # Routes
-
-
 @get('/static/<filename:path>')
 def serve_static(filename):
     return static_file(filename, root='./static')
