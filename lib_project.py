@@ -301,6 +301,7 @@ def join(db):
     username = request.forms.get('username')
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
+    acc_type = request.forms.get('acc_type')
 
     prof_pic = request.files.get('prof_pic')
 
@@ -346,12 +347,14 @@ def join(db):
         db.execute("""INSERT INTO user (first_name, last_name, username,
                    password, type, join_date, prof_pic)
                    VALUES (?, ?, ?, ?, ?, ?, ?);""", (first_name, last_name,
-                   username, password, 0, join_date, profile_pic_path))
+                   username, password, acc_type, join_date, profile_pic_path))
 
         user_id = db.execute("SELECT id FROM user WHERE username = ?;",
                              (username,)).fetchone()[0]
-
-        redirect(f'/user/{user_id}/home')
+        if acc_type == 0:
+            redirect(f'/user/{user_id}/home')
+        else:
+            redirect(f'/librarian/{user_id}/home')
 
 
 @get('/get_username_list/<username>')
