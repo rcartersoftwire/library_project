@@ -1,9 +1,13 @@
 /* Header Styling */
 .header_bar {
-    width: 78%;
-    float:left;
-    padding: 1.5em;
-    height: 125px;
+    /* width: 78%; */
+    /* float:left; */
+    padding: 0.5em 1.5em;
+    /* height: 125px; */
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .logo_container {
@@ -52,6 +56,7 @@
 .search_bar #search_button{
     height: 100%;
     border: none;
+    border-radius: 2.5px;
     background-color: var(--mid-blue);
     color: var(--sidebar-text-color);
     float: right;

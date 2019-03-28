@@ -24,14 +24,39 @@
 html {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     color: var(--text-color);
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    display: flex;
+}
+
+.column {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#left_column {
+    flex-grow: 1;
+}
+
+#right_column {
+    flex-shrink:0;
+    max-width: 20%;
 }
 
 /* Main page styling */
 .main_page {
-    width: 78%;
+    /* width: 78%; */
     padding: 1em 2em;
     top: 200px;
     clear: left;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .main_page a{

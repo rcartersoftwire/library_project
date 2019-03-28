@@ -1,14 +1,14 @@
 /* Sidebar Styling */
 
 .side_bar {
-    width: 20%;
-    float: right;
     padding: 1.5em;
     height: 100%;
     margin: 0;
     background-color: var(--mid-blue);
     color: var(--sidebar-text-color);
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .login_container {
@@ -64,11 +64,9 @@
 }
 
 .library_info {
-    width: 90%;
-    position: absolute;
-    padding: 1em 0;
-    bottom: 0;
+    width: 100%;
     text-align: center;
+    align-self: flex-end;
 }
 
 .library_info h3, .library_info p {
