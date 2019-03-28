@@ -1,4 +1,4 @@
-% rebase('visitor_pages/visitor_base.tpl', subtitle="Browse Titles")
+% rebase('visitor_pages/visitor_base.tpl', subtitle="Browse Authors")
 <ul class="browse_filters">
     <li>Browse by:</li>
     <li><a href="/browse/titles">Title</a></li>

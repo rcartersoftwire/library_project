@@ -1,4 +1,4 @@
-% rebase('user_pages/user_base.tpl', subtitle="Browse Titles")
+% rebase('user_pages/user_base.tpl', subtitle="Browse Authors")
 <ul class="browse_filters">
     <li>Browse by:</li>
     <li><a href="/user/{{user['id']}}/browse/titles">Title</a></li>
