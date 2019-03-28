@@ -80,6 +80,12 @@ def home(db):
 
 @get('/user/<id>/home')
 def user_home(db, id):
+    book_requested = request.params.get('book_requested')
+    if book_requested is not None:
+        book_requested = eval(book_requested)
+    else:
+        book_requested = False
+    
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, id)
 
@@ -90,7 +96,7 @@ def user_home(db, id):
                 last_name=user_last_name,
                 loan_count=user_loan_count,
                 loans=user_loans)
-    return template('user_pages/user_home', books=books, user=user)
+    return template('user_pages/user_home', books=books, user=user, book_requested=book_requested)
 
 
 @get('/librarian/<user_id>/home')
@@ -339,8 +345,9 @@ def add_book_request(db, user_id):
 
     db.execute("""INSERT INTO book_request(title, author_first_name, author_last_name)
                    VALUES (?,?,?)""", (title, first_name, last_name))
-
-    redirect(f'/user/{user_id}/home')
+    
+    redirect(f'/user/{user_id}/home?book_requested=True')
+    
 
 
 @post('/login')
