@@ -30,3 +30,14 @@ def get_author_name_from_id(db, id):
     author_name = first_name + ' ' + last_name
 
     return author_name
+
+
+def get_author_list(db):
+    author_results = db.execute("""SELECT DISTINCT author.id FROM author
+                                INNER JOIN book on book.author_id = author.id
+                                ORDER BY last_name;""").fetchall()
+
+    authors = [{'id': a['id'], 'name': get_author_name_from_id(db, a['id'])}
+               for a in author_results]
+
+    return authors

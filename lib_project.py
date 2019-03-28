@@ -18,10 +18,11 @@ install(message_plugin)
 install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # Functions
-from author import (find_author_id)
+from author import (find_author_id, get_author_list)
 from book import (get_book_list, get_book_details, check_copies_available,
                   next_due_back, find_book_id, find_loan_id, insert_copy,
-                  get_cover_save_path, check_isbn)
+                  get_cover_save_path, check_isbn, get_title_list,
+                  get_books_by_author)
 from user import (get_user_details, get_user_list, get_user_past_loans,
                   get_user_join_date)
 from librarian import get_librarian_name
@@ -147,6 +148,24 @@ def book_details(db, book_id):
 
     return template('visitor_pages/book_page', book_details=book_details,
                     copy_availability_details=copy_availability_details)
+
+
+@get('/browse/titles')
+def browse_titles(db):
+    books = get_title_list(db)
+
+    return template('visitor_pages/visitor_browse_titles', books=books)
+
+
+@get('/browse/authors')
+def browse_authors(db):
+    authors = get_author_list(db)
+
+    for author in authors:
+        author_books = get_books_by_author(db, author['id'])
+        author['books'] = author_books
+
+    return template('visitor_pages/visitor_browse_authors', authors=authors)
 
 
 @get('/user/<user_id>/book/<book_id>')
@@ -481,9 +500,10 @@ def remove_copy(db, user_id, book_id):
     all_copies_list = [x['id'] for x in all_copies]
     unavailable_copies_list = [x['id'] for x in unavailable_copies]
 
-    available_copies = [x for x in all_copies_list if x not in unavailable_copies_list]
+    available_copies = [x for x in all_copies_list
+                        if x not in unavailable_copies_list]
 
-    if len(available_copies)>0:
+    if len(available_copies) > 0:
         copy_id = available_copies[0]
 
         # Remove associated child loans

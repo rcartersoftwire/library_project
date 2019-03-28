@@ -1,22 +1,17 @@
-% rebase('visitor_pages/visitor_base.tpl', subtitle="Join")
+% rebase('visitor_pages/visitor_base.tpl', subtitle="Browse Titles")
 <ul class="browse_filters">
     <li>Browse by:</li>
-    <li><a href="/browse/title">Title</a></li>
-    <li><a href="/browse/author">Author</a></li>
+    <li><a href="/browse/titles">Title</a></li>
+    <li><a href="/browse/authors">Author</a></li>
 </ul>
 <div class="book_display">
-    % for book in books:
-        <div class="book_tile">
-            % if book['cover']:
-                <img class ="book_cover" src="{{book['cover']}}">
-            % else:
-                <img class="book_cover" src="/static/images/missing_book_cover.jpg">
-            % end    
-            <div class="tile_details">
+    <ul>
+        % for book in books:
+            <li>
                 <a href="/book/{{book['id']}}"><h3>{{book['title']}}</h3></a>
                 <h4>{{book['author']}}</h4>
                 <p>{{book['available']}}</p>
-            </div>
-        </div>  
-    % end
+            </li>  
+        % end
+    </ul>
 </div>

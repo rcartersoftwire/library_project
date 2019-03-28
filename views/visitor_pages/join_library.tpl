@@ -1,4 +1,4 @@
-% rebase('visitor_pages/visitor_base.tpl')
+% rebase('visitor_pages/visitor_base.tpl', subtitle="Join")
 
 <h2>Join the Library</h2>
 % if defined('message'):
