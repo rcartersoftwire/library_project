@@ -23,8 +23,7 @@
     </div>
     <div>
         <label for="description">Description</label>
-        <textarea id="description" name="description" value="{{book_details['description']}}">
-        </textarea>
+        <textarea id="description" name="description" value="{{book_details['description']}}">{{book_details['description']}}</textarea>
     </div>
     <div>
         <label for="publisher">Publisher</label>
