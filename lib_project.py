@@ -79,7 +79,7 @@ def home(db):
 @get('/user/<id>/home')
 def user_home(db, id):
     (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans) = get_user_details(db, id)
+     user_loans, user_prof_pic) = get_user_details(db, id)
 
     books = get_book_list(db)
 
@@ -116,7 +116,7 @@ def user_search(db, id):
     results = get_search_results(db, search_query)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans) = get_user_details(db, id)
+     user_loans, user_prof_pic) = get_user_details(db, id)
 
     user = dict(id=user_id,
                 first_name=user_first_name,
@@ -155,7 +155,7 @@ def user_book_details(db, user_id, book_id):
     copy_availability_details = check_copies_available(db, book_id)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans) = get_user_details(db, user_id)
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
 
     book_loaned, due_date = get_user_book_details(db, user_id, book_id)
 
@@ -228,7 +228,7 @@ def remove_book_request(db, user_id, req_id):
 @get('/user/<user_id>/book_request')
 def book_request(db, user_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans) = get_user_details(db, user_id)
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
     user_join_date = get_user_join_date(db, user_id)
     user_past_loans = get_user_past_loans(db, user_id)
 
@@ -298,9 +298,30 @@ def join(db):
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
 
+    prof_pic = request.files.get('prof_pic')
+
+    # Save Profile Pic to Directory
+    try:
+        name, ext = os.path.splitext(prof_pic.filename)
+
+        if ext not in ('.png', '.jpg', '.jpeg'):
+            response.flash('File extension not allowed. Add Book failed')
+            redirect('/librarian/<user_id>/add')
+
+        save_path = f"""static/images/prof_pics/{username}"""
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+        prof_pic.save(save_path)
+        profile_pic_path = '/' + save_path + '/' + prof_pic.filename
+
+    except AttributeError:
+        profile_pic_path = '/static/images/unknown-user.jpg'
+
+    # Join Date 
     now = dt.now()
     join_date = now.strftime("%d/%m/%y")
 
+    # Criteria Checking
     username_in_db = db.execute("SELECT id FROM user WHERE username =?",
                                 (username,)).fetchall()
 
@@ -316,11 +337,12 @@ def join(db):
         response.flash("This username is already taken")
         redirect('/join')
 
+    # Insert into Database
     else:
         db.execute("""INSERT INTO user (first_name, last_name, username,
-                   password, type, join_date)
-                   VALUES (?, ?, ?, ?, ?, ?);""", (first_name, last_name,
-                   username, password, 0, join_date))
+                   password, type, join_date, prof_pic)
+                   VALUES (?, ?, ?, ?, ?, ?, ?);""", (first_name, last_name,
+                   username, password, 0, join_date, profile_pic_path))
 
         user_id = db.execute("SELECT id FROM user WHERE username = ?;",
                              (username,)).fetchone()[0]
@@ -556,7 +578,7 @@ def view_users(db, user_id):
 @get('/user/<user_id>/account')
 def user_account(db, user_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans) = get_user_details(db, user_id)
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
     user_join_date = get_user_join_date(db, user_id)
     user_past_loans = get_user_past_loans(db, user_id)
 
@@ -565,10 +587,11 @@ def user_account(db, user_id):
                 last_name=user_last_name,
                 loan_count=user_loan_count,
                 loans=user_loans,
+                prof_pic=user_prof_pic,
                 past_loans=user_past_loans,
                 join_date=user_join_date)
 
     return template('user_pages/user_account', user=user)
 
 
-run(host='localhost', port=8080, debug=True)
+run(host='10.214.4.108', port=8080, debug=True)

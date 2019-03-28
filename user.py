@@ -27,8 +27,10 @@ def get_user_details(db, id):
 
     user_loan_count = len(user_loans)
 
+    user_profile_pic = db.execute("""SELECT prof_pic FROM user WHERE id=?;""", (user_id,)).fetchone()['prof_pic']
+
     return (user_id, user_first_name, user_last_name, user_loan_count,
-            user_loans)
+            user_loans, user_profile_pic)
 
 
 def get_user_list(db):
@@ -39,13 +41,13 @@ def get_user_list(db):
 
     for user in user_results:
         (user_id, user_first_name, user_last_name, user_loan_count,
-         user_loans) = get_user_details(db, user['id'])
+         user_loans, user_prof_pic) = get_user_details(db, user['id'])
 
         user_name = user_first_name + ' ' + user_last_name
 
         user_list.append({'user_id': user_id, 'name': user_name,
                           'loan_count': user_loan_count,
-                          'loans': user_loans})
+                          'loans': user_loans, 'prof_pic': user_prof_pic})
 
     return user_list
 

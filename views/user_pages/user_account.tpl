@@ -1,5 +1,5 @@
 % rebase('user_pages/user_base.tpl', subtitle="My Account")
-
+            <img class ="user_prof_pic" src="{{user['prof_pic']}}">
             <h2>{{user['first_name']}}'s Account</h2>
 
             <p>Joined Library {{user['join_date']}}</p>

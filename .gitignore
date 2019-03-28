@@ -7,3 +7,4 @@ __pycache__/
 *$py.class
 src/
 static/images/covers/*
+static/images/prof_pics/*
