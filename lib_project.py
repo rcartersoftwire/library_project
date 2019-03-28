@@ -174,6 +174,16 @@ def user_browse_titles(db, user_id):
                     user=user)
 
 
+@get('/librarian/<user_id>/browse/titles')
+def librarian_browse_titles(db, user_id):
+    books = get_title_list(db)
+
+    name = get_librarian_name(db, user_id)
+
+    return template('librarian_pages/librarian_browse_titles', books=books,
+                    user_id=user_id, name=name)
+
+
 @get('/browse/authors')
 def browse_authors(db):
     authors = get_author_list(db)
@@ -182,7 +192,7 @@ def browse_authors(db):
         author_books = get_books_by_author(db, author['id'])
         author['books'] = author_books
 
-    return template('user_pages/user_browse_authors', authors=authors)
+    return template('visitor_pages/visitor_browse_authors', authors=authors)
 
 
 @get('/user/<user_id>/browse/authors')
@@ -204,6 +214,20 @@ def user_browse_authors(db, user_id):
 
     return template('user_pages/user_browse_authors', authors=authors,
                     user=user)
+
+
+@get('/librarian/<user_id>/browse/authors')
+def librarian_browse_authors(db, user_id):
+    authors = get_author_list(db)
+
+    for author in authors:
+        author_books = get_books_by_author(db, author['id'])
+        author['books'] = author_books
+
+    name = get_librarian_name(db, user_id)
+
+    return template('librarian_pages/librarian_browse_authors', authors=authors,
+                    name=name, user_id=user_id)
 
 
 @get('/user/<user_id>/book/<book_id>')
