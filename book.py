@@ -147,7 +147,7 @@ def get_cover_save_path(title, author_name):
 
 def check_isbn(db, isbn, title, author_id):
     if len(isbn) == 10:
-        check_digit = 0
+        check_digit = 11
         alt_sum = 0
 
         for i in range(0, 9):
@@ -156,7 +156,7 @@ def check_isbn(db, isbn, title, author_id):
 
             alt_sum += term
 
-            alt_sum = alt_sum % 11
+        alt_sum = alt_sum % 11
         check_digit -= alt_sum
         check_digit = check_digit % 11
 
@@ -171,20 +171,23 @@ def check_isbn(db, isbn, title, author_id):
             message = "Invalid ISBN 10"
     elif len(isbn) == 13:
         check_sum = 0
-        for i in range(12):
+        for i in range(13):
             if i % 2 == 0:
+                print(1)
                 check_sum += int(isbn[i])
             else:
+                print(3)
                 check_sum += 3 * int(isbn[i])
 
         check_sum = check_sum % 10
+        print(check_sum)
 
-        if check_sum == int(isbn[12]):
+        if check_sum == 0:
             valid = True
             message = ""
         else:
             valid = False
-            message = "Invalid ISBN 13 - check"
+            message = "Invalid ISBN 13"
     else:
         valid = False
         message = "Invalid ISBN length"

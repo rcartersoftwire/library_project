@@ -215,8 +215,9 @@ def view_book_requests(db, user_id):
     book_first_name = [x['author_first_name'] for x in data]
     book_last_name = [x['author_last_name'] for x in data]
     book_author = ["{} {}".format(a_, b_) for a_, b_ in zip(book_first_name, book_last_name)]
-    
+
     return template('librarian_pages/view_book_requests', name=name, user_id=user_id, book_title=book_title, book_author=book_author, req_id=req_id)
+
 
 @get('/librarian/<user_id>/book_request/remove/<req_id>')
 def remove_book_request(db, user_id, req_id):
@@ -241,6 +242,7 @@ def book_request(db, user_id):
 
     return template('user_pages/user_book_request', user=user)
 
+
 @post('/user/<user_id>/book_request')
 def add_book_request(db, user_id):
     title = request.forms.get('title').strip()
@@ -248,12 +250,13 @@ def add_book_request(db, user_id):
 
     names = author_name.split(" ", 1)
     first_name = names[0]
-    last_name = names[1]    
-    
+    last_name = names[1]
+
     db.execute("""INSERT INTO book_request(title, author_first_name, author_last_name)
                    VALUES (?,?,?)""", (title, first_name, last_name))
 
     redirect(f'/user/{user_id}/home')
+
 
 @post('/login')
 def login(db):
@@ -339,7 +342,8 @@ def get_username_list(db, username):
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/add_books', name=name, user_id=user_id)
+    return template('librarian_pages/add_books', name=name, user_id=user_id,
+                    message=request.message)
 
 
 @get('/get_loan_list/<book_id>')
@@ -397,7 +401,7 @@ def add_book(db, user_id):
     valid_isbn, isbn_message = check_isbn(db, isbn, title, author_id)
 
     if not valid_isbn:
-        response.flash(isbn_message + '. Add Book failed')
+        response.flash(f'{isbn_message}. Add Book failed')
         redirect(f'/librarian/{user_id}/books/add')
 
     cover = request.files.get('cover')
@@ -433,10 +437,13 @@ def add_book(db, user_id):
 def remove_copy(db, user_id, book_id):
     # Find one copy ID to be removed
     all_copies = db.execute("""SELECT id FROM copy where book_id = ?;""",
-                        (book_id,)).fetchall()
-
-    unavailable_copies = db.execute("SELECT copy.id FROM copy JOIN loan on copy_id=copy.id WHERE loan.returned = 0 AND book_id = ?",
                             (book_id,)).fetchall()
+
+    unavailable_copies = db.execute("""SELECT copy.id FROM copy
+                                    JOIN loan on copy_id=copy.id
+                                    WHERE loan.returned = 0
+                                    AND book_id = ?""",
+                                    (book_id,)).fetchall()
 
     all_copies_list = [x['id'] for x in all_copies]
     unavailable_copies_list = [x['id'] for x in unavailable_copies]
