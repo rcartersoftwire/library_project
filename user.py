@@ -5,7 +5,7 @@ def get_user_details(db, id):
     user_details = db.execute("""SELECT id, first_name, last_name FROM user
                       WHERE user.id = ?;""", (id,)).fetchone()
 
-    user_loan_results = db.execute("""SELECT checkout_date, book.id as book_id, book.title as title,
+    user_loan_results = db.execute("""SELECT copy_id, checkout_date, book.id as book_id, book.title as title,
                                    author.first_name as first_name,
                                    author.last_name as last_name,
                                    loan.due_date as due_date
@@ -23,7 +23,9 @@ def get_user_details(db, id):
 
     user_loans = [{'book_id': l['book_id'], 'title': l['title'],
                    'author': l['first_name'] + ' ' + l['last_name'],
-                   'due_date': l['due_date'], 'checkout_date': l['checkout_date']} for l in user_loan_results]
+                   'due_date': l['due_date'], 'checkout_date': l['checkout_date'],
+                   'copy_id': l['copy_id']} 
+                   for l in user_loan_results]
 
     user_loan_count = len(user_loans)
 
@@ -53,7 +55,7 @@ def get_user_list(db):
 
 
 def get_user_past_loans(db, id):
-    past_loan_results = db.execute("""SELECT returned_date, checkout_date, 
+    past_loan_results = db.execute("""SELECT copy_id, returned_date, checkout_date, 
                                     book.id as book_id, book.title as title,
                                    author.first_name as first_name,
                                    author.last_name as last_name,
@@ -69,7 +71,8 @@ def get_user_past_loans(db, id):
     past_loans = [{'book_id': l['book_id'], 'title': l['title'],
                   'author': l['first_name'] + ' ' + l['last_name'], 
                   'checkout_date': l['checkout_date'],
-                  'returned_date': l['returned_date'],}
+                  'returned_date': l['returned_date'],
+                  'copy_id': l['copy_id']}
                   for l in past_loan_results]
 
     return past_loans

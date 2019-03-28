@@ -7,6 +7,7 @@
             % if user['loan_count'] > 0:
             <table class="user_loans_table">
                 <tr>
+                    <th>ID</th>
                     <th>Title</th>
                     <th>Author</th>
                     <th>Checkout Date</th>
@@ -14,6 +15,7 @@
                 </tr>
                 % for loan in user['loans']:
                 <tr>
+                    <td>{{loan['copy_id']}}</td>
                     <td><a href="/user/{{user['id']}}/book/{{loan['book_id']}}">{{loan['title']}}</a></td>
                     <td>{{loan['author']}}</td>
                     <td>{{loan['checkout_date']}}</td>
@@ -29,6 +31,7 @@
                 <h3><u>Past Loans</u></h4>
                 <table class="user_loans_table">
                     <tr>
+                        <th>ID</th>
                         <th>Title</th>
                         <th>Author</th>
                         <th>Checkout Date</th>
@@ -36,6 +39,7 @@
                     </tr>
                     % for loan in user['past_loans']:
                     <tr>
+                        <td>{{loan['copy_id']}}</td>
                         <td><a href="/user/{{user['id']}}/book/{{loan['book_id']}}">{{loan['title']}}</a></td>
                         <td>{{loan['author']}}</td>
                         <td>{{loan['checkout_date']}}</td>
