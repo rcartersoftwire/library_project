@@ -31,8 +31,7 @@
     </div>
     <div>
         <label for="description">Description</label>
-        <textarea id="description" name="description">
-        </textarea>
+        <textarea id="description" name="description"></textarea>
     </div>
     <div>
         <label for="publisher">Publisher</label>
