@@ -341,9 +341,12 @@ def get_username_list(db, username):
 @get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
+    message = request.get_cookie('book_message')
+    if message:
+        response.delete_cookie("book_message", path=f"/librarian/{user_id}/")
 
     return template('librarian_pages/add_books', name=name, user_id=user_id,
-                    message=request.message)
+                    message=message)
 
 
 @get('/get_loan_list/<book_id>')
@@ -401,7 +404,7 @@ def add_book(db, user_id):
     valid_isbn, isbn_message = check_isbn(db, isbn, title, author_id)
 
     if not valid_isbn:
-        response.flash(f'{isbn_message}. Add Book failed')
+        response.set_cookie('book_message', f'{isbn_message}. Add Book failed.')
         redirect(f'/librarian/{user_id}/books/add')
 
     cover = request.files.get('cover')
@@ -410,7 +413,7 @@ def add_book(db, user_id):
         name, ext = os.path.splitext(cover.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            response.flash('File extension not allowed. Add Book failed')
+            response.set_cookie('book_message', 'File extension not allowed. Add Book failed.')
             redirect('/librarian/<user_id>/add')
 
         cover_save_path = get_cover_save_path(title, author_name)
