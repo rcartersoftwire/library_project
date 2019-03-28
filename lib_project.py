@@ -17,15 +17,22 @@ caribou.upgrade(database_file, migrations_path)
 install(message_plugin)
 install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
+ADD_BOOK_COOKIE = 'add_book_message'
+BOOK_COOKIE = 'book_message'
+JOIN_COOKIE = 'join_message'
+LOGIN_COOKIE = 'login_message'
+
 # Functions
-from author import (find_author_id)
+from author import (find_author_id, get_author_list)
 from book import (get_book_list, get_book_details, check_copies_available,
                   next_due_back, find_book_id, find_loan_id, insert_copy,
-                  get_cover_save_path, check_isbn)
+                  get_cover_save_path, check_isbn, get_title_list,
+                  get_books_by_author)
 from user import (get_user_details, get_user_list, get_user_past_loans,
                   get_user_join_date)
 from librarian import get_librarian_name
 from loan import get_user_book_details, create_loan, end_loan, renew_loan
+from cookies import get_cookie, set_cookie
 
 
 def get_search_results(db, search_query):
@@ -72,8 +79,9 @@ def serve_static(filename):
 @get('/')
 def home(db):
     books = get_book_list(db)
+    message = get_cookie(LOGIN_COOKIE)
 
-    return template('visitor_pages/home', books=books)
+    return template('visitor_pages/home', books=books, message=message)
 
 
 @get('/user/<id>/home')
@@ -149,6 +157,86 @@ def book_details(db, book_id):
                     copy_availability_details=copy_availability_details)
 
 
+@get('/browse/titles')
+def browse_titles(db):
+    books = get_title_list(db)
+
+    return template('visitor_pages/visitor_browse_titles', books=books)
+
+
+@get('/user/<user_id>/browse/titles')
+def user_browse_titles(db, user_id):
+    books = get_title_list(db)
+
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
+
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count,
+                loans=user_loans)
+
+    return template('user_pages/user_browse_titles', books=books,
+                    user=user)
+
+
+@get('/librarian/<user_id>/browse/titles')
+def librarian_browse_titles(db, user_id):
+    books = get_title_list(db)
+
+    name = get_librarian_name(db, user_id)
+
+    return template('librarian_pages/librarian_browse_titles', books=books,
+                    user_id=user_id, name=name)
+
+
+@get('/browse/authors')
+def browse_authors(db):
+    authors = get_author_list(db)
+
+    for author in authors:
+        author_books = get_books_by_author(db, author['id'])
+        author['books'] = author_books
+
+    return template('visitor_pages/visitor_browse_authors', authors=authors)
+
+
+@get('/user/<user_id>/browse/authors')
+def user_browse_authors(db, user_id):
+    authors = get_author_list(db)
+
+    for author in authors:
+        author_books = get_books_by_author(db, author['id'])
+        author['books'] = author_books
+
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
+
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count,
+                loans=user_loans)
+
+    return template('user_pages/user_browse_authors', authors=authors,
+                    user=user)
+
+
+@get('/librarian/<user_id>/browse/authors')
+def librarian_browse_authors(db, user_id):
+    authors = get_author_list(db)
+
+    for author in authors:
+        author_books = get_books_by_author(db, author['id'])
+        author['books'] = author_books
+
+    name = get_librarian_name(db, user_id)
+
+    return template('librarian_pages/librarian_browse_authors', authors=authors,
+                    name=name, user_id=user_id)
+
+
 @get('/user/<user_id>/book/<book_id>')
 def user_book_details(db, user_id, book_id):
     book_details = get_book_details(db, book_id)
@@ -176,9 +264,7 @@ def librarian_book_details(db, user_id, book_id):
     copy_availability_details = check_copies_available(db, book_id)
     name = get_librarian_name(db, user_id)
 
-    message = request.get_cookie('book_message', default="")
-    if message:
-        response.delete_cookie("book_message", path=f"/librarian/{user_id}/")
+    message = get_cookie(BOOK_COOKIE, f'/librarian/{user_id}/')
 
     return template('librarian_pages/librarian_book_page',
                     book_details=book_details,
@@ -219,13 +305,13 @@ def view_book_requests(db, user_id):
     book_first_name = [x['author_first_name'] for x in data]
     book_last_name = [x['author_last_name'] for x in data]
     book_author = ["{} {}".format(a_, b_) for a_, b_ in zip(book_first_name, book_last_name)]
-    
+
     return template('librarian_pages/librarian_view_book_requests', name=name, user_id=user_id, book_title=book_title, book_author=book_author, req_id=req_id)
 
 
 @get('/librarian/<user_id>/book_request/remove/<req_id>')
 def remove_book_request(db, user_id, req_id):
-    db.execute("DELETE FROM book_request WHERE id = ?",(req_id,))
+    db.execute("DELETE FROM book_request WHERE id = ?", (req_id,))
     redirect(f'/librarian/{user_id}/book_requests')
 
 
@@ -277,10 +363,13 @@ def login(db):
             elif check_user['type'] == 1:
                 redirect(f'/librarian/{str(check_user["id"])}/home')
             else:
+                set_cookie(LOGIN_COOKIE, 'Login failed.')
                 redirect('/')
         else:
+            set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
             redirect('/')
     else:
+        set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         redirect('/')
 
 
@@ -291,7 +380,8 @@ def logout(db):
 
 @get('/join')
 def join_library(db):
-    return template('visitor_pages/join_library', message=request.message)
+    message = get_cookie(JOIN_COOKIE)
+    return template('visitor_pages/join_library', message=message)
 
 
 @post('/join')
@@ -310,7 +400,7 @@ def join(db):
         name, ext = os.path.splitext(prof_pic.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            response.flash('File extension not allowed. Join library failed.')
+            set_cookie(JOIN_COOKIE, 'File extension not allowed. Join library failed.')
             redirect('/join')
 
         save_path = f"""static/images/prof_pics/{username}"""
@@ -322,7 +412,7 @@ def join(db):
     except AttributeError:
         profile_pic_path = '/static/images/unknown-user.jpg'
 
-    # Join Date 
+    # Join Date
     now = dt.now()
     join_date = now.strftime("%d/%m/%y")
 
@@ -331,15 +421,18 @@ def join(db):
                                 (username,)).fetchall()
 
     if len(password) < 8:
-        response.flash("Password must be at least 8 characters")
+        set_cookie(JOIN_COOKIE, '''Password must be at least 8 characters.
+                   Join library failed.''')
         redirect('/join')
 
     if password != conf_password:
-        response.flash("Your passwords do not match")
+        set_cookie(JOIN_COOKIE, '''Your passwords do not match.
+                   Join library failed.''')
         redirect('/join')
 
     elif username_in_db:
-        response.flash("This username is already taken")
+        set_cookie(JOIN_COOKIE, '''This username is already taken.
+                   Join library failed.''')
         redirect('/join')
 
     # Insert into Database
@@ -370,9 +463,7 @@ def get_username_list(db, username):
 @get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
-    message = request.get_cookie('book_message', default="")
-    if message:
-        response.delete_cookie("book_message", path=f"/librarian/{user_id}/")
+    message = get_cookie(ADD_BOOK_COOKIE, cookie_path=f"/librarian/{user_id}")
 
     return template('librarian_pages/add_books', name=name, user_id=user_id,
                     message=message)
@@ -433,7 +524,8 @@ def add_book(db, user_id):
     valid_isbn, isbn_message = check_isbn(db, isbn, title, author_id)
 
     if not valid_isbn:
-        response.set_cookie('book_message', f'{isbn_message}. Add Book failed.')
+        set_cookie(ADD_BOOK_COOKIE, f'{isbn_message}. Add Book failed.',
+                   f'/librarian/{user_id}')
         redirect(f'/librarian/{user_id}/books/add')
 
     cover = request.files.get('cover')
@@ -442,8 +534,8 @@ def add_book(db, user_id):
         name, ext = os.path.splitext(cover.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            response.set_cookie('book_message',
-                                'File extension not allowed. Add Book failed.')
+            set_cookie(ADD_BOOK_COOKIE,
+                       'File extension not allowed. Add Book failed.')
             redirect(f'/librarian/{user_id}/books/add')
 
         cover_save_path = get_cover_save_path(title, author_name)
@@ -499,7 +591,8 @@ def remove_copy(db, user_id, book_id):
         redirect(f'/librarian/{user_id}/book/{book_id}')
 
     else:
-        response.set_cookie('book_message', "All copies are checked out at the moment!", path=f"/librarian/{user_id}/")
+        set_cookie(BOOK_COOKIE, "All copies are checked out at the moment!",
+                   cookie_path=f"/librarian/{user_id}/")
         redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
@@ -527,9 +620,9 @@ def edit_book_details(db, user_id):
         name, ext = os.path.splitext(cover.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            response.set_cookie('book_message',
-                                'File extension not allowed. Failed to edit book.',
-                                path=f"/librarian/{user_id}/")
+            set_cookie(BOOK_COOKIE,
+                       'File extension not allowed. Failed to edit book.',
+                       cookie_path=f"/librarian/{user_id}/")
             redirect(f'/librarian/{user_id}/book/{book_id}')
 
         cover_save_path = get_cover_save_path(title, author_name)

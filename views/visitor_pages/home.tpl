@@ -1,9 +1,8 @@
-% rebase('visitor_pages/visitor_base.tpl', subtitle="Join")
+% rebase('visitor_pages/visitor_base.tpl')
 <ul class="browse_filters">
     <li>Browse by:</li>
-    <li><a href="/browse_title">Title</a></li>
-    <li><a href="/browse_author">Author</a></li>
-    <li><a href="/browse_genre">Genre</a></li>
+    <li><a href="/browse/titles">Title</a></li>
+    <li><a href="/browse/authors">Author</a></li>
 </ul>
 <div class="book_display">
     % for book in books:

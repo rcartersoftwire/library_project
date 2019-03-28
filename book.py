@@ -204,3 +204,30 @@ def check_isbn(db, isbn, title, author_id):
                 message = f"ISBN already assigned to {existing_title} by {existing_author}"
 
     return valid, message
+
+
+def get_title_list(db):
+    book_results = db.execute("SELECT id FROM book ORDER BY title;").fetchall()
+
+    books = [get_book_details(db, b['id']) for b in book_results]
+
+    for book in books:
+        copy_availability_details = check_copies_available(db, book['id'])
+
+        if copy_availability_details['num_available'] > 0:
+            book['available'] = 'Available'
+        else:
+            book['available'] = 'Unavailable'
+
+    return books
+
+
+def get_books_by_author(db, author_id):
+
+    book_results = db.execute("""SELECT id, title FROM book
+                              WHERE author_id = ? ORDER BY title""",
+                              (author_id,)).fetchall()
+
+    author_books = [{'id': b['id'], 'title': b['title']} for b in book_results]
+
+    return author_books

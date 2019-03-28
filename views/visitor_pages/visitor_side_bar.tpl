@@ -13,6 +13,9 @@
                 <button type="submit" id="login_button">Log In</button>
             </div>
         </form>
+        % if defined('message'):
+        <p class="flash">{{ message }}</p>
+        % end
     </div>
     <div class="sidebar_links">
         <ul>
