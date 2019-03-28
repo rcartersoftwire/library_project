@@ -44,6 +44,13 @@
         <label for="conf_password">Confirm Password</label>
         <input type="password" id="conf_password" name="conf_password" required=required onChange="checkPasswordMatch()">
     </div>
+    <div>
+        <label for="acc_type">Account Type</label>
+        <select name = "acc_type">
+            <option value=0>Member</option>
+            <option value=1>Librarian</option>
+        </select>
+    </div>
     <div class="registrationFormAlert" id="divCheckUsername"></div>
     <div class="registrationFormAlert" id="divCheckPassword"></div>
     <div>
