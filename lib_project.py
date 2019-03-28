@@ -157,6 +157,23 @@ def browse_titles(db):
     return template('visitor_pages/visitor_browse_titles', books=books)
 
 
+@get('/user/<user_id>/browse/titles')
+def user_browse_titles(db, user_id):
+    books = get_title_list(db)
+
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
+
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count,
+                loans=user_loans)
+
+    return template('user_pages/user_browse_titles', books=books,
+                    user=user)
+
+
 @get('/browse/authors')
 def browse_authors(db):
     authors = get_author_list(db)
@@ -165,7 +182,28 @@ def browse_authors(db):
         author_books = get_books_by_author(db, author['id'])
         author['books'] = author_books
 
-    return template('visitor_pages/visitor_browse_authors', authors=authors)
+    return template('user_pages/user_browse_authors', authors=authors)
+
+
+@get('/user/<user_id>/browse/authors')
+def user_browse_authors(db, user_id):
+    authors = get_author_list(db)
+
+    for author in authors:
+        author_books = get_books_by_author(db, author['id'])
+        author['books'] = author_books
+
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
+
+    user = dict(id=user_id,
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count,
+                loans=user_loans)
+
+    return template('user_pages/user_browse_authors', authors=authors,
+                    user=user)
 
 
 @get('/user/<user_id>/book/<book_id>')

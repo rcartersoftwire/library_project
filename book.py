@@ -224,7 +224,8 @@ def get_title_list(db):
 
 def get_books_by_author(db, author_id):
 
-    book_results = db.execute("SELECT id, title FROM book WHERE author_id = ?",
+    book_results = db.execute("""SELECT id, title FROM book
+                              WHERE author_id = ? ORDER BY title""",
                               (author_id,)).fetchall()
 
     author_books = [{'id': b['id'], 'title': b['title']} for b in book_results]
