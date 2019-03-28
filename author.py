@@ -25,7 +25,7 @@ def get_author_name_from_id(db, id):
                                FROM author
                                WHERE id = ?;""", (id,)).fetchone()
     first_name = author_result['first_name']
-    last_name = author_result['first_name']
+    last_name = author_result['last_name']
 
     author_name = first_name + ' ' + last_name
 
