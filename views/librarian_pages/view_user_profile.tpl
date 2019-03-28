@@ -3,7 +3,7 @@
             <h2>{{user['first_name']}}'s Account</h2>
 
             <p>Joined Library {{user['join_date']}}</p>
-            <h3>Your Loans</h4>
+            <h3>Current Loans</h4>
             % if user['loan_count'] > 0:
             <table class="user_loans_table">
                 <tr>
@@ -24,7 +24,7 @@
             % end
 
             % if len(user['past_loans']) > 0:
-                <h3>Your Past Loans</h4>
+                <h3>Past Loans</h4>
                 <table class="user_loans_table">
                     <tr>
                         <th>Title</th>

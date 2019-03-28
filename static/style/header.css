@@ -56,7 +56,6 @@
 .search_bar #search_button{
     height: 100%;
     border: none;
-    border-radius: 2.5px;
     background-color: var(--mid-blue);
     color: var(--sidebar-text-color);
     float: right;
