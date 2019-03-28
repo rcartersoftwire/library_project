@@ -363,7 +363,7 @@ def get_username_list(db, username):
 @get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
-    message = request.get_cookie('book_message')
+    message = request.get_cookie('book_message', default="")
     if message:
         response.delete_cookie("book_message", path=f"/librarian/{user_id}/")
 
