@@ -33,12 +33,14 @@
     <script type="text/javascript" src="/static/add_copy_toggle.js"></script>
 </div>
 % include('copy_book_details.tpl', copy_availability_details=copy_availability_details)
-<div>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-    <input type="hidden" id="book_id" value={{book_details['id']}}>
-    <script type="text/javascript" src="/static/book_loan_detail.js"></script>
-    <div class="loan_list" id="divLoanDetails">
-    </div>
+
+<div class="current_loans">
+    % if len(loan_list) > 0:
+        <h3><u>Current Loans</u></h3>
+        % for user in loan_list:
+            <li><a href="/librarian/{{user_id}}/users/view/{{user[0]}}">{{user[1]}}</a></li>
+        % end
+    % end
 </div>
 <br />
 <div>

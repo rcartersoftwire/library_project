@@ -23,14 +23,10 @@ JOIN_COOKIE = 'join_message'
 LOGIN_COOKIE = 'login_message'
 
 # Functions
-from author import (find_author_id, get_author_list)
-from book import (get_book_list, get_book_details, check_copies_available,
-                  next_due_back, find_book_id, find_loan_id, insert_copy,
-                  get_cover_save_path, check_isbn, get_title_list,
-                  get_books_by_author)
-from user import (get_user_details, get_user_list, get_user_past_loans,
-                  get_user_join_date)
-from librarian import get_librarian_name
+from author import *
+from book import *
+from user import *
+from librarian import *
 from loan import get_user_book_details, create_loan, end_loan, renew_loan
 from cookies import get_cookie, set_cookie
 
@@ -266,10 +262,11 @@ def librarian_book_details(db, user_id, book_id):
 
     message = get_cookie(BOOK_COOKIE, f'/librarian/{user_id}/')
 
+    loan_list = get_loan_list(db, book_id)
     return template('librarian_pages/librarian_book_page',
                     book_details=book_details,
                     copy_availability_details=copy_availability_details,
-                    name=name, user_id=user_id, message=message)
+                    name=name, user_id=user_id, loan_list=loan_list, message=message)
 
 
 @get('/user/<user_id>/borrow/<book_id>')
@@ -468,19 +465,6 @@ def add_books(db, user_id):
     return template('librarian_pages/add_books', name=name, user_id=user_id,
                     message=message)
 
-
-@get('/get_loan_list/<book_id>')
-def get_loan_list(db, book_id):
-    borrower_list = db.execute("""SELECT first_name, last_name FROM loan
-                               JOIN copy on copy_id=copy.id
-                               JOIN user on borrower_id=user.id
-                               WHERE book_id = ? AND returned = 0""",
-                               (book_id,)).fetchall()
-
-    list_of_borrowers = [x['first_name']+' '+x['last_name']
-                         for x in borrower_list]
-
-    return {'borrower_names': list_of_borrowers}
 
 
 @get('/get_book_location/<book_id>')
