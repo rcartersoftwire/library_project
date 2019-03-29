@@ -17,6 +17,10 @@
                                 <input type="number" id="hire_period" name="hire_period" value="14" required=required min="1" max="21">
                             </div>
                             <div>
+                                <label for="num_of_copies">Quantity to Add</label>
+                                <input type="number" id="num_of_copies" name="num_of_copies" value="1" required=required min="0">
+                            </div>
+                            <div>
                                 <label for="location">Location</label>
                                 <select name = "location">
                                     <option value=1>Downstairs</option>

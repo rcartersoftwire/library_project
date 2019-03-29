@@ -344,9 +344,13 @@ def add_book_request(db, user_id):
     title = request.forms.get('title').strip()
     author_name = request.forms.get('author_name').strip()
 
+    
     names = author_name.split(" ", 1)
     first_name = names[0]
-    last_name = names[1]
+    if len(names) == 1:
+        last_name = ''
+    else:
+        last_name = names[1]
 
     db.execute("""INSERT INTO book_request(title, author_first_name, author_last_name)
                    VALUES (?,?,?)""", (title, first_name, last_name))
@@ -649,9 +653,12 @@ def edit_book_details(db, user_id):
 def add_copy(db, user_id):
     book_id = request.forms.get('book_id')
     hire_period = request.forms.get('hire_period')
+    num_of_copies = int(request.forms.get('num_of_copies'))
     location = request.forms.get('location')
 
-    insert_copy(db, book_id, hire_period, location)
+    for i in range(num_of_copies):
+        insert_copy(db, book_id, hire_period, location)
+    
     redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
