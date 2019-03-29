@@ -6,7 +6,6 @@
     <p class="flash">{{ message }}</p>
 % end
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="/static/authorword.js"></script>
 <script type="text/javascript" src="/static/validisbn.js"></script>
 
 <style>

@@ -4,7 +4,10 @@
 def find_author_id(db, author_name):
     names = author_name.split(" ", 1)
     first_name = names[0].capitalize()
-    last_name = names[1].capitalize()
+    if len(names) > 1:
+        last_name = names[1].capitalize()
+    else:
+        last_name = ""
 
     author_id = db.execute("""SELECT id FROM author WHERE first_name = ?
                     AND last_name = ?""", (first_name, last_name)).fetchone()
