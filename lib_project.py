@@ -407,7 +407,8 @@ def join(db):
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
     acc_type = int(request.forms.get('acc_type'))
-
+    token = request.forms.get('token')
+        
     prof_pic = request.files.get('prof_pic')
 
     # Save Profile Pic to Directory
@@ -449,6 +450,11 @@ def join(db):
     elif username_in_db:
         set_cookie(JOIN_COOKIE, '''This username is already taken.
                    Join library failed.''')
+        redirect('/join')
+
+    elif token is not None and token != '000000':
+        set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
+                    Join library failed.''')
         redirect('/join')
 
     # Insert into Database
