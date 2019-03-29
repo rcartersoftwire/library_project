@@ -344,9 +344,13 @@ def add_book_request(db, user_id):
     title = request.forms.get('title').strip()
     author_name = request.forms.get('author_name').strip()
 
+    
     names = author_name.split(" ", 1)
     first_name = names[0]
-    last_name = names[1]
+    if len(names) == 1:
+        last_name = ''
+    else:
+        last_name = names[1]
 
     db.execute("""INSERT INTO book_request(title, author_first_name, author_last_name)
                    VALUES (?,?,?)""", (title, first_name, last_name))
