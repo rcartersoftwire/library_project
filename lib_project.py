@@ -22,6 +22,8 @@ BOOK_COOKIE = 'book_message'
 JOIN_COOKIE = 'join_message'
 LOGIN_COOKIE = 'login_message'
 
+TOKEN_LIST = ['000000']
+
 # Functions
 from author import *
 from book import *
@@ -452,7 +454,7 @@ def join(db):
                    Join library failed.''')
         redirect('/join')
 
-    elif token is not None and token != '000000':
+    elif token is not None and token not in TOKEN_LIST:
         set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
                     Join library failed.''')
         redirect('/join')
