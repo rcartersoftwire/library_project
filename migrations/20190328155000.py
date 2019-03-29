@@ -12,7 +12,7 @@ def upgrade(connection):
 
     sql = """ALTER TABLE loan ADD COLUMN
              returned_date VARCHAR(255) NOT NULL
-             DEFAULT '';"""   
+             DEFAULT '';"""
 
     connection.execute(sql)
 
