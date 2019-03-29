@@ -22,6 +22,8 @@ BOOK_COOKIE = 'book_message'
 JOIN_COOKIE = 'join_message'
 LOGIN_COOKIE = 'login_message'
 
+TOKEN_LIST = ['000000']
+
 # Functions
 from author import *
 from book import *
@@ -407,7 +409,8 @@ def join(db):
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
     acc_type = int(request.forms.get('acc_type'))
-
+    token = request.forms.get('token')
+        
     prof_pic = request.files.get('prof_pic')
 
     # Save Profile Pic to Directory
@@ -449,6 +452,11 @@ def join(db):
     elif username_in_db:
         set_cookie(JOIN_COOKIE, '''This username is already taken.
                    Join library failed.''')
+        redirect('/join')
+
+    elif token is not None and token not in TOKEN_LIST:
+        set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
+                    Join library failed.''')
         redirect('/join')
 
     # Insert into Database

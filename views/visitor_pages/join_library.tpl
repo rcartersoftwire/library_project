@@ -7,6 +7,7 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="/static/passwordmatch.js"></script>
 <script type="text/javascript" src="/static/usernamematch.js"></script>
+<script type="text/javascript" src="/static/librariantoken.js"></script>
 
   <style>
   .red {
@@ -46,11 +47,12 @@
     </div>
     <div>
         <label for="acc_type">Account Type</label>
-        <select name = "acc_type">
+        <select name = "acc_type" id="acc_type" onChange="askForToken()">
             <option value=0>Member</option>
             <option value=1>Librarian</option>
         </select>
     </div>
+    <div class="librarianTokenRequest" id="divLibrarianToken"></div>
     <div class="registrationFormAlert" id="divCheckUsername"></div>
     <div class="registrationFormAlert" id="divCheckPassword"></div>
     <div>
