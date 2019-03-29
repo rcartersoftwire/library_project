@@ -653,9 +653,12 @@ def edit_book_details(db, user_id):
 def add_copy(db, user_id):
     book_id = request.forms.get('book_id')
     hire_period = request.forms.get('hire_period')
+    num_of_copies = int(request.forms.get('num_of_copies'))
     location = request.forms.get('location')
 
-    insert_copy(db, book_id, hire_period, location)
+    for i in range(num_of_copies):
+        insert_copy(db, book_id, hire_period, location)
+    
     redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
