@@ -402,7 +402,7 @@ def join(db):
     username = request.forms.get('username')
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
-    acc_type = request.forms.get('acc_type')
+    acc_type = int(request.forms.get('acc_type'))
 
     prof_pic = request.files.get('prof_pic')
 
