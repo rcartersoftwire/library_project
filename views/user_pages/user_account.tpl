@@ -44,3 +44,8 @@
         % end
     </table>
 % end
+
+<ul>
+    <br>
+    <li><a href="/user/{{user['id']}}/account/edit">Edit Account Details</a></li>
+</ul>

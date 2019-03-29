@@ -21,6 +21,7 @@ ADD_BOOK_COOKIE = 'add_book_message'
 BOOK_COOKIE = 'book_message'
 JOIN_COOKIE = 'join_message'
 LOGIN_COOKIE = 'login_message'
+EDIT_ACC_COOKIE = 'edit_acc_message'
 
 TOKEN_LIST = ['000000']
 
@@ -394,6 +395,89 @@ def login(db):
 def logout(db):
     redirect('/')
 
+
+@get('/user/<user_id>/account/edit')
+def edit_user_account(db, user_id):
+    message = get_cookie(EDIT_ACC_COOKIE)
+
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
+    user_join_date = get_user_join_date(db, user_id)
+    user_past_loans = get_user_past_loans(db, user_id)
+    (username) = db.execute("SELECT username FROM user WHERE id=?",(user_id,)).fetchone()
+
+    user = dict(id=user_id,
+                username=username['username'],
+                first_name=user_first_name,
+                last_name=user_last_name,
+                loan_count=user_loan_count,
+                loans=user_loans,
+                prof_pic=user_prof_pic,
+                past_loans=user_past_loans,
+                join_date=user_join_date)
+
+
+    return template('user_pages/edit_user_account', message=message, user=user)
+
+@post('/user/<user_id>/account/edit')
+def edit_user_account_post(db, user_id):
+    first_name = request.forms.get('first_name').capitalize()
+    last_name = request.forms.get('last_name').capitalize()
+    username = request.forms.get('username')
+    old_password = request.forms.get('old_password')
+    new_password = request.forms.get('new_password')
+    prof_pic = request.files.get('prof_pic')
+
+    db.execute("""UPDATE user SET
+                    first_name = ?,
+                    last_name = ?,
+                    username = ?
+                    WHERE id = ?;""", (first_name, last_name, username,
+                                        user_id))
+    if prof_pic:
+        try:
+            name, ext = os.path.splitext(prof_pic.filename)
+
+            if ext not in ('.png', '.jpg', '.jpeg'):
+                set_cookie(EDIT_ACC_COOKIE,
+                        'File extension not allowed. Adding profile pic failed.')
+                redirect(f'/user/{user_id}/account')
+
+            save_path = f"""static/images/prof_pics/{username}"""
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            prof_pic.save(save_path)
+            profile_pic_path = '/' + save_path + '/' + prof_pic.filename
+            db.execute("""UPDATE user SET
+                    prof_pic = ?
+                    WHERE id = ?;""", (profile_pic_path,
+                                        user_id))
+        except:
+            set_cookie(EDIT_ACC_COOKIE,
+                'Profile Pic Update Failed')
+            redirect(f'/user/{user_id}/account/edit')
+
+    pwd_verified = False
+    if old_password is not None and old_password != '':
+        verify_pwd = db.execute("""SELECT password FROM user WHERE user.id=?""",(user_id,)).fetchone()
+        print (verify_pwd['password'])
+        if old_password == verify_pwd['password']:
+            pwd_verified = True
+        else:
+            set_cookie(EDIT_ACC_COOKIE,
+                'Incorrect Password')
+            redirect(f'/user/{user_id}/account/edit')
+
+    if pwd_verified:
+        db.execute("""UPDATE user SET
+                        password = ?
+                        WHERE id = ?;""", (new_password,
+                                            user_id))
+
+
+    set_cookie(EDIT_ACC_COOKIE,
+                    'Account Updated')
+    redirect(f'/user/{user_id}/account/edit')
 
 @get('/join')
 def join_library(db):
