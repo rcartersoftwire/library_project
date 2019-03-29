@@ -32,14 +32,18 @@ from cookies import *
 
 
 def get_search_results(db, search_query):
-    search_pattern = '%' + search_query + '%'
+    search_queries = search_query.split(' ')
+    search_pattern = '%'.join(search_queries)
+    search_pattern = '%' + search_pattern + '%'
     search_results = db.execute("""SELECT book.id as book_id, book.title as title,
                                 author.first_name as first_name,
                                 author.last_name as last_name
                                 FROM book
                                 INNER JOIN author on author.id = book.author_id
-                                WHERE book.title LIKE ?;""",
-                                (search_pattern,)).fetchall()
+                                WHERE book.title LIKE ?
+                                OR author.first_name || ' ' ||
+                                author.last_name LIKE ?;""",
+                                (search_pattern, search_pattern)).fetchall()
 
     results = [{'id': b['book_id'], 'title': b['title'],
                 'author': b['first_name'] + ' ' + b['last_name']}
