@@ -85,7 +85,7 @@ def user_home(db, id):
         book_requested = eval(book_requested)
     else:
         book_requested = False
-    
+
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, id)
 
@@ -96,7 +96,8 @@ def user_home(db, id):
                 last_name=user_last_name,
                 loan_count=user_loan_count,
                 loans=user_loans)
-    return template('user_pages/user_home', books=books, user=user, book_requested=book_requested)
+    return template('user_pages/user_home', books=books, user=user,
+                    book_requested=book_requested)
 
 
 @get('/librarian/<user_id>/home')
@@ -344,7 +345,6 @@ def add_book_request(db, user_id):
     title = request.forms.get('title').strip()
     author_name = request.forms.get('author_name').strip()
 
-    
     names = author_name.split(" ", 1)
     first_name = names[0]
     if len(names) == 1:
@@ -354,9 +354,9 @@ def add_book_request(db, user_id):
 
     db.execute("""INSERT INTO book_request(title, author_first_name, author_last_name)
                    VALUES (?,?,?)""", (title, first_name, last_name))
-    
+
     redirect(f'/user/{user_id}/home?book_requested=True')
-    
+
 
 
 @post('/login')
@@ -397,8 +397,8 @@ def join_library(db):
 
 @post('/join')
 def join(db):
-    first_name = request.forms.get('first_name')
-    last_name = request.forms.get('last_name')
+    first_name = request.forms.get('first_name').capitalize()
+    last_name = request.forms.get('last_name').capitalize()
     username = request.forms.get('username')
     password = request.forms.get('password')
     conf_password = request.forms.get('conf_password')
@@ -658,7 +658,7 @@ def add_copy(db, user_id):
 
     for i in range(num_of_copies):
         insert_copy(db, book_id, hire_period, location)
-    
+
     redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
