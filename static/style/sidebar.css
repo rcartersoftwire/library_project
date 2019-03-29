@@ -51,6 +51,7 @@
 
 .side_bar ul{
     padding: 1em;
+    padding-right: 0;
     margin: 2em 0;
 }
 
