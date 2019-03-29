@@ -6,6 +6,12 @@
     width: 150px;
 }
 
+@media (max-width: 1000px){
+    .large_book_cover img{
+        max-width: 90%;
+    }
+}
+
 .book_details {
     display: inline-block;
     max-width: calc(100% - 170px);

@@ -23,12 +23,15 @@
     flex-wrap: wrap;
 }
 
+.login_container label{
+    margin-right: 0.5em;
+}
+
 .login_container input{
     background-color: inherit;
     border: none;
     border-bottom: var(--sidebar-text-color) 1.1px solid;
     color: var(--sidebar-text-color);
-    margin: 0 0.5em;
 }
 
 .login_container button {
