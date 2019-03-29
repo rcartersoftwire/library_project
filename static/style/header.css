@@ -28,9 +28,11 @@
     display: inline-block;
 }
 @media (max-width: 1000px) {
-    #logo {
-        max-width: 60%;
+    .logo_container h1{
+        font-size: 1.5em;
+        display: none;
     }
+    
 }
 .search_container {
     display: inline-block;
