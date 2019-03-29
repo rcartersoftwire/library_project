@@ -18,20 +18,17 @@
 .login_container div{
     margin-top: 0.5em;
     width: 100%;
-}
-
-.login_container label {
-    width: 30%;
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .login_container input{
-    width: 65%;
-    display: inline-block;
     background-color: inherit;
     border: none;
     border-bottom: var(--sidebar-text-color) 1.1px solid;
     color: var(--sidebar-text-color);
+    margin: 0 0.5em;
 }
 
 .login_container button {
