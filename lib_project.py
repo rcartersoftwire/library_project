@@ -558,41 +558,62 @@ def add_book(db, user_id):
 
 
 @get('/librarian/<user_id>/remove/<book_id>')
-def remove_copy(db, user_id, book_id):
-    # Find one copy ID to be removed
-    available_copy_ids_rows = db.execute("""SELECT copy.id FROM copy
-                                         LEFT JOIN loan ON copy_id=copy.id
-                                         AND returned=0
-                                         WHERE loan.id is NULL
-                                         AND book_id = ?""",
-                                         (book_id,)).fetchall()
+def remove_copies(db, user_id, book_id):
+    name = get_librarian_name(db, user_id)
 
-    available_copy_ids = [x['id'] for x in available_copy_ids_rows]
+    (book_title, first_name, last_name, cover) = db.execute("""SELECT title, first_name, last_name, cover 
+                                                        FROM book JOIN author on author.id=author_id 
+                                                        WHERE book.id=?""",(book_id,)).fetchone()
+    author = first_name + ' ' + last_name
 
-    if len(available_copy_ids) > 0:
-        copy_id = available_copy_ids[0]
+    copies_rows = db.execute("""SELECT copy.id, location, hire_period FROM copy WHERE book_id=?;""",(book_id,)).fetchall()
+    checkout_rows = db.execute("""SELECT copy.id, user.first_name, user.last_name FROM loan 
+                                    JOIN copy ON copy_id=copy.id 
+                                    JOIN user ON user.id=borrower_id
+                                    WHERE returned=0 AND book_id=?;""",(book_id,)).fetchall()
+    checkout_list = [x['id'] for x in checkout_rows]
+    borrower_list = [x['first_name']+' '+x['last_name'] for x in checkout_rows]
+    copies_list = [dict(id=x['id'], location=x['location'], hire_period=x['hire_period']) for x in copies_rows]
+    for i in range(len(copies_list)):
+        if copies_list[i]['location'] == 1:
+            copies_list[i]['location'] = 'Downstairs'
+        else:
+            copies_list[i]['location'] = 'Upstairs'
 
-        # Remove associated child loans
-        db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
+        copies_list[i]['checkout'] = 'No'
+        copies_list[i]['borrower'] = ''
 
-        # Remove book if last copy
-        num_copies = db.execute("""SELECT COUNT (copy.id)
-                                FROM copy
-                                WHERE book_id = ?;
-                                """, (book_id,)).fetchone()[0]
+        for j in range(len(checkout_list)):
+            if copies_list[i]['id'] == checkout_list[j]:
+                copies_list[i]['checkout'] = 'Yes'
+                copies_list[i]['borrower'] = borrower_list[j]
+                break
 
-        db.execute("""DELETE FROM copy WHERE id = ?;""", (copy_id,))
-        if num_copies == 1:
-            db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
-            redirect(f'/librarian/{user_id}/home')
-            return
+    return template('librarian_pages/librarian_remove_copies', 
+                        name=name, copies=copies_list, book_id=book_id, 
+                        book_title=book_title, book_cover=cover,
+                        author=author, user_id=user_id)
 
-        redirect(f'/librarian/{user_id}/book/{book_id}')
+@get('/librarian/<user_id>/remove/<book_id>/<copy_id>')
+def remove_copy(db, user_id, book_id, copy_id):
+    # Remove associated child loans
+    db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
 
-    else:
-        set_cookie(BOOK_COOKIE, "All copies are checked out at the moment!",
-                   cookie_path=f"/librarian/{user_id}/")
-        redirect(f'/librarian/{user_id}/book/{book_id}')
+    # Remove book if last copy
+    num_copies = db.execute("""SELECT COUNT (copy.id)
+                            FROM copy
+                            WHERE book_id = ?;
+                            """, (book_id,)).fetchone()[0]
+
+    db.execute("""DELETE FROM copy WHERE id = ?;""", (copy_id,))
+    if num_copies == 1:
+        db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
+        redirect(f'/librarian/{user_id}/home')
+        return
+
+    redirect(f'/librarian/{user_id}/remove/{book_id}')
+
+
 
 
 @get('/librarian/<user_id>/edit/<book_id>')
