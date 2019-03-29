@@ -3,7 +3,11 @@
     <div class="sidebar_top">
         <div class = "user_welcome">
             <h4>Welcome {{user['first_name']}}</h4>
-            <p>You have {{user['loan_count']}} active loans</p>
+            % if user['loan_count'] == 1: 
+                <p>You have {{user['loan_count']}} active loan</p>
+            % else:
+                <p>You have {{user['loan_count']}} active loans</p>
+            % end
         </div>
         <div class="sidebar_links">
             <ul>
