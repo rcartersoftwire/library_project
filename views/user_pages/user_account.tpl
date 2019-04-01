@@ -1,8 +1,19 @@
 % rebase('user_pages/user_base.tpl', subtitle="My Account")
-<img class ="user_prof_pic" src="{{user['prof_pic']}}">
-<h2>{{user['first_name']}}'s Account</h2>
 
-<p>Joined Library {{user['join_date']}}</p>
+<div class="grid-container">
+    <div class="left-info">
+        <img class ="user_prof_pic" src="{{user['prof_pic']}}">
+        <h2>{{user['first_name']}}'s Account</h2>
+        <p>Joined Library {{user['join_date']}}</p>
+    </div>
+    <div class="right-info">
+        <ul>
+            <br>
+            <li><a href="/user/{{user['id']}}/account/edit">Edit Account Details</a></li>
+        </ul>
+    </div>
+</div>
+<hr>
 <h3><u>Current Loans</u></h3>
 % if user['loan_count'] > 0:
     <table class="user_loans_table">
@@ -45,7 +56,3 @@
     </table>
 % end
 
-<ul>
-    <br>
-    <li><a href="/user/{{user['id']}}/account/edit">Edit Account Details</a></li>
-</ul>
