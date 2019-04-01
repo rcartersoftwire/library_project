@@ -1,7 +1,7 @@
 # Set Up
 
 from bottle import (get, post, run, debug, install, request, response,
-                    redirect, template, static_file)
+                    redirect, template, static_file, error)
 from bottle_utils.flash import message_plugin
 from bottle_sqlite import SQLitePlugin
 from datetime import datetime as dt
@@ -33,6 +33,9 @@ from librarian import *
 from loan import *
 from cookies import *
 
+@error(404)
+def error404(error):
+    return template('page_not_found')
 
 def get_search_results(db, search_query):
     search_queries = search_query.split(' ')
