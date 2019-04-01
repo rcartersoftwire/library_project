@@ -1,10 +1,11 @@
 # Set Up
 
-from bottle import (get, post, run, debug, install, request, response,
-                    redirect, template, static_file, error)
+import bottle
 from bottle_utils.flash import message_plugin
 from bottle_sqlite import SQLitePlugin
 from datetime import datetime as dt
+from bottle_oauthlib.oauth2 import BottleOAuth2
+from oauthlib import oauth2
 import os
 
 # Configuration
@@ -14,8 +15,8 @@ migrations_path = 'migrations/'
 
 caribou.upgrade(database_file, migrations_path)
 
-install(message_plugin)
-install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
+bottle.install(message_plugin)
+bottle.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 ADD_BOOK_COOKIE = 'add_book_message'
 BOOK_COOKIE = 'book_message'
@@ -33,9 +34,10 @@ from librarian import *
 from loan import *
 from cookies import *
 
-@error(404)
+
+@bottle.error(404)
 def error404(error):
-    return template('page_not_found')
+    return bottle.template('page_not_found')
 
 def get_search_results(db, search_query):
     search_queries = search_query.split(' ')
@@ -75,22 +77,22 @@ def get_search_results(db, search_query):
     return results
 
 # Routes
-@get('/static/<filename:path>')
+@bottle.get('/static/<filename:path>')
 def serve_static(filename):
-    return static_file(filename, root='./static')
+    return bottle.static_file(filename, root='./static')
 
 
-@get('/')
+@bottle.get('/')
 def home(db):
     books = get_book_list(db)
     message = get_cookie(LOGIN_COOKIE)
 
-    return template('visitor_pages/home', books=books, message=message)
+    return bottle.template('visitor_pages/home', books=books, message=message)
 
 
-@get('/user/<id>/home')
+@bottle.get('/user/<id>/home')
 def user_home(db, id):
-    book_requested = request.params.get('book_requested')
+    book_requested = bottle.request.params.get('book_requested')
     if book_requested is not None:
         book_requested = eval(book_requested)
     else:
@@ -106,32 +108,32 @@ def user_home(db, id):
                 last_name=user_last_name,
                 loan_count=user_loan_count,
                 loans=user_loans)
-    return template('user_pages/user_home', books=books, user=user,
+    return bottle.template('user_pages/user_home', books=books, user=user,
                     book_requested=book_requested)
 
 
-@get('/librarian/<user_id>/home')
+@bottle.get('/librarian/<user_id>/home')
 def librarian_home(db, user_id):
     name = get_librarian_name(db, user_id)
 
     books = get_book_list(db)
 
-    return template('librarian_pages/librarian_home', user_id=user_id,
+    return bottle.template('librarian_pages/librarian_home', user_id=user_id,
                     books=books, name=name,)
 
 
-@post('/search')
+@bottle.post('/search')
 def search(db):
-    search_query = request.forms.get('search_query')
+    search_query = bottle.request.forms.get('search_query')
     results = get_search_results(db, search_query)
 
-    return template('visitor_pages/search', search_query=search_query,
+    return bottle.template('visitor_pages/search', search_query=search_query,
                     results=results)
 
 
-@post('/user/<id>/search')
+@bottle.post('/user/<id>/search')
 def user_search(db, id):
-    search_query = request.forms.get('search_query')
+    search_query = bottle.request.forms.get('search_query')
     results = get_search_results(db, search_query)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
@@ -143,39 +145,39 @@ def user_search(db, id):
                 loan_count=user_loan_count,
                 loans=user_loans)
 
-    return template('user_pages/user_search', search_query=search_query,
+    return bottle.template('user_pages/user_search', search_query=search_query,
                     results=results, user=user)
 
 
-@post('/librarian/<user_id>/search')
+@bottle.post('/librarian/<user_id>/search')
 def librarian_search(db, user_id):
-    search_query = request.forms.get('search_query')
+    search_query = bottle.request.forms.get('search_query')
     results = get_search_results(db, search_query)
 
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/librarian_search',
+    return bottle.template('librarian_pages/librarian_search',
                     search_query=search_query,
                     results=results, name=name, user_id=user_id)
 
 
-@get('/book/<book_id>')
+@bottle.get('/book/<book_id>')
 def book_details(db, book_id):
     book_details = get_book_details(db, book_id)
     copy_availability_details = check_copies_available(db, book_id)
 
-    return template('visitor_pages/book_page', book_details=book_details,
+    return bottle.template('visitor_pages/book_page', book_details=book_details,
                     copy_availability_details=copy_availability_details)
 
 
-@get('/browse/titles')
+@bottle.get('/browse/titles')
 def browse_titles(db):
     books = get_title_list(db)
 
-    return template('visitor_pages/visitor_browse_titles', books=books)
+    return bottle.template('visitor_pages/visitor_browse_titles', books=books)
 
 
-@get('/user/<user_id>/browse/titles')
+@bottle.get('/user/<user_id>/browse/titles')
 def user_browse_titles(db, user_id):
     books = get_title_list(db)
 
@@ -188,21 +190,21 @@ def user_browse_titles(db, user_id):
                 loan_count=user_loan_count,
                 loans=user_loans)
 
-    return template('user_pages/user_browse_titles', books=books,
+    return bottle.template('user_pages/user_browse_titles', books=books,
                     user=user)
 
 
-@get('/librarian/<user_id>/browse/titles')
+@bottle.get('/librarian/<user_id>/browse/titles')
 def librarian_browse_titles(db, user_id):
     books = get_title_list(db)
 
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/librarian_browse_titles', books=books,
+    return bottle.template('librarian_pages/librarian_browse_titles', books=books,
                     user_id=user_id, name=name)
 
 
-@get('/browse/authors')
+@bottle.get('/browse/authors')
 def browse_authors(db):
     authors = get_author_list(db)
 
@@ -210,10 +212,10 @@ def browse_authors(db):
         author_books = get_books_by_author(db, author['id'])
         author['books'] = author_books
 
-    return template('visitor_pages/visitor_browse_authors', authors=authors)
+    return bottle.template('visitor_pages/visitor_browse_authors', authors=authors)
 
 
-@get('/user/<user_id>/browse/authors')
+@bottle.get('/user/<user_id>/browse/authors')
 def user_browse_authors(db, user_id):
     authors = get_author_list(db)
 
@@ -230,11 +232,11 @@ def user_browse_authors(db, user_id):
                 loan_count=user_loan_count,
                 loans=user_loans)
 
-    return template('user_pages/user_browse_authors', authors=authors,
+    return bottle.template('user_pages/user_browse_authors', authors=authors,
                     user=user)
 
 
-@get('/librarian/<user_id>/browse/authors')
+@bottle.get('/librarian/<user_id>/browse/authors')
 def librarian_browse_authors(db, user_id):
     authors = get_author_list(db)
 
@@ -244,11 +246,11 @@ def librarian_browse_authors(db, user_id):
 
     name = get_librarian_name(db, user_id)
 
-    return template('librarian_pages/librarian_browse_authors',
+    return bottle.template('librarian_pages/librarian_browse_authors',
                     authors=authors, name=name, user_id=user_id)
 
 
-@get('/user/<user_id>/book/<book_id>')
+@bottle.get('/user/<user_id>/book/<book_id>')
 def user_book_details(db, user_id, book_id):
     book_details = get_book_details(db, book_id)
     copy_availability_details = check_copies_available(db, book_id)
@@ -264,12 +266,12 @@ def user_book_details(db, user_id, book_id):
                 loan_count=user_loan_count,
                 loans=user_loans)
 
-    return template('user_pages/user_book_page', book_details=book_details,
+    return bottle.template('user_pages/user_book_page', book_details=book_details,
                     user=user, book_loaned=book_loaned, due_date=due_date,
                     copy_availability_details=copy_availability_details)
 
 
-@get('/librarian/<user_id>/book/<book_id>')
+@bottle.get('/librarian/<user_id>/book/<book_id>')
 def librarian_book_details(db, user_id, book_id):
     book_details = get_book_details(db, book_id)
     copy_availability_details = check_copies_available(db, book_id)
@@ -278,37 +280,37 @@ def librarian_book_details(db, user_id, book_id):
     message = get_cookie(BOOK_COOKIE, f'/librarian/{user_id}/')
 
     loan_list = get_loan_list(db, book_id)
-    return template('librarian_pages/librarian_book_page',
+    return bottle.template('librarian_pages/librarian_book_page',
                     book_details=book_details,
                     copy_availability_details=copy_availability_details,
                     name=name, user_id=user_id, loan_list=loan_list,
                     message=message)
 
 
-@get('/user/<user_id>/borrow/<book_id>')
+@bottle.get('/user/<user_id>/borrow/<book_id>')
 def borrow(db, user_id, book_id):
     create_loan(db, user_id, book_id)
 
-    redirect(f'/user/{user_id}/book/{book_id}')
+    bottle.redirect(f'/user/{user_id}/book/{book_id}')
 
 
-@get('/user/<user_id>/return/<book_id>')
+@bottle.get('/user/<user_id>/return/<book_id>')
 def return_book(db, user_id, book_id):
     end_loan(db, user_id, book_id)
 
-    redirect(f'/user/{user_id}/book/{book_id}')
+    bottle.redirect(f'/user/{user_id}/book/{book_id}')
 
 
-@get('/user/<user_id>/renew/<book_id>')
+@bottle.get('/user/<user_id>/renew/<book_id>')
 def renew_book(db, user_id, book_id):
     loan_id = find_loan_id(db, user_id, book_id)
 
     renew_loan(db, loan_id)
 
-    redirect(f'/user/{user_id}/book/{book_id}')
+    bottle.redirect(f'/user/{user_id}/book/{book_id}')
 
 
-@get('/librarian/<user_id>/book_requests')
+@bottle.get('/librarian/<user_id>/book_requests')
 def view_book_requests(db, user_id):
     name = get_librarian_name(db, user_id)
 
@@ -321,18 +323,18 @@ def view_book_requests(db, user_id):
     book_author = ["{} {}".format(a_, b_) for a_, b_
                    in zip(book_first_name, book_last_name)]
 
-    return template('librarian_pages/librarian_view_book_requests',
+    return bottle.template('librarian_pages/librarian_view_book_requests',
                     name=name, user_id=user_id, book_title=book_title,
                     book_author=book_author, req_id=req_id)
 
 
-@get('/librarian/<user_id>/book_request/remove/<req_id>')
+@bottle.get('/librarian/<user_id>/book_request/remove/<req_id>')
 def remove_book_request(db, user_id, req_id):
     db.execute("DELETE FROM book_request WHERE id = ?", (req_id,))
-    redirect(f'/librarian/{user_id}/book_requests')
+    bottle.redirect(f'/librarian/{user_id}/book_requests')
 
 
-@get('/user/<user_id>/book_request')
+@bottle.get('/user/<user_id>/book_request')
 def book_request(db, user_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, user_id)
@@ -347,13 +349,13 @@ def book_request(db, user_id):
                 past_loans=user_past_loans,
                 join_date=user_join_date)
 
-    return template('user_pages/user_book_request', user=user)
+    return bottle.template('user_pages/user_book_request', user=user)
 
 
-@post('/user/<user_id>/book_request')
+@bottle.post('/user/<user_id>/book_request')
 def add_book_request(db, user_id):
-    title = request.forms.get('title').strip()
-    author_name = request.forms.get('author_name').strip()
+    title = bottle.request.forms.get('title').strip()
+    author_name = bottle.request.forms.get('author_name').strip()
 
     names = author_name.split(" ", 1)
     first_name = names[0]
@@ -365,14 +367,14 @@ def add_book_request(db, user_id):
     db.execute("""INSERT INTO book_request(title, author_first_name, author_last_name)
                    VALUES (?,?,?)""", (title, first_name, last_name))
 
-    redirect(f'/user/{user_id}/home?book_requested=True')
+    bottle.redirect(f'/user/{user_id}/home?book_requested=True')
 
 
 
-@post('/login')
+@bottle.post('/login')
 def login(db):
-    username = request.forms.get('username')
-    password = request.forms.get('password')
+    username = bottle.request.forms.get('username')
+    password = bottle.request.forms.get('password')
 
     check_user = db.execute("""SELECT id, password, type FROM user WHERE username = ?;
                             """, (username,)).fetchone()
@@ -380,26 +382,26 @@ def login(db):
     if check_user:
         if check_user['password'] == password:
             if check_user['type'] == 0:
-                redirect(f'/user/{str(check_user["id"])}/home')
+                bottle.redirect(f'/user/{str(check_user["id"])}/home')
             elif check_user['type'] == 1:
-                redirect(f'/librarian/{str(check_user["id"])}/home')
+                bottle.redirect(f'/librarian/{str(check_user["id"])}/home')
             else:
                 set_cookie(LOGIN_COOKIE, 'Login failed.')
-                redirect('/')
+                bottle.redirect('/')
         else:
             set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
-            redirect('/')
+            bottle.redirect('/')
     else:
         set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
-        redirect('/')
+        bottle.redirect('/')
 
 
-@get('/logout')
+@bottle.get('/logout')
 def logout(db):
-    redirect('/')
+    bottle.redirect('/')
 
 
-@get('/user/<user_id>/account/edit')
+@bottle.get('/user/<user_id>/account/edit')
 def edit_user_account(db, user_id):
     message = get_cookie(EDIT_ACC_COOKIE)
 
@@ -420,16 +422,16 @@ def edit_user_account(db, user_id):
                 join_date=user_join_date)
 
 
-    return template('user_pages/edit_user_account', message=message, user=user)
+    return bottle.template('user_pages/edit_user_account', message=message, user=user)
 
-@post('/user/<user_id>/account/edit')
+@bottle.post('/user/<user_id>/account/edit')
 def edit_user_account_post(db, user_id):
-    first_name = request.forms.get('first_name').capitalize()
-    last_name = request.forms.get('last_name').capitalize()
-    username = request.forms.get('username')
-    old_password = request.forms.get('old_password')
-    new_password = request.forms.get('new_password')
-    prof_pic = request.files.get('prof_pic')
+    first_name = bottle.request.forms.get('first_name').capitalize()
+    last_name = bottle.request.forms.get('last_name').capitalize()
+    username = bottle.request.forms.get('username')
+    old_password = bottle.request.forms.get('old_password')
+    new_password = bottle.request.forms.get('new_password')
+    prof_pic = bottle.request.files.get('prof_pic')
 
     db.execute("""UPDATE user SET
                     first_name = ?,
@@ -444,7 +446,7 @@ def edit_user_account_post(db, user_id):
             if ext not in ('.png', '.jpg', '.jpeg'):
                 set_cookie(EDIT_ACC_COOKIE,
                         'File extension not allowed. Adding profile pic failed.')
-                redirect(f'/user/{user_id}/account')
+                bottle.redirect(f'/user/{user_id}/account')
 
             save_path = f"""static/images/prof_pics/{username}"""
             if not os.path.exists(save_path):
@@ -458,7 +460,7 @@ def edit_user_account_post(db, user_id):
         except:
             set_cookie(EDIT_ACC_COOKIE,
                 'Profile Pic Update Failed')
-            redirect(f'/user/{user_id}/account/edit')
+            bottle.redirect(f'/user/{user_id}/account/edit')
 
     pwd_verified = False
     if old_password is not None and old_password != '':
@@ -469,7 +471,7 @@ def edit_user_account_post(db, user_id):
         else:
             set_cookie(EDIT_ACC_COOKIE,
                 'Incorrect Password')
-            redirect(f'/user/{user_id}/account/edit')
+            bottle.redirect(f'/user/{user_id}/account/edit')
 
     if pwd_verified:
         db.execute("""UPDATE user SET
@@ -480,25 +482,25 @@ def edit_user_account_post(db, user_id):
 
     set_cookie(EDIT_ACC_COOKIE,
                     'Account Updated')
-    redirect(f'/user/{user_id}/account/edit')
+    bottle.redirect(f'/user/{user_id}/account/edit')
 
-@get('/join')
+@bottle.get('/join')
 def join_library(db):
     message = get_cookie(JOIN_COOKIE)
-    return template('visitor_pages/join_library', message=message)
+    return bottle.template('visitor_pages/join_library', message=message)
 
 
-@post('/join')
+@bottle.post('/join')
 def join(db):
-    first_name = request.forms.get('first_name').capitalize()
-    last_name = request.forms.get('last_name').capitalize()
-    username = request.forms.get('username')
-    password = request.forms.get('password')
-    conf_password = request.forms.get('conf_password')
-    acc_type = int(request.forms.get('acc_type'))
-    token = request.forms.get('token')
+    first_name = bottle.request.forms.get('first_name').capitalize()
+    last_name = bottle.request.forms.get('last_name').capitalize()
+    username = bottle.request.forms.get('username')
+    password = bottle.request.forms.get('password')
+    conf_password = bottle.request.forms.get('conf_password')
+    acc_type = int(bottle.request.forms.get('acc_type'))
+    token = bottle.request.forms.get('token')
         
-    prof_pic = request.files.get('prof_pic')
+    prof_pic = bottle.request.files.get('prof_pic')
 
     # Save Profile Pic to Directory
     try:
@@ -507,7 +509,7 @@ def join(db):
         if ext not in ('.png', '.jpg', '.jpeg'):
             set_cookie(JOIN_COOKIE,
                        'File extension not allowed. Join library failed.')
-            redirect('/join')
+            bottle.redirect('/join')
 
         save_path = f"""static/images/prof_pics/{username}"""
         if not os.path.exists(save_path):
@@ -529,22 +531,22 @@ def join(db):
     if len(password) < 8:
         set_cookie(JOIN_COOKIE, '''Password must be at least 8 characters.
                    Join library failed.''')
-        redirect('/join')
+        bottle.redirect('/join')
 
     if password != conf_password:
         set_cookie(JOIN_COOKIE, '''Your passwords do not match.
                    Join library failed.''')
-        redirect('/join')
+        bottle.redirect('/join')
 
     elif username_in_db:
         set_cookie(JOIN_COOKIE, '''This username is already taken.
                    Join library failed.''')
-        redirect('/join')
+        bottle.redirect('/join')
 
     elif token is not None and token not in TOKEN_LIST:
         set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
                     Join library failed.''')
-        redirect('/join')
+        bottle.redirect('/join')
 
     # Insert into Database
     else:
@@ -556,12 +558,12 @@ def join(db):
         user_id = db.execute("SELECT id FROM user WHERE username = ?;",
                              (username,)).fetchone()[0]
         if acc_type == 0:
-            redirect(f'/user/{user_id}/home')
+            bottle.redirect(f'/user/{user_id}/home')
         else:
-            redirect(f'/librarian/{user_id}/home')
+            bottle.redirect(f'/librarian/{user_id}/home')
 
 
-@get('/get_username_list/<username>')
+@bottle.get('/get_username_list/<username>')
 def get_username_list(db, username):
     username_in_db = db.execute("SELECT id FROM user WHERE username =?",
                                 (username,)).fetchall()
@@ -571,17 +573,17 @@ def get_username_list(db, username):
         return {'nameTaken': False}
 
 
-@get('/librarian/<user_id>/books/add')
+@bottle.get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
     name = get_librarian_name(db, user_id)
     message = get_cookie(ADD_BOOK_COOKIE, cookie_path=f"/librarian/{user_id}")
 
-    return template('librarian_pages/add_books', name=name, user_id=user_id,
+    return bottle.template('librarian_pages/add_books', name=name, user_id=user_id,
                     message=message)
 
 
 
-@get('/get_book_location/<book_id>')
+@bottle.get('/get_book_location/<book_id>')
 def get_book_location(db, book_id):
 
     all_copies_location = db.execute("""SELECT copy.id, location
@@ -607,16 +609,16 @@ def get_book_location(db, book_id):
     return {'downstairs': downstairs, 'upstairs': upstairs}
 
 
-@post('/librarian/<user_id>/add')
+@bottle.post('/librarian/<user_id>/add')
 def add_book(db, user_id):
-    title = request.forms.get('title').strip()
-    author_name = request.forms.get('author_name').strip()
-    isbn = request.forms.get('isbn').strip()
-    description = request.forms.get('description').strip()
-    publisher = request.forms.get('publisher').strip()
-    year = request.forms.get('year')
-    location = request.forms.get('location')
-    hire_period = request.forms.get('hire_period')
+    title = bottle.request.forms.get('title').strip()
+    author_name = bottle.request.forms.get('author_name').strip()
+    isbn = bottle.request.forms.get('isbn').strip()
+    description = bottle.request.forms.get('description').strip()
+    publisher = bottle.request.forms.get('publisher').strip()
+    year = bottle.request.forms.get('year')
+    location = bottle.request.forms.get('location')
+    hire_period = bottle.request.forms.get('hire_period')
 
     author_id = find_author_id(db, author_name)
     valid_isbn, isbn_message = check_isbn(db, isbn, title, author_id)
@@ -624,9 +626,9 @@ def add_book(db, user_id):
     if not valid_isbn:
         set_cookie(ADD_BOOK_COOKIE, f'{isbn_message}. Add Book failed.',
                    f'/librarian/{user_id}')
-        redirect(f'/librarian/{user_id}/books/add')
+        bottle.redirect(f'/librarian/{user_id}/books/add')
 
-    cover = request.files.get('cover')
+    cover = bottle.request.files.get('cover')
 
     try:
         name, ext = os.path.splitext(cover.filename)
@@ -634,7 +636,7 @@ def add_book(db, user_id):
         if ext not in ('.png', '.jpg', '.jpeg'):
             set_cookie(ADD_BOOK_COOKIE,
                        'File extension not allowed. Add Book failed.')
-            redirect(f'/librarian/{user_id}/books/add')
+            bottle.redirect(f'/librarian/{user_id}/books/add')
 
         cover_save_path = get_cover_save_path(title, author_name)
         cover_path = cover_save_path + '/' + cover.filename
@@ -653,10 +655,10 @@ def add_book(db, user_id):
 
     insert_copy(db, book_id, hire_period, location)
 
-    redirect(f'/librarian/{user_id}/book/{book_id}')
+    bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
-@get('/librarian/<user_id>/remove/<book_id>')
+@bottle.get('/librarian/<user_id>/remove/<book_id>')
 def remove_copies(db, user_id, book_id):
     name = get_librarian_name(db, user_id)
 
@@ -688,12 +690,12 @@ def remove_copies(db, user_id, book_id):
                 copies_list[i]['borrower'] = borrower_list[j]
                 break
 
-    return template('librarian_pages/librarian_remove_copies', 
+    return bottle.template('librarian_pages/librarian_remove_copies', 
                         name=name, copies=copies_list, book_id=book_id, 
                         book_title=book_title, book_cover=cover,
                         author=author, user_id=user_id)
 
-@get('/librarian/<user_id>/remove/<book_id>/<copy_id>')
+@bottle.get('/librarian/<user_id>/remove/<book_id>/<copy_id>')
 def remove_copy(db, user_id, book_id, copy_id):
     # Remove associated child loans
     db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
@@ -707,34 +709,34 @@ def remove_copy(db, user_id, book_id, copy_id):
     db.execute("""DELETE FROM copy WHERE id = ?;""", (copy_id,))
     if num_copies == 1:
         db.execute("""DELETE FROM book WHERE id = ?;""", (book_id,))
-        redirect(f'/librarian/{user_id}/home')
+        bottle.redirect(f'/librarian/{user_id}/home')
         return
 
-    redirect(f'/librarian/{user_id}/remove/{book_id}')
+    bottle.redirect(f'/librarian/{user_id}/remove/{book_id}')
 
 
 
 
-@get('/librarian/<user_id>/edit/<book_id>')
+@bottle.get('/librarian/<user_id>/edit/<book_id>')
 def edit_book(db, user_id, book_id):
     name = get_librarian_name(db, user_id)
 
     book_details = get_book_details(db, book_id)
 
-    return template('librarian_pages/edit_book', user_id=user_id, name=name,
+    return bottle.template('librarian_pages/edit_book', user_id=user_id, name=name,
                     book_details=book_details)
 
 
-@post('/librarian/<user_id>/edit')
+@bottle.post('/librarian/<user_id>/edit')
 def edit_book_details(db, user_id):
-    book_id = request.forms.get('book_id')
-    title = request.forms.get('title')
-    author_name = request.forms.get('author_name')
-    description = request.forms.get('description')
-    publisher = request.forms.get('publisher')
-    year = request.forms.get('year')
+    book_id = bottle.request.forms.get('book_id')
+    title = bottle.request.forms.get('title')
+    author_name = bottle.request.forms.get('author_name')
+    description = bottle.request.forms.get('description')
+    publisher = bottle.request.forms.get('publisher')
+    year = bottle.request.forms.get('year')
 
-    cover = request.files.get('cover')
+    cover = bottle.request.files.get('cover')
     if cover:
         name, ext = os.path.splitext(cover.filename)
 
@@ -742,7 +744,7 @@ def edit_book_details(db, user_id):
             set_cookie(BOOK_COOKIE,
                        'File extension not allowed. Failed to edit book.',
                        cookie_path=f"/librarian/{user_id}/")
-            redirect(f'/librarian/{user_id}/book/{book_id}')
+            bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
         cover_save_path = get_cover_save_path(title, author_name)
         cover_path = cover_save_path + '/' + cover.filename
@@ -766,23 +768,23 @@ def edit_book_details(db, user_id):
                 publisher = ?,
                 year = ?
                 WHERE id = ?;""", (description, publisher, year, book_id))
-    redirect(f'/librarian/{user_id}/book/{book_id}')
+    bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
-@post('/librarian/<user_id>/add_copy')
+@bottle.post('/librarian/<user_id>/add_copy')
 def add_copy(db, user_id):
-    book_id = request.forms.get('book_id')
-    hire_period = request.forms.get('hire_period')
-    num_of_copies = int(request.forms.get('num_of_copies'))
-    location = request.forms.get('location')
+    book_id = bottle.request.forms.get('book_id')
+    hire_period = bottle.request.forms.get('hire_period')
+    num_of_copies = int(bottle.request.forms.get('num_of_copies'))
+    location = bottle.request.forms.get('location')
 
     for i in range(num_of_copies):
         insert_copy(db, book_id, hire_period, location)
 
-    redirect(f'/librarian/{user_id}/book/{book_id}')
+    bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
-@get('/librarian/<user_id>/users/view')
+@bottle.get('/librarian/<user_id>/users/view')
 def view_users(db, user_id):
     libr_names = db.execute("""SELECT first_name, last_name FROM  user
                             WHERE id = ?;""", (user_id,)).fetchone()
@@ -791,11 +793,11 @@ def view_users(db, user_id):
 
     user_list = get_user_list(db)
 
-    return template('librarian_pages/view_users', name=name, user_id=user_id,
+    return bottle.template('librarian_pages/view_users', name=name, user_id=user_id,
                     user_list=user_list)
 
 
-@get('/librarian/<librarian_id>/users/view/<view_user_profile_id>')
+@bottle.get('/librarian/<librarian_id>/users/view/<view_user_profile_id>')
 def view_user_profile(db, librarian_id, view_user_profile_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, view_user_profile_id)
@@ -813,11 +815,11 @@ def view_user_profile(db, librarian_id, view_user_profile_id):
 
     name = get_librarian_name(db, librarian_id)
 
-    return template('librarian_pages/view_user_profile', name=name,
+    return bottle.template('librarian_pages/view_user_profile', name=name,
                     user_id=librarian_id, user=user)
 
 
-@get('/user/<user_id>/account')
+@bottle.get('/user/<user_id>/account')
 def user_account(db, user_id):
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, user_id)
@@ -833,7 +835,7 @@ def user_account(db, user_id):
                 past_loans=user_past_loans,
                 join_date=user_join_date)
 
-    return template('user_pages/user_account', user=user)
+    return bottle.template('user_pages/user_account', user=user)
 
 
-run(host='localhost', port=8080, debug=True)
+bottle.run(host='localhost', port=8080, debug=True)
