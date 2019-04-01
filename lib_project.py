@@ -72,11 +72,14 @@ def check_auth(user_id):
 def error404(error):
     return bottle.template('page_not_found')
 
-
 @app.error(401)
 def error401(error):
-    set_cookie(LOGIN_COOKIE, "Please Log In")
-    bottle.redirect('/')
+    try: 
+        bottle.redirect('/', 303)
+    except bottle.HTTPResponse as res:
+        return res
+
+
 
 def get_search_results(db, search_query):
     search_queries = search_query.split(' ')
@@ -119,7 +122,6 @@ def get_search_results(db, search_query):
 @app.get('/static/<filename:path>')
 def serve_static(filename):
     return bottle.static_file(filename, root='./static')
-
 
 @app.get('/')
 def home(db):
