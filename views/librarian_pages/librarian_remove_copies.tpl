@@ -16,25 +16,25 @@
             <th></th>
         </tr>
         % for copy in copies:
-        % if copy['checkout'] == 'Yes':
-        <tr>
-            <td>{{copy['id']}}</td>
-            <td>{{copy['location']}}</td>
-            <td>{{copy['hire_period']}}</td>
-            <td>{{copy['checkout']}}</td>
-            <td>{{copy['borrower']}}</td>
-            <td><a class="checked_out" href="/librarian/{{user_id}}/remove/{{book_id}}/{{copy['id']}}"><span class='red'>Remove</span></a></td>
-        </tr>
-        % else: 
-        <tr>
-            <td>{{copy['id']}}</td>
-            <td>{{copy['location']}}</td>
-            <td>{{copy['hire_period']}}</td>
-            <td>{{copy['checkout']}}</td>
-            <td>{{copy['borrower']}}</td>
-            <td><a href="/librarian/{{user_id}}/remove/{{book_id}}/{{copy['id']}}"><span class='red'>Remove</span></a></td>
-        </tr>
-        % end
+            % if copy['checkout'] == 'Yes':
+            <tr>
+                <td>{{copy['id']}}</td>
+                <td>{{copy['location']}}</td>
+                <td>{{copy['hire_period']}}</td>
+                <td>{{copy['checkout']}}</td>
+                <td>{{copy['borrower']}}</td>
+                <td><a class="checked_out" href="/librarian/{{user_id}}/remove/{{book_id}}/{{copy['id']}}"><span class='red'>Remove</span></a></td>
+            </tr>
+            % else: 
+            <tr>
+                <td>{{copy['id']}}</td>
+                <td>{{copy['location']}}</td>
+                <td>{{copy['hire_period']}}</td>
+                <td>{{copy['checkout']}}</td>
+                <td>{{copy['borrower']}}</td>
+                <td><a href="/librarian/{{user_id}}/remove/{{book_id}}/{{copy['id']}}"><span class='red'>Remove</span></a></td>
+            </tr>
+            % end
         % end
     </table>
 </div>

@@ -11,8 +11,16 @@
             <br>
             <li><a href="/user/{{user['id']}}/account/edit">Edit Account Details</a></li>
         </ul>
+        <ul>
+            <br>
+            <li><a id="close_account" href="/user/{{user['id']}}/account/close">Close Account</a></li>
+        </ul>
     </div>
 </div>
+
+<script type="text/javascript" src="/static/confirm_close_account.js"></script>
+
+
 <hr>
 <h3><u>Current Loans</u></h3>
 % if user['loan_count'] > 0:

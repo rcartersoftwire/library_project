@@ -16,6 +16,8 @@ from librarian import *
 from loan import *
 from cookies import *
 
+from acc_types import AccType
+
 # Create Bottle Object
 app = bottle.Bottle()
 
@@ -23,8 +25,6 @@ app = bottle.Bottle()
 database_file = 'library_project.db'
 migrations_path = 'migrations/'
 caribou.upgrade(database_file, migrations_path)
-
-# Authenticator
 
 # Install Plugins
 app.install(message_plugin)
@@ -47,13 +47,16 @@ TOKEN_LIST = ['000000']
 def redirect_to_home(db):
     user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
     if user_id:
-        acc_type =  db.execute('SELECT type FROM user WHERE user.id=?',(user_id,)).fetchone()
-        if acc_type['type'] == 1:
-            bottle.redirect(f'/librarian/{user_id}/home')
-        elif acc_type['type'] == 0:
-            bottle.redirect(f'/user/{user_id}/home')
-    else:
-        bottle.redirect('/')
+        acc_type =  db.execute('SELECT type FROM user WHERE user.id=?;',(user_id,)).fetchone()
+        if acc_type is not None:
+            if acc_type['type'] == AccType.LIBRARIAN.value:
+                bottle.redirect(f'/librarian/{user_id}/home')
+            elif acc_type['type'] == AccType.USER.value:
+                bottle.redirect(f'/user/{user_id}/home')
+        else:
+            bottle.response.delete_cookie(AUTH_COOKIE)
+
+    bottle.redirect('/')
 
 def check_auth(user_id):
     existing_user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
@@ -432,10 +435,6 @@ def add_book_request(db, user_id):
     bottle.redirect(f'/user/{user_id}/home?book_requested=True')
 
 
-@app.get('/logging_in')
-def logging_in(db):
-    redirect_to_home(db)
-
 @app.post('/login')
 def login(db):
     username = bottle.request.forms.get('username')
@@ -444,22 +443,12 @@ def login(db):
     check_user = db.execute("""SELECT id, password, type FROM user WHERE username = ?;
                             """, (username,)).fetchone()
 
-    if check_user:
-        if check_user['password'] == password:
-            if check_user['type'] == 0:
-                bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
-            elif check_user['type'] == 1:
-                bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
-            else:
-                set_cookie(LOGIN_COOKIE, 'Login failed.')
-                bottle.redirect('/')
-            bottle.redirect('/logging_in')
-        else:
-            set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
-            bottle.redirect('/')
-    else:
+    if not check_user or check_user['password'] != password:
         set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         bottle.redirect('/')
+
+    bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
+    bottle.redirect('/')
 
 
 @app.get('/logout')
@@ -467,6 +456,17 @@ def logout(db):
     bottle.response.delete_cookie(AUTH_COOKIE)
     bottle.redirect('/')
 
+@app.get('/user/<user_id>/account/close')
+def close_user_account(db, user_id):
+    check_auth(user_id)
+    (user_id, user_first_name, user_last_name, user_loan_count,
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
+    if len(user_loans) == 0 :
+        db.execute("DELETE FROM user WHERE user.id = ?;", (user_id,))
+        logout(db)
+    else:
+        print ("User still has outstanding loans!")
+        bottle.redirect(f'/user/{user_id}/account')
 
 @app.get('/user/<user_id>/account/edit')
 def edit_user_account(db, user_id):
@@ -477,7 +477,7 @@ def edit_user_account(db, user_id):
      user_loans, user_prof_pic) = get_user_details(db, user_id)
     user_join_date = get_user_join_date(db, user_id)
     user_past_loans = get_user_past_loans(db, user_id)
-    (username) = db.execute("SELECT username FROM user WHERE id=?",(user_id,)).fetchone()
+    (username) = db.execute("SELECT username FROM user WHERE id=?;",(user_id,)).fetchone()
 
     user = dict(id=user_id,
                 username=username['username'],
@@ -626,13 +626,9 @@ def join(db):
 
         user_id = db.execute("SELECT id FROM user WHERE username = ?;",
                              (username,)).fetchone()[0]
-        # if acc_type == 0:
+
         bottle.response.set_cookie(AUTH_COOKIE, str(user_id), secret=AUTH_COOKIE_SECRET)
         redirect_to_home(db)
-            # bottle.redirect(f'/user/{user_id}/home')
-        # else:
-            # bottle.redirect(f'/librarian/{user_id}/home')
-
 
 @app.get('/get_username_list/<username>')
 def get_username_list(db, username):
