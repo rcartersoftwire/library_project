@@ -43,7 +43,6 @@ AUTH_COOKIE_SECRET = 'SECRET'
 # Librarian Tokens
 TOKEN_LIST = ['000000']
 
-
 def redirect_to_home(db):
     user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
     if user_id:
@@ -58,13 +57,17 @@ def redirect_to_home(db):
 
     bottle.redirect('/')
 
-def check_auth(user_id):
+def check_auth(user_id, acc_type, db):
     existing_user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
     if existing_user_id is None:
         raise bottle.HTTPError(401, 'Unauthorized Error')
 
+    # Check for user id matching and acc_type match
     if str(existing_user_id) == str(user_id):
-        return True
+        acc_type_row =  db.execute('SELECT type FROM user WHERE user.id=?;',(user_id,)).fetchone()
+        if acc_type.value == acc_type_row['type']:
+            return True
+        raise bottle.HTTPError(401, 'Unauthorized Error')
     else:
         raise bottle.HTTPError(401, 'Unauthorized Error')
 
@@ -138,7 +141,7 @@ def home(db):
 @app.get('/user/<id>/home')
 def user_home(db, id):
 
-    check_auth(id)
+    check_auth(id, AccType.USER, db)
 
     book_requested = bottle.request.params.get('book_requested')
     if book_requested is not None:
@@ -163,7 +166,7 @@ def user_home(db, id):
 @app.get('/librarian/<user_id>/home')
 def librarian_home(db, user_id):
 
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     name = get_librarian_name(db, user_id)
 
@@ -183,14 +186,14 @@ def search(db):
                     results=results)
 
 
-@app.post('/user/<id>/search')
-def user_search(db, id):
-    check_auth(user_id)
+@app.post('/user/<user_id>/search')
+def user_search(db, user_id):
+    check_auth(user_id, AccType.USER, db)
     search_query = bottle.request.forms.get('search_query')
     results = get_search_results(db, search_query)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans, user_prof_pic) = get_user_details(db, id)
+     user_loans, user_prof_pic) = get_user_details(db, user_id)
 
     user = dict(id=user_id,
                 first_name=user_first_name,
@@ -204,7 +207,7 @@ def user_search(db, id):
 
 @app.post('/librarian/<user_id>/search')
 def librarian_search(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
     search_query = bottle.request.forms.get('search_query')
     results = get_search_results(db, search_query)
 
@@ -233,7 +236,7 @@ def browse_titles(db):
 
 @app.get('/user/<user_id>/browse/titles')
 def user_browse_titles(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     books = get_title_list(db)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
@@ -251,7 +254,7 @@ def user_browse_titles(db, user_id):
 
 @app.get('/librarian/<user_id>/browse/titles')
 def librarian_browse_titles(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
     books = get_title_list(db)
 
     name = get_librarian_name(db, user_id)
@@ -273,7 +276,7 @@ def browse_authors(db):
 
 @app.get('/user/<user_id>/browse/authors')
 def user_browse_authors(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     authors = get_author_list(db)
 
     for author in authors:
@@ -295,7 +298,7 @@ def user_browse_authors(db, user_id):
 
 @app.get('/librarian/<user_id>/browse/authors')
 def librarian_browse_authors(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
     authors = get_author_list(db)
 
     for author in authors:
@@ -310,7 +313,7 @@ def librarian_browse_authors(db, user_id):
 
 @app.get('/user/<user_id>/book/<book_id>')
 def user_book_details(db, user_id, book_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     book_details = get_book_details(db, book_id)
     copy_availability_details = check_copies_available(db, book_id)
 
@@ -332,7 +335,7 @@ def user_book_details(db, user_id, book_id):
 
 @app.get('/librarian/<user_id>/book/<book_id>')
 def librarian_book_details(db, user_id, book_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
     book_details = get_book_details(db, book_id)
     copy_availability_details = check_copies_available(db, book_id)
     name = get_librarian_name(db, user_id)
@@ -349,7 +352,7 @@ def librarian_book_details(db, user_id, book_id):
 
 @app.get('/user/<user_id>/borrow/<book_id>')
 def borrow(db, user_id, book_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     create_loan(db, user_id, book_id)
 
     bottle.redirect(f'/user/{user_id}/book/{book_id}')
@@ -357,7 +360,7 @@ def borrow(db, user_id, book_id):
 
 @app.get('/user/<user_id>/return/<book_id>')
 def return_book(db, user_id, book_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     end_loan(db, user_id, book_id)
 
     bottle.redirect(f'/user/{user_id}/book/{book_id}')
@@ -365,7 +368,7 @@ def return_book(db, user_id, book_id):
 
 @app.get('/user/<user_id>/renew/<book_id>')
 def renew_book(db, user_id, book_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     loan_id = find_loan_id(db, user_id, book_id)
 
     renew_loan(db, loan_id)
@@ -375,7 +378,7 @@ def renew_book(db, user_id, book_id):
 
 @app.get('/librarian/<user_id>/book_requests')
 def view_book_requests(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
     name = get_librarian_name(db, user_id)
 
     data = db.execute("""SELECT id, title, author_first_name, author_last_name
@@ -394,14 +397,14 @@ def view_book_requests(db, user_id):
 
 @app.get('/librarian/<user_id>/book_request/remove/<req_id>')
 def remove_book_request(db, user_id, req_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
     db.execute("DELETE FROM book_request WHERE id = ?", (req_id,))
     bottle.redirect(f'/librarian/{user_id}/book_requests')
 
 
 @app.get('/user/<user_id>/book_request')
 def book_request(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, user_id)
     user_join_date = get_user_join_date(db, user_id)
@@ -420,7 +423,7 @@ def book_request(db, user_id):
 
 @app.post('/user/<user_id>/book_request')
 def add_book_request(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     title = bottle.request.forms.get('title').strip()
     author_name = bottle.request.forms.get('author_name').strip()
 
@@ -460,7 +463,7 @@ def logout(db):
 
 @app.get('/user/<user_id>/account/close')
 def close_user_account(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, user_id)
     if len(user_loans) == 0 :
@@ -472,7 +475,7 @@ def close_user_account(db, user_id):
 
 @app.get('/user/<user_id>/account/edit')
 def edit_user_account(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     message = get_cookie(EDIT_ACC_COOKIE)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
@@ -496,7 +499,7 @@ def edit_user_account(db, user_id):
 
 @app.post('/user/<user_id>/account/edit')
 def edit_user_account_post(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
     first_name = bottle.request.forms.get('first_name').capitalize()
     last_name = bottle.request.forms.get('last_name').capitalize()
     username = bottle.request.forms.get('username')
@@ -644,7 +647,7 @@ def get_username_list(db, username):
 
 @app.get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
     name = get_librarian_name(db, user_id)
     message = get_cookie(ADD_BOOK_COOKIE, cookie_path=f"/librarian/{user_id}")
 
@@ -681,7 +684,7 @@ def get_book_location(db, book_id):
 
 @app.post('/librarian/<user_id>/add')
 def add_book(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     title = bottle.request.forms.get('title').strip()
     author_name = bottle.request.forms.get('author_name').strip()
@@ -732,7 +735,7 @@ def add_book(db, user_id):
 
 @app.get('/librarian/<user_id>/remove/<book_id>')
 def remove_copies(db, user_id, book_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     name = get_librarian_name(db, user_id)
 
@@ -771,7 +774,7 @@ def remove_copies(db, user_id, book_id):
 
 @app.get('/librarian/<user_id>/remove/<book_id>/<copy_id>')
 def remove_copy(db, user_id, book_id, copy_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     # Remove associated child loans
     db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
@@ -795,7 +798,7 @@ def remove_copy(db, user_id, book_id, copy_id):
 
 @app.get('/librarian/<user_id>/edit/<book_id>')
 def edit_book(db, user_id, book_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     name = get_librarian_name(db, user_id)
 
@@ -807,7 +810,7 @@ def edit_book(db, user_id, book_id):
 
 @app.post('/librarian/<user_id>/edit')
 def edit_book_details(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     book_id = bottle.request.forms.get('book_id')
     title = bottle.request.forms.get('title')
@@ -853,7 +856,7 @@ def edit_book_details(db, user_id):
 
 @app.post('/librarian/<user_id>/add_copy')
 def add_copy(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     book_id = bottle.request.forms.get('book_id')
     hire_period = bottle.request.forms.get('hire_period')
@@ -868,7 +871,7 @@ def add_copy(db, user_id):
 
 @app.get('/librarian/<user_id>/users/view')
 def view_users(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.LIBRARIAN, db)
 
     libr_names = db.execute("""SELECT first_name, last_name FROM  user
                             WHERE id = ?;""", (user_id,)).fetchone()
@@ -883,7 +886,7 @@ def view_users(db, user_id):
 
 @app.get('/librarian/<librarian_id>/users/view/<view_user_profile_id>')
 def view_user_profile(db, librarian_id, view_user_profile_id):
-    check_auth(librarian_id)
+    check_auth(librarian_id, AccType.LIBRARIAN, db)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, view_user_profile_id)
@@ -907,7 +910,7 @@ def view_user_profile(db, librarian_id, view_user_profile_id):
 
 @app.get('/user/<user_id>/account')
 def user_account(db, user_id):
-    check_auth(user_id)
+    check_auth(user_id, AccType.USER, db)
 
     (user_id, user_first_name, user_last_name, user_loan_count,
      user_loans, user_prof_pic) = get_user_details(db, user_id)
