@@ -11,7 +11,7 @@
     <input type="hidden" id="book_id" name="book_id" value={{book_details['id']}}>
     <div>
         <label for="title">Title</label>
-        <input type="text" id="title" name="title" required=required value="{{book_details['title']}}" readonly>
+        <input type="text" id="title" name="title" required=required value="{{book_details['title']}}">
     </div>
     <div>
         <label for="author_name">Author Name</label>

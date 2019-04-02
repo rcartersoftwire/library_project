@@ -882,18 +882,20 @@ def edit_book_details(db, user_id):
         cover.save(cover_save_path)
 
         db.execute("""UPDATE book SET
+                        title=?,
                       description = ?,
                       publisher = ?,
                       year = ?,
                       cover = ?
-                      WHERE id = ?;""", (description, publisher, year,
+                      WHERE id = ?;""", (title, description, publisher, year,
                                          cover_path, book_id))
     else:
         db.execute("""UPDATE book SET
+                title = ?,
                 description = ?,
                 publisher = ?,
                 year = ?
-                WHERE id = ?;""", (description, publisher, year, book_id))
+                WHERE id = ?;""", (title, description, publisher, year, book_id))
     bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
 
