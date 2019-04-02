@@ -16,7 +16,7 @@ from user import *
 from librarian import *
 from loan import *
 from cookies import *
-
+from utils import *
 from acc_types import AccType
 
 # Create Bottle Object
@@ -40,6 +40,7 @@ EDIT_ACC_COOKIE = 'edit_acc_message'
 AUTH_COOKIE = 'auth_user_id'
 
 AUTH_COOKIE_SECRET = 'SECRET'
+PWD_KEY = 'SECRET'
 
 # Librarian Tokens
 TOKEN_LIST = ['000000']
@@ -451,7 +452,7 @@ def login(db):
 
     checkFines(db, check_user["id"])
 
-    if not check_user or check_user['password'] != password:
+    if not check_user or check_user['password'] != encode(PWD_KEY, password):
         set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         bottle.redirect('/')
 
@@ -661,6 +662,7 @@ def join(db):
 
     # Insert into Database
     else:
+        password = encode(PWD_KEY, password)
         db.execute("""INSERT INTO user (first_name, last_name, username,
                    password, type, join_date, prof_pic)
                    VALUES (?, ?, ?, ?, ?, ?, ?);""", (first_name, last_name,
