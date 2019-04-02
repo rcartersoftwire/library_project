@@ -57,6 +57,7 @@
         </tr>
         % end
     </table>
+    <script type="text/javascript" src="/static/settle_loans.js"></script>
 % else:
     <p>You have no current loans</p>
 % end

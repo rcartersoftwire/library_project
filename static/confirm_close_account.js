@@ -7,4 +7,3 @@ function confirmAccDeletion(link){
 
 let close_account = document.getElementById("close_account");
 close_account.addEventListener("click", confirmAccDeletion);
-console.log('HELLO')
