@@ -951,6 +951,16 @@ def view_user_profile(db, librarian_id, view_user_profile_id):
                     user_id=librarian_id, user=user)
 
 
+@app.post('/user/<user_id>/account')
+def pay_fees(db, user_id):
+    fees_paid = bottle.request.forms.get('payFees')
+    paid = get_user_paid(db, user_id)
+    paid += float(fees_paid)
+    put_user_paid(db, user_id, paid)
+    checkFines(db, user_id)
+    bottle.redirect(f'/user/{user_id}/account')
+
+
 @app.get('/user/<user_id>/account')
 def user_account(db, user_id):
     check_auth(user_id, AccType.USER, db)
@@ -959,6 +969,10 @@ def user_account(db, user_id):
      user_loans, user_prof_pic) = get_user_details(db, user_id)
     user_join_date = get_user_join_date(db, user_id)
     user_past_loans = get_user_past_loans(db, user_id)
+    
+    user_balance = get_user_balance(db, user_id)
+    owe = True if user_balance < 0 else False
+    user_balance_str = '£{:.2f}'.format(abs(user_balance))
 
     user = dict(id=user_id,
                 first_name=user_first_name,
@@ -967,6 +981,9 @@ def user_account(db, user_id):
                 loans=user_loans,
                 prof_pic=user_prof_pic,
                 past_loans=user_past_loans,
+                balance_str=user_balance_str,
+                balance=user_balance,
+                owe=owe,
                 join_date=user_join_date)
 
     return bottle.template('user_pages/user_account', user=user)

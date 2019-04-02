@@ -56,6 +56,15 @@ def get_user_list(db):
 
     return user_list
 
+def get_user_balance(db, user_id):
+    return db.execute("""SELECT balance FROM user WHERE user.id=?;""",(user_id,)).fetchone()[0]
+
+def get_user_paid(db, user_id):
+    return db.execute("""SELECT paid FROM user WHERE user.id=?;""",(user_id,)).fetchone()[0]
+
+def put_user_paid(db, user_id, paid):
+    db.execute("""UPDATE user SET paid=? WHERE user.id=?;""",(paid, user_id))
+    return
 
 def get_user_past_loans(db, id):
     past_loan_results = db.execute("""SELECT copy_id, returned_date, checkout_date,

@@ -1,10 +1,20 @@
 % rebase('user_pages/user_base.tpl', subtitle="My Account")
+<style>
+    .red {
+        color: red;
+    }
+</style>
 
 <div class="grid-container">
     <div class="left-info">
         <img class ="user_prof_pic" src="{{user['prof_pic']}}">
         <h2>{{user['first_name']}}'s Account</h2>
         <p>Joined Library {{user['join_date']}}</p>
+        % if not user['owe']:
+            <p>Fees payable: {{user['balance_str']}}</p>
+        % else:
+            <p>Fees payable: <span class='red'>{{user['balance_str']}}</span></p>
+        % end
     </div>
     <div class="right-info">
         <ul>
@@ -12,9 +22,16 @@
             <li><a href="/user/{{user['id']}}/account/edit">Edit Account Details</a></li>
         </ul>
         <ul>
-            <br>
             <li><a id="close_account" href="/user/{{user['id']}}/account/close">Close Account</a></li>
         </ul>
+        % if user['owe']:
+        <div class="pay_field">
+            <form action="/user/{{user['id']}}/account" method="post" style="display: inline;">
+                £  <input type="number" id="payFees" name="payFees" value={{abs(user['balance'])}} step="0.5">
+                <input type="submit" value="Pay" />
+            </form>
+        </div>
+        % end
     </div>
 </div>
 

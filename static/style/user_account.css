@@ -36,11 +36,17 @@
     padding: 10px;
 }
 
-.grid-container > div {
-    padding: 10px 0;
-}
 
 .left-info {
     grid-column-start: 1;
     grid-column-end: 3;
+}
+
+.right-info {
+    padding: 20% 0 0 0;
+}
+
+.pay_field {
+    padding: 0 0 0 5%;
+    display: inline-block;
 }
