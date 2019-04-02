@@ -6,6 +6,7 @@ import caribou
 
 # System function imports
 from datetime import datetime as dt
+from datetime import date
 import os
 
 # Functions
@@ -448,12 +449,48 @@ def login(db):
     check_user = db.execute("""SELECT id, password, type FROM user WHERE username = ?;
                             """, (username,)).fetchone()
 
+    checkFines(db, check_user["id"])
+
     if not check_user or check_user['password'] != password:
         set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         bottle.redirect('/')
 
     bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
     bottle.redirect('/')
+
+
+def checkFines(db, user_id):
+    # Check current and past loans
+    user_loans = db.execute("""SELECT due_date, returned, returned_date
+                                 FROM loan WHERE borrower_id=?;""",(user_id,)).fetchall()
+    total_fee_payable = 0
+    for loan in user_loans:
+        due_date = loan['due_date'].split('/')
+        due_date = [int(x) for x in due_date]
+        due_date = date(due_date[2]+2000, due_date[1], due_date[0])
+
+        if loan['returned'] == 1:
+            # Use Returned Date
+            prime_date = loan['returned_date'].split('/')
+            prime_date = [int(x) for x in prime_date]
+            prime_date = date(prime_date[2]+2000, prime_date[1], prime_date[0])
+        
+        else:
+            # Use Today's date
+            prime_date = date.today()
+
+        if due_date < prime_date:
+            # £0.50 charged per day after due date 
+            delta = (prime_date - due_date).days
+            total_fee_payable += delta * 0.5
+
+    if total_fee_payable != 0:
+        # Assign late fee
+        db.execute("""UPDATE user SET late_fee=? WHERE user.id=?;""",(total_fee_payable, user_id))
+        # Update Balance
+        user_paid = db.execute("""SELECT paid FROM user WHERE user.id=?;""",(user_id,)).fetchone()[0]
+        balance = user_paid - total_fee_payable
+        db.execute("""UPDATE user SET balance=? WHERE user.id=?;""",(balance, user_id))
 
 
 @app.get('/logout')
