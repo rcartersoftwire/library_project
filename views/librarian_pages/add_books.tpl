@@ -47,7 +47,7 @@
     </div>
     <div>
         <label for="author_name">Author Name</label>
-        <input type="text" id="author_name" name="author_name" required=required onChange="checkAuthorName()">
+        <input type="text" id="author_name" name="author_name" required=required>
     </div>
     <div>
         <label for="description">Description</label>

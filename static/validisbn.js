@@ -81,7 +81,3 @@ function checkISBN() {
 
     }
 }
-
-// $(document).ready(function () {
-//     $("#isbn").keyup(checkISBN);
-//  });
