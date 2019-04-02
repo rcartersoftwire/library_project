@@ -5,6 +5,11 @@
         <div class="user_info">
             <img class ="user_prof_pic_list" src="{{user['prof_pic']}}">
             <a href="/librarian/{{user_id}}/users/view/{{user['id']}}"><h3>{{user['name']}}</h3></a>
+            % if not user['owe']:
+                <p>No pending fees</p>
+            % else:
+                <p>Fees Owed: <span class='red'>{{user['balance_str']}}</span></p>
+            % end
             % if user['loan_count'] == 1:
             <h5 class = "loan_count">{{user['loan_count']}} active loan</h5>
             % else:

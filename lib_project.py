@@ -926,6 +926,11 @@ def view_users(db, user_id):
     name = libr_names['first_name'] + ' ' + libr_names['last_name']
 
     user_list = get_user_list(db)
+    for user in user_list:
+        checkFines(db, user['id'])
+        user_balance = get_user_balance(db, user['id'])
+        user['owe'] = True if user_balance < 0 else False
+        user['balance_str'] = '£{:.2f}'.format(abs(user_balance))
 
     return bottle.template('librarian_pages/view_users', name=name, user_id=user_id,
                     user_list=user_list)
@@ -939,6 +944,12 @@ def view_user_profile(db, librarian_id, view_user_profile_id):
      user_loans, user_prof_pic) = get_user_details(db, view_user_profile_id)
     user_join_date = get_user_join_date(db, view_user_profile_id)
     user_past_loans = get_user_past_loans(db, view_user_profile_id)
+    
+    # Late Fees
+    checkFines(db, user_id)
+    user_balance = get_user_balance(db, user_id)
+    owe = True if user_balance < 0 else False
+    user_balance_str = '£{:.2f}'.format(abs(user_balance))
 
     user = dict(id=user_id,
                 first_name=user_first_name,
@@ -947,6 +958,8 @@ def view_user_profile(db, librarian_id, view_user_profile_id):
                 loans=user_loans,
                 prof_pic=user_prof_pic,
                 past_loans=user_past_loans,
+                balance_str=user_balance_str,
+                owe=owe,
                 join_date=user_join_date)
 
     name = get_librarian_name(db, librarian_id)

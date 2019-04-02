@@ -3,6 +3,11 @@
             <h2>{{user['first_name']}}'s Account</h2>
 
             <p>Joined Library {{user['join_date']}}</p>
+            % if not user['owe']:
+                <p>Fees Owed: {{user['balance_str']}}</p>
+            % else:
+                <p>Fees Owed: <span class='red'>{{user['balance_str']}}</span></p>
+            % end
             <h3><u>Current Loans</u></h4>
             % if user['loan_count'] > 0:
             <table class="user_loans_table">
