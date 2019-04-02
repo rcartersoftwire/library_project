@@ -704,26 +704,29 @@ def add_book(db, user_id):
         bottle.redirect(f'/librarian/{user_id}/books/add')
 
     cover = bottle.request.files.get('cover')
+    if cover is not None:
+        try:
+            name, ext = os.path.splitext(cover.filename)
 
-    try:
-        name, ext = os.path.splitext(cover.filename)
+            if ext not in ('.png', '.jpg', '.jpeg'):
+                set_cookie(ADD_BOOK_COOKIE,
+                        'File extension not allowed. Add Book failed.')
+                bottle.redirect(f'/librarian/{user_id}/books/add')
 
-        if ext not in ('.png', '.jpg', '.jpeg'):
-            set_cookie(ADD_BOOK_COOKIE,
-                       'File extension not allowed. Add Book failed.')
-            bottle.redirect(f'/librarian/{user_id}/books/add')
+            cover_save_path = get_cover_save_path(title, author_name)
+            cover_path = cover_save_path + '/' + cover.filename
 
-        cover_save_path = get_cover_save_path(title, author_name)
-        cover_path = cover_save_path + '/' + cover.filename
+            if os.path.exists(cover_path):
+                os.remove(cover_path)
 
-        if os.path.exists(cover_path):
-            os.remove(cover_path)
+            cover_path = '/' + cover_path
+            cover.save(cover_save_path)
 
-        cover_path = '/' + cover_path
-        cover.save(cover_save_path)
+        except AttributeError:
+            cover_path = '/static/images/missing_book_cover.jpg'
 
-    except AttributeError:
-        cover_path = '/static/images/missing_book_cover.jpg'
+    else:
+        cover_path = bottle.request.forms.get('cover') 
 
     book_id = find_book_id(db, title, author_id, isbn, description,
                            publisher, year, cover_path)

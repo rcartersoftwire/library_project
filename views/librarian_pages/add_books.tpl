@@ -26,7 +26,7 @@
     </div>
     <div>
         <label for="isbn">ISBN</label>
-        <input type="text" id ="isbn" name="isbn" required=required>                        
+        <input type="text" id ="isbn" name="isbn" required=required onfocusout="checkISBN()">                        
     </div>
     <div>
         <label for="description">Description</label>
@@ -42,7 +42,7 @@
     </div>
     <div>
         <label for="hire_period">Hire Period (days)</label>
-        <input type="number" id="hire_period" name="hire_period" value="14" required=required min="1" max="21">
+        <input type="number" id="hire_period" name="hire_period" value="7" required=required min="1" max="21">
     </div>
     <div>
         <label for="location">Location</label>
@@ -51,7 +51,7 @@
             <option value=2>Upstairs</option>
         </select>
     </div>
-    <div>
+    <div id="divCover">
         <label for="cover">Cover</label>
         <input type="file" id="cover" name="cover" accept="image/*">
     </div>
