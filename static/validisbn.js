@@ -1,4 +1,6 @@
 function checkISBN() {
+    let autofill = $("#autofill").is(":checked");
+
     let isbnInput =$("#isbn").val();
     let isbn = isbnInput.trim();
     let validISBN = false;
@@ -46,28 +48,35 @@ function checkISBN() {
         document.getElementById("add_book_button").disabled = true;
     }else{
         document.getElementById("add_book_button").disabled = false;
-
-        var googleAPI = "https://www.googleapis.com/books/v1/volumes?q=" + isbn;
-        $.getJSON(googleAPI, function(response) {
-            if (typeof response.items === "undefined") {
-                alert("No books match that ISBN.")
-            } else {
-                $("#divCheckISBN").html("");
-                $("#title").val(response.items[0].volumeInfo.title);
-                $("#author_name").val(response.items[0].volumeInfo.authors[0]);
-                $("#description").html(response.items[0].volumeInfo.description);
-                $("#publisher").val(response.items[0].volumeInfo.publisher);
-                $("#year").val(response.items[0].volumeInfo.publishedDate);
-                if (response.items[0].volumeInfo.imageLinks.thumbnail){
-                    $("#divCover").html("<label for=\"cover\">Cover</label>")
-                    $("#divCover").append("<input type=\"text\" id=\"cover\" value=\"" + response.items[0].volumeInfo.imageLinks.thumbnail + "\" name=\"cover\">")
-                    $("#divCover").append("<img src=" + response.items[0].volumeInfo.imageLinks.thumbnail + ">")
-                }else{
-                    $("#divCover").html("<label for=\"cover\">Cover</label>")
-                    $("#divCover").append("<input type=\"file\ id=\"cover\" name=\"cover\" accept=\"image/*\">")
+        $("#divCheckISBN").html("");
+        if (autofill){
+            var googleAPI = "https://www.googleapis.com/books/v1/volumes?q=" + isbn;
+            $.getJSON(googleAPI, function(response) {
+                if (typeof response.items === "undefined") {
+                    alert("No books match that ISBN.")
+                } else {
+                    $("#title").val(response.items[0].volumeInfo.title);
+                    $("#author_name").val(response.items[0].volumeInfo.authors[0]);
+                    $("#description").html(response.items[0].volumeInfo.description);
+                    $("#publisher").val(response.items[0].volumeInfo.publisher);
+                    $("#year").val(response.items[0].volumeInfo.publishedDate);
+                    if (response.items[0].volumeInfo.imageLinks.thumbnail){
+                        $("#divCover").html("<label for=\"cover\">Cover</label>");
+                        $("#divCover").append("<input type=\"text\" id=\"cover\" value=\"" + response.items[0].volumeInfo.imageLinks.thumbnail + "\" name=\"cover\">");
+                        $("#divCover").append("</div>");
+                        $("#divCoverImage").html("<img src=" + response.items[0].volumeInfo.imageLinks.thumbnail + ">");
+                    }else{
+                        $("#divCover").html("<label for=\"cover\">Cover</label>");
+                        $("#divCover").append("<input type=\"file\" id=\"cover\" name=\"cover\" accept=\"image/*\">");
+                        $("#divCoverImage").html("");
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            $("#divCover").html("<label for=\"cover\">Cover</label>");
+            $("#divCover").append("<input type=\"file\" id=\"cover\" name=\"cover\" accept=\"image/*\">");
+            $("#divCoverImage").html("");
+        }
 
 
     }

@@ -9,13 +9,38 @@
 <script type="text/javascript" src="/static/validisbn.js"></script>
 
 <style>
-  .red {
-    color: red;
-  }
+    .red {
+        color: red;
+    }
+    input[type=checkbox], input[type=radio] {
+        width: auto;
+    }
+    
+    .checkbox{
+        display: inline-block;
+    }
+
+    .isbnrow{
+        display: flex;
+    }
+    
+    .coverImage {
+        display: block;
+        float: left;
+    }
+    
 </style>
 
 <div class = "form">
     <form action="/librarian/{{user_id}}/add" method="post" enctype="multipart/form-data">
+    <div class="isbnrow">
+        <label for="isbn">ISBN</label>
+        <input type="text" id ="isbn" name="isbn" required=required onfocusout="checkISBN()">                        
+        <div class = "checkbox">
+            <input type="checkbox" id="autofill" name="autofill" value="autofill" onChange="checkISBN()">Autofill
+        </div>
+    </div>
+
     <div>
         <label for="title">Title</label>
         <input type="text" id="title" name="title" required=required>
@@ -23,10 +48,6 @@
     <div>
         <label for="author_name">Author Name</label>
         <input type="text" id="author_name" name="author_name" required=required onChange="checkAuthorName()">
-    </div>
-    <div>
-        <label for="isbn">ISBN</label>
-        <input type="text" id ="isbn" name="isbn" required=required onfocusout="checkISBN()">                        
     </div>
     <div>
         <label for="description">Description</label>
@@ -54,6 +75,8 @@
     <div id="divCover">
         <label for="cover">Cover</label>
         <input type="file" id="cover" name="cover" accept="image/*">
+    </div>
+    <div id="divCoverImage" id="coverImage">
     </div>
     <div class="registrationFormAlert" id="divCheckAuthor">
     </div>

@@ -703,6 +703,7 @@ def add_book(db, user_id):
                    f'/librarian/{user_id}')
         bottle.redirect(f'/librarian/{user_id}/books/add')
 
+    # Book Cover is local path
     cover = bottle.request.files.get('cover')
     if cover is not None:
         try:
@@ -725,8 +726,10 @@ def add_book(db, user_id):
         except AttributeError:
             cover_path = '/static/images/missing_book_cover.jpg'
 
+    # Book Cover is a Remote path
     else:
         cover_path = bottle.request.forms.get('cover') 
+
 
     book_id = find_book_id(db, title, author_id, isbn, description,
                            publisher, year, cover_path)
