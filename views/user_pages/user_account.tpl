@@ -57,9 +57,12 @@
         </tr>
         % end
     </table>
-    <script type="text/javascript" src="/static/settle_loans.js"></script>
 % else:
     <p>You have no current loans</p>
+% end
+
+% if user['loan_count'] > 0 or user['owe'] is True:
+    <script type="text/javascript" src="/static/settle_loans.js"></script>
 % end
 
 % if len(user['past_loans']) > 0:

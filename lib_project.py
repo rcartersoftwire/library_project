@@ -450,11 +450,12 @@ def login(db):
     check_user = db.execute("""SELECT id, password, type FROM user WHERE username = ?;
                             """, (username,)).fetchone()
 
-    checkFines(db, check_user["id"])
 
     if not check_user or check_user['password'] != encode(PWD_KEY, password):
         set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         bottle.redirect('/')
+        
+    checkFines(db, check_user["id"])
 
     bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
     bottle.redirect('/')
@@ -503,8 +504,9 @@ def logout(db):
 def close_user_account(db, user_id):
     check_auth(user_id, AccType.USER, db)
     (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans, user_prof_pic) = get_user_details(db, user_id)
-    if len(user_loans) == 0 :
+     user_current_loans, user_prof_pic) = get_user_details(db, user_id)
+    if len(user_current_loans) == 0 :
+        db.execute("DELETE FROM loan WHERE borrower_id = ?;", (user_id,))
         db.execute("DELETE FROM user WHERE user.id = ?;", (user_id,))
         logout(db)
     else:
