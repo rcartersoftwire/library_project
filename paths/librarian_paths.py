@@ -20,11 +20,12 @@ from bottle_utils.flash import message_plugin
 from bottle_sqlite import SQLitePlugin
 import caribou
 
+from config import database_file
+
 # Create Bottle Object
 librarian_app = bottle.Bottle()
 
 # Database Configuration
-database_file = 'library_project.db'
 librarian_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # ====================================================

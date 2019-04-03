@@ -9,6 +9,8 @@ import services.loan
 import services.cookies
 import services.tools
 
+from config import database_file
+
 # Bottle and Database imports
 import bottle
 from bottle_utils.flash import message_plugin
@@ -19,7 +21,6 @@ import caribou
 user_app = bottle.Bottle()
 
 # Database Configuration
-database_file = 'library_project.db'
 user_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # ====================================================
@@ -188,7 +189,6 @@ def edit_user_account(db, user_id):
     message = services.cookies.get_cookie(services.cookies.EDIT_ACC_COOKIE)
 
     user_dict = User(db, user_id)
-
 
     return bottle.template('user_pages/edit_user_account', message=message, user=user_dict)
 

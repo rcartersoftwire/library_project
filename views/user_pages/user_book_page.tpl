@@ -12,9 +12,15 @@
                     <li><a href="/user/{{user.id}}/renew/{{book_details['id']}}">Renew loan</a></li>
                 </ul>
             % elif copy_availability_details['num_available'] > 0:
-                <ul>
-                    <li><a href="/user/{{user.id}}/borrow/{{book_details['id']}}">Borrow book</a></li>
-                </ul>
+                % if user.owe:
+                    <ul>
+                        <span class="red">Please settle your late payments before borrowing another book</span>
+                    </ul>
+                % else:
+                    <ul>
+                        <li><a href="/user/{{user.id}}/borrow/{{book_details['id']}}">Borrow book</a></li>
+                    </ul>
+                %end
             %end
             
         </div>

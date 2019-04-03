@@ -6,7 +6,7 @@ import caribou
 
 # All Paths
 import paths.error_paths as error_paths
-import paths.js_request_paths as js_request_paths
+import paths.api_paths as js_request_paths
 import paths.general_paths as general_paths
 import paths.user_paths as user_paths
 import paths.librarian_paths as librarian_paths

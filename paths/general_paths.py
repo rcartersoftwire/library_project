@@ -20,11 +20,12 @@ from bottle_utils.flash import message_plugin
 from bottle_sqlite import SQLitePlugin
 import caribou
 
+from config import database_file
+
 # Create Bottle Object
 general_app = bottle.Bottle()
 
 # Database Configuration
-database_file = 'library_project.db'
 general_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # ====================================================
@@ -116,24 +117,6 @@ def join(db):
         
     prof_pic = bottle.request.files.get('prof_pic')
 
-    # Save Profile Pic to Directory
-    try:
-        name, ext = os.path.splitext(prof_pic.filename)
-
-        if ext not in ('.png', '.jpg', '.jpeg'):
-            services.cookies.set_cookie(JOIN_COOKIE,
-                                'File extension not allowed. Join library failed.')
-            bottle.redirect('/join')
-
-        save_path = f"""static/images/prof_pics/{username}"""
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
-        prof_pic.save(save_path)
-        profile_pic_path = '/' + save_path + '/' + prof_pic.filename
-
-    except AttributeError:
-        profile_pic_path = '/static/images/unknown-user.jpg'
-
     # Join Date
     now = dt.now()
     join_date = now.strftime("%d/%m/%y")
@@ -162,8 +145,27 @@ def join(db):
                     Join library failed.''')
         bottle.redirect('/join')
 
+
     # Insert into Database
     else:
+        # Save Profile Pic to Directory
+        try:
+            name, ext = os.path.splitext(prof_pic.filename)
+
+            if ext not in ('.png', '.jpg', '.jpeg'):
+                services.cookies.set_cookie(JOIN_COOKIE,
+                                    'File extension not allowed. Join library failed.')
+                bottle.redirect('/join')
+
+            save_path = f"""static/images/prof_pics/{username}"""
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            prof_pic.save(save_path)
+            profile_pic_path = '/' + save_path + '/' + prof_pic.filename
+
+        except AttributeError:
+            profile_pic_path = '/static/images/unknown-user.jpg'
+
         password = services.tools.encode(PWD_KEY, password)
         db.execute("""INSERT INTO user (first_name, last_name, username,
                    password, type, join_date, prof_pic)
