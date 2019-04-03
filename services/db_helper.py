@@ -1,10 +1,10 @@
 import bottle
 from datetime import date
 from acc_types import AccType
-from constants import (AUTH_COOKIE, AUTH_COOKIE_SECRET)
+import services.cookies
 
 def redirect_to_home(db):
-    user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
+    user_id = services.cookies.get_auth_cookie()
     if user_id:
         acc_type =  db.execute('SELECT type FROM user WHERE user.id=?;',(user_id,)).fetchone()
         if acc_type is not None:
@@ -13,12 +13,12 @@ def redirect_to_home(db):
             elif acc_type['type'] == AccType.USER.value:
                 bottle.redirect(f'/user/{user_id}/home')
         else:
-            bottle.response.delete_cookie(AUTH_COOKIE)
+            services.cookies.del_auth_cookie()
 
     bottle.redirect('/')
 
 def check_auth(user_id, acc_type, db):
-    existing_user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
+    existing_user_id = services.cookies.get_auth_cookie()
     if existing_user_id is None:
         raise bottle.HTTPError(401, 'Unauthorized Error')
 

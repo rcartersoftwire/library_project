@@ -3,15 +3,16 @@ import os
 from datetime import datetime as dt
 
 # Module Function Imports
-import helper.db_helper
-import helper.author
-import helper.book
-import helper.user
-import helper.loan
-import helper.librarian
-import helper.cookies
-import helper.tools
-from constants import (AUTH_COOKIE, AUTH_COOKIE_SECRET, PWD_KEY, LOGIN_COOKIE, JOIN_COOKIE, TOKEN_LIST)
+import models.author
+import models.book
+import models.user
+import services.db_helper
+import services.loan
+import services.librarian
+import services.cookies
+import services.tools
+from services.cookies import (AUTH_COOKIE, LOGIN_COOKIE, JOIN_COOKIE)
+from config import AUTH_COOKIE_SECRET, PWD_KEY, TOKEN_LIST
 
 # Bottle and Database imports
 import bottle
@@ -41,41 +42,41 @@ def serve_static(filename):
 def home(db):
     user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
     if user_id is not None:
-        helper.db_helper.redirect_to_home(db)
+        services.db_helper.redirect_to_home(db)
 
-    books = helper.book.get_book_list(db)
-    message = helper.cookies.get_cookie(LOGIN_COOKIE)
+    books = models.book.get_book_list(db)
+    message = services.cookies.get_cookie(LOGIN_COOKIE)
 
     return bottle.template('visitor_pages/home', books=books, message=message)
 
 @general_app.post('/search')
 def search(db):
     search_query = bottle.request.forms.get('search_query')
-    results = helper.db_helper.get_search_results(db, search_query)
+    results = services.db_helper.get_search_results(db, search_query)
 
     return bottle.template('visitor_pages/search', search_query=search_query,
                     results=results)
 
 @general_app.get('/book/<book_id>')
 def book_details(db, book_id):
-    book_details = helper.book.get_book_details(db, book_id)
-    copy_availability_details = helper.book.check_copies_available(db, book_id)
+    book_details = models.book.get_book_details(db, book_id)
+    copy_availability_details = models.book.check_copies_available(db, book_id)
 
     return bottle.template('visitor_pages/book_page', book_details=book_details,
                     copy_availability_details=copy_availability_details)
 
 @general_app.get('/browse/titles')
 def browse_titles(db):
-    books = helper.book.get_title_list(db)
+    books = models.book.get_title_list(db)
 
     return bottle.template('visitor_pages/visitor_browse_titles', books=books)
 
 @general_app.get('/browse/authors')
 def browse_authors(db):
-    authors = helper.author.get_author_list(db)
+    authors = models.author.get_author_list(db)
 
     for each in authors:
-        author_books = helper.book.get_books_by_author(db, each['id'])
+        author_books = models.book.get_books_by_author(db, each['id'])
         each['books'] = author_books
 
     return bottle.template('visitor_pages/visitor_browse_authors', authors=authors)
@@ -89,11 +90,11 @@ def login(db):
                             """, (username,)).fetchone()
 
 
-    if not check_user or check_user['password'] != helper.tools.encode(PWD_KEY, password):
-        helper.cookies.set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
+    if not check_user or check_user['password'] != services.tools.encode(PWD_KEY, password):
+        services.cookies.set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         bottle.redirect('/')
         
-    helper.db_helper.check_fines(db, check_user["id"])
+    services.db_helper.check_fines(db, check_user["id"])
 
     bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
     bottle.redirect('/')
@@ -105,7 +106,7 @@ def logout(db):
 
 @general_app.get('/join')
 def join_library(db):
-    message = helper.cookies.get_cookie(JOIN_COOKIE)
+    message = services.cookies.get_cookie(JOIN_COOKIE)
     return bottle.template('visitor_pages/join_library', message=message)
 
 @general_app.post('/join')
@@ -125,7 +126,7 @@ def join(db):
         name, ext = os.path.splitext(prof_pic.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            helper.cookies.set_cookie(JOIN_COOKIE,
+            services.cookies.set_cookie(JOIN_COOKIE,
                                 'File extension not allowed. Join library failed.')
             bottle.redirect('/join')
 
@@ -147,28 +148,28 @@ def join(db):
                                 (username,)).fetchall()
 
     if len(password) < 8:
-        helper.cookies.set_cookie(JOIN_COOKIE, '''Password must be at least 8 characters.
+        services.cookies.set_cookie(JOIN_COOKIE, '''Password must be at least 8 characters.
                    Join library failed.''')
         bottle.redirect('/join')
 
     if password != conf_password:
-        helper.cookies.set_cookie(JOIN_COOKIE, '''Your passwords do not match.
+        services.cookies.set_cookie(JOIN_COOKIE, '''Your passwords do not match.
                    Join library failed.''')
         bottle.redirect('/join')
 
     elif username_in_db:
-        helper.cookies.set_cookie(JOIN_COOKIE, '''This username is already taken.
+        services.cookies.set_cookie(JOIN_COOKIE, '''This username is already taken.
                    Join library failed.''')
         bottle.redirect('/join')
 
     elif token is not None and token not in TOKEN_LIST:
-        helper.cookies.set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
+        services.cookies.set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
                     Join library failed.''')
         bottle.redirect('/join')
 
     # Insert into Database
     else:
-        password = helper.tools.encode(PWD_KEY, password)
+        password = services.tools.encode(PWD_KEY, password)
         db.execute("""INSERT INTO user (first_name, last_name, username,
                    password, type, join_date, prof_pic)
                    VALUES (?, ?, ?, ?, ?, ?, ?);""", (first_name, last_name,
@@ -178,5 +179,5 @@ def join(db):
                              (username,)).fetchone()[0]
 
         bottle.response.set_cookie(AUTH_COOKIE, str(user_id), secret=AUTH_COOKIE_SECRET)
-        helper.db_helper.redirect_to_home(db)
+        services.db_helper.redirect_to_home(db)
 

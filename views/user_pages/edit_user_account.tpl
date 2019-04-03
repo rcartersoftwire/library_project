@@ -20,22 +20,22 @@
 
 
 <div class = "form">
-    <form action="/user/{{user['id']}}/account/edit" method="post" enctype="multipart/form-data">
+    <form action="/user/{{user.id}}/account/edit" method="post" enctype="multipart/form-data">
     <div>
         <label for="prof_pic">Profile Picture</label>
-        <input type="file" id="prof_pic" name="prof_pic" value={{user['prof_pic']}} accept="image/*">
+        <input type="file" id="prof_pic" name="prof_pic" value={{user.prof_pic}} accept="image/*">
     </div>
     <div>
         <label for="first_name">First Name</label>
-        <input type="text" id="first_name" name="first_name" required=required value={{user['first_name']}}>
+        <input type="text" id="first_name" name="first_name" required=required value={{user.first_name}}>
     </div>
     <div>
         <label for="last_name">Last Name</label>
-        <input type="text" id="last_name" name="last_name" value={{user['last_name']}}>
+        <input type="text" id="last_name" name="last_name" value={{user.last_name}}>
     </div>
     <div>
         <label for="username">Username</label>
-        <input type="text" id ="new_username" name="username" value={{user['username']}} required=required onfocusout="checkUsernameMatch()">                        
+        <input type="text" id ="new_username" name="username" value={{user.username}} required=required onfocusout="checkUsernameMatch()">                        
     </div>
     <div>
         <label for="old_password">Old Password</label>

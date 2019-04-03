@@ -2,15 +2,15 @@
 import os
 
 # Module Function Imports
-import helper.db_helper
-import helper.author
-import helper.book
-import helper.user
-import helper.loan
-import helper.librarian
-import helper.cookies
-import helper.tools
-from constants import BOOK_COOKIE, ADD_BOOK_COOKIE
+import models.author
+import models.book
+import models.user
+import services.db_helper
+import services.loan
+import services.librarian
+import services.cookies
+import services.tools
+from services.cookies import BOOK_COOKIE, ADD_BOOK_COOKIE
 from acc_types import AccType
 
 # Bottle and Database imports
@@ -24,30 +24,25 @@ librarian_app = bottle.Bottle()
 
 # Database Configuration
 database_file = 'library_project.db'
-migrations_path = 'migrations/'
-caribou.upgrade(database_file, migrations_path)
-
-# Install Plugins
-librarian_app.install(message_plugin)
 librarian_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # ====================================================
 # Librarian Routes
 @librarian_app.get('/librarian/<user_id>/home')
 def librarian_home(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    name = helper.librarian.get_librarian_name(db, user_id)
-    books = helper.book.get_book_list(db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    name = services.librarian.get_librarian_name(db, user_id)
+    books = models.book.get_book_list(db)
     return bottle.template('librarian_pages/librarian_home', user_id=user_id,
                     books=books, name=name,)
 
 @librarian_app.post('/librarian/<user_id>/search')
 def librarian_search(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
     search_query = bottle.request.forms.get('search_query')
-    results = helper.db_helper.get_search_results(db, search_query)
+    results = services.db_helper.get_search_results(db, search_query)
 
-    name = helper.librarian.get_librarian_name(db, user_id)
+    name = services.librarian.get_librarian_name(db, user_id)
 
     return bottle.template('librarian_pages/librarian_search',
                     search_query=search_query,
@@ -55,38 +50,38 @@ def librarian_search(db, user_id):
 
 @librarian_app.get('/librarian/<user_id>/browse/titles')
 def librarian_browse_titles(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    books = helper.book.get_title_list(db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    books = models.book.get_title_list(db)
 
-    name = helper.librarian.get_librarian_name(db, user_id)
+    name = services.librarian.get_librarian_name(db, user_id)
 
     return bottle.template('librarian_pages/librarian_browse_titles', books=books,
                     user_id=user_id, name=name)
 
 @librarian_app.get('/librarian/<user_id>/browse/authors')
 def librarian_browse_authors(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    authors = helper.author.get_author_list(db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    authors = models.author.get_author_list(db)
 
     for each in authors:
-        author_books = helper.book.get_books_by_author(db, each['id'])
+        author_books = models.book.get_books_by_author(db, each['id'])
         each['books'] = author_books
 
-    name = helper.librarian.get_librarian_name(db, user_id)
+    name = services.librarian.get_librarian_name(db, user_id)
 
     return bottle.template('librarian_pages/librarian_browse_authors',
                     authors=authors, name=name, user_id=user_id)
 
 @librarian_app.get('/librarian/<user_id>/book/<book_id>')
 def librarian_book_details(db, user_id, book_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    book_details = helper.book.get_book_details(db, book_id)
-    copy_availability_details = helper.book.check_copies_available(db, book_id)
-    name = helper.librarian.get_librarian_name(db, user_id)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    book_details = models.book.get_book_details(db, book_id)
+    copy_availability_details = models.book.check_copies_available(db, book_id)
+    name = services.librarian.get_librarian_name(db, user_id)
 
-    message = helper.cookies.get_cookie(BOOK_COOKIE, f'/librarian/{user_id}/')
+    message = services.cookies.get_cookie(BOOK_COOKIE, f'/librarian/{user_id}/')
 
-    loan_list = helper.librarian.get_loan_list(db, book_id)
+    loan_list = services.librarian.get_loan_list(db, book_id)
     return bottle.template('librarian_pages/librarian_book_page',
                     book_details=book_details,
                     copy_availability_details=copy_availability_details,
@@ -95,8 +90,8 @@ def librarian_book_details(db, user_id, book_id):
 
 @librarian_app.get('/librarian/<user_id>/book_requests')
 def view_book_requests(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    name = helper.librarian.get_librarian_name(db, user_id)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    name = services.librarian.get_librarian_name(db, user_id)
 
     data = db.execute("""SELECT id, title, author_first_name, author_last_name
                       FROM book_request""").fetchall()
@@ -113,22 +108,22 @@ def view_book_requests(db, user_id):
 
 @librarian_app.get('/librarian/<user_id>/book_request/remove/<req_id>')
 def remove_book_request(db, user_id, req_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
     db.execute("DELETE FROM book_request WHERE id = ?", (req_id,))
     bottle.redirect(f'/librarian/{user_id}/book_requests')
 
 @librarian_app.get('/librarian/<user_id>/books/add')
 def add_books(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    name = helper.librarian.get_librarian_name(db, user_id)
-    message = helper.cookies.get_cookie(ADD_BOOK_COOKIE, cookie_path=f"/librarian/{user_id}")
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    name = services.librarian.get_librarian_name(db, user_id)
+    message = services.cookies.get_cookie(ADD_BOOK_COOKIE, cookie_path=f"/librarian/{user_id}")
 
     return bottle.template('librarian_pages/add_books', name=name, user_id=user_id,
                     message=message)
 
 @librarian_app.post('/librarian/<user_id>/add')
 def add_book(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
 
     title = bottle.request.forms.get('title').strip()
     author_name = bottle.request.forms.get('author_name').strip()
@@ -139,11 +134,11 @@ def add_book(db, user_id):
     location = bottle.request.forms.get('location')
     hire_period = bottle.request.forms.get('hire_period')
 
-    author_id = helper.author.find_author_id(db, author_name)
-    valid_isbn, isbn_message = helper.book.check_isbn(db, isbn, title, author_id)
+    author_id = models.author.find_author_id(db, author_name)
+    valid_isbn, isbn_message = models.book.check_isbn(db, isbn, title, author_id)
 
     if not valid_isbn:
-        helper.cookies.set_cookie(ADD_BOOK_COOKIE, f'{isbn_message}. Add Book failed.',
+        services.cookies.set_cookie(ADD_BOOK_COOKIE, f'{isbn_message}. Add Book failed.',
                    f'/librarian/{user_id}')
         bottle.redirect(f'/librarian/{user_id}/books/add')
 
@@ -154,11 +149,11 @@ def add_book(db, user_id):
             name, ext = os.path.splitext(cover.filename)
 
             if ext not in ('.png', '.jpg', '.jpeg'):
-                helper.cookies.set_cookie(ADD_BOOK_COOKIE,
+                services.cookies.set_cookie(ADD_BOOK_COOKIE,
                         'File extension not allowed. Add Book failed.')
                 bottle.redirect(f'/librarian/{user_id}/books/add')
 
-            cover_save_path = helper.book.get_cover_save_path(title, author_name)
+            cover_save_path = models.book.get_cover_save_path(title, author_name)
             cover_path = cover_save_path + '/' + cover.filename
 
             if os.path.exists(cover_path):
@@ -175,18 +170,18 @@ def add_book(db, user_id):
         cover_path = bottle.request.forms.get('cover') 
 
 
-    book_id = helper.book.find_book_id(db, title, author_id, isbn, description,
+    book_id = models.book.find_book_id(db, title, author_id, isbn, description,
                            publisher, year, cover_path)
 
-    helper.book.insert_copy(db, book_id, hire_period, location)
+    models.book.insert_copy(db, book_id, hire_period, location)
 
     bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
 @librarian_app.get('/librarian/<user_id>/remove/<book_id>')
 def remove_copies(db, user_id, book_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
 
-    name = helper.librarian.get_librarian_name(db, user_id)
+    name = services.librarian.get_librarian_name(db, user_id)
 
     (book_title, first_name, last_name, cover) = db.execute("""SELECT title, first_name, last_name, cover 
                                                         FROM book JOIN author on author.id=author_id 
@@ -223,7 +218,7 @@ def remove_copies(db, user_id, book_id):
 
 @librarian_app.get('/librarian/<user_id>/remove/<book_id>/<copy_id>')
 def remove_copy(db, user_id, book_id, copy_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
 
     # Remove associated child loans
     db.execute("""DELETE FROM loan WHERE copy_id = ?;""", (copy_id,))
@@ -244,18 +239,18 @@ def remove_copy(db, user_id, book_id, copy_id):
 
 @librarian_app.get('/librarian/<user_id>/edit/<book_id>')
 def edit_book(db, user_id, book_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
 
-    name = helper.librarian.get_librarian_name(db, user_id)
+    name = services.librarian.get_librarian_name(db, user_id)
 
-    book_details = helper.book.get_book_details(db, book_id)
+    book_details = models.book.get_book_details(db, book_id)
 
     return bottle.template('librarian_pages/edit_book', user_id=user_id, name=name,
                     book_details=book_details)
 
 @librarian_app.post('/librarian/<user_id>/edit')
 def edit_book_details(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
 
     book_id = bottle.request.forms.get('book_id')
     title = bottle.request.forms.get('title')
@@ -269,12 +264,12 @@ def edit_book_details(db, user_id):
         name, ext = os.path.splitext(cover.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            helper.cookies.set_cookie(BOOK_COOKIE,
+            services.cookies.set_cookie(BOOK_COOKIE,
                        'File extension not allowed. Failed to edit book.',
                        cookie_path=f"/librarian/{user_id}/")
             bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
-        cover_save_path = helper.book.get_cover_save_path(title, author_name)
+        cover_save_path = models.book.get_cover_save_path(title, author_name)
         cover_path = cover_save_path + '/' + cover.filename
 
         if os.path.exists(cover_path):
@@ -302,7 +297,7 @@ def edit_book_details(db, user_id):
 
 @librarian_app.post('/librarian/<user_id>/add_copy')
 def add_copy(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
 
     book_id = bottle.request.forms.get('book_id')
     hire_period = bottle.request.forms.get('hire_period')
@@ -310,23 +305,23 @@ def add_copy(db, user_id):
     location = bottle.request.forms.get('location')
 
     for i in range(num_of_copies):
-        helper.book.insert_copy(db, book_id, hire_period, location)
+        models.book.insert_copy(db, book_id, hire_period, location)
 
     bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
 @librarian_app.get('/librarian/<user_id>/users/view')
 def view_users(db, user_id):
-    helper.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
 
     libr_names = db.execute("""SELECT first_name, last_name FROM  user
                             WHERE id = ?;""", (user_id,)).fetchone()
 
     name = libr_names['first_name'] + ' ' + libr_names['last_name']
 
-    user_list = helper.user.get_user_list(db)
+    user_list = models.user.User.get_user_list(db)
     for each_user in user_list:
-        helper.db_helper.check_fines(db, each_user['id'])
-        user_balance = helper.user.get_user_balance(db, each_user['id'])
+        services.db_helper.check_fines(db, each_user['id'])
+        user_balance = models.user.User.get_user_balance(db, each_user['id'])
         each_user['owe'] = True if user_balance < 0 else False
         each_user['balance_str'] = '£{:.2f}'.format(abs(user_balance))
 
@@ -335,31 +330,11 @@ def view_users(db, user_id):
 
 @librarian_app.get('/librarian/<librarian_id>/users/view/<view_user_profile_id>')
 def view_user_profile(db, librarian_id, view_user_profile_id):
-    helper.db_helper.check_auth(librarian_id, AccType.LIBRARIAN, db)
+    services.db_helper.check_auth(librarian_id, AccType.LIBRARIAN, db)
 
-    (user_id, user_first_name, user_last_name, user_loan_count,
-     user_loans, user_prof_pic) = helper.user.get_user_details(db, view_user_profile_id)
-    user_join_date = helper.user.get_user_join_date(db, view_user_profile_id)
-    user_past_loans = helper.user.get_user_past_loans(db, view_user_profile_id)
-    
-    # Late Fees
-    helper.db_helper.check_fines(db, user_id)
-    user_balance = helper.user.get_user_balance(db, user_id)
-    owe = True if user_balance < 0 else False
-    user_balance_str = '£{:.2f}'.format(abs(user_balance))
+    user = models.user.User(db, view_user_profile_id)
 
-    user_dict = dict(id=user_id,
-                first_name=user_first_name,
-                last_name=user_last_name,
-                loan_count=user_loan_count,
-                loans=user_loans,
-                prof_pic=user_prof_pic,
-                past_loans=user_past_loans,
-                balance_str=user_balance_str,
-                owe=owe,
-                join_date=user_join_date)
-
-    name = helper.librarian.get_librarian_name(db, librarian_id)
+    name = services.librarian.get_librarian_name(db, librarian_id)
 
     return bottle.template('librarian_pages/view_user_profile', name=name,
-                    user_id=librarian_id, user=user_dict)
+                    user_id=librarian_id, user=user)

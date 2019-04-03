@@ -1,5 +1,19 @@
+# Cookie Variables
+ADD_BOOK_COOKIE = 'add_book_message'
+BOOK_COOKIE = 'book_message'
+JOIN_COOKIE = 'join_message'
+LOGIN_COOKIE = 'login_message'
+EDIT_ACC_COOKIE = 'edit_acc_message'
+AUTH_COOKIE = 'auth_user_id'
+
+from config import AUTH_COOKIE_SECRET
 from bottle import request, response
 
+def get_auth_cookie():
+    return request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
+
+def del_auth_cookie():
+    response.delete_cookie(AUTH_COOKIE)
 
 def get_cookie(cookie_name, cookie_path=None):
     message = request.get_cookie(cookie_name)

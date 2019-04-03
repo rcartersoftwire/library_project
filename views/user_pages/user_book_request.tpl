@@ -8,7 +8,7 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 
 <div class = "form">
-    <form action="/user/{{user['id']}}/book_request" method="post" enctype="multipart/form-data">
+    <form action="/user/{{user.id}}/book_request" method="post" enctype="multipart/form-data">
     <div>
         <label for="title">Title</label>
         <input type="text" id="title" name="title" required=required>
