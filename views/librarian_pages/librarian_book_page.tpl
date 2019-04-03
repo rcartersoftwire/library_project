@@ -54,4 +54,32 @@
     <div class="bookLocation" id="divBookLocation">
     </div>
 </div>
-        
+
+<h3><u>Book Loan History</u></h4>
+<div>
+    % if loan_history == []:
+        <h3>There are no loan records of this book.</h3>
+    % else:
+        <table class="book_loans_table">
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Checkout Date</th>
+                <th>Due Date</th>
+                <th>Returned</th>
+                <th>Returned Date</th>
+            </tr>
+            % for loan in loan_history:
+            <tr>
+                <td>{{loan['id']}}</td>
+                <td>{{loan['first_name'] + ' ' + loan['last_name']}}</td>
+                <td>{{loan['checkout_date']}}</td>
+                <td>{{loan['due_date']}}</td>
+                <td>{{loan['returned']}}</td>
+                <td>{{loan['returned_date']}}</td>
+
+            </tr>
+            % end
+        </table>
+    % end
+</div>

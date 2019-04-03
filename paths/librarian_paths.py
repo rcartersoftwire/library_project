@@ -84,10 +84,12 @@ def librarian_book_details(db, user_id, book_id):
     message = services.cookies.get_cookie(BOOK_COOKIE, f'/librarian/{user_id}/')
 
     loan_list = services.librarian.get_loan_list(db, book_id)
+    loan_history = services.librarian.get_loan_history(db, book_id)
+
     return bottle.template('librarian_pages/librarian_book_page',
                     book_details=book_details,
                     copy_availability_details=copy_availability_details,
-                    name=name, user_id=user_id, loan_list=loan_list,
+                    name=name, user_id=user_id, loan_list=loan_list, loan_history=loan_history,
                     message=message)
 
 @librarian_app.get('/librarian/<user_id>/book_requests')

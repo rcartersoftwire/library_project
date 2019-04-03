@@ -3,11 +3,11 @@
         <div class="login_container">
             <form action="/login" method="POST" class="login_form">
                 <div>
-                    <label for="username">Username</label>
+                    <label for="username" style="width: 20%">Username</label>
                     <input type="text" id ="username" name="username">                      
                 </div>
                 <div>
-                    <label for="password">Password</label>
+                    <label for="password" style="width: 20%">Password</label>
                     <input type="password" id="password" name="password">
                 </div>
                 <div>

@@ -21,3 +21,13 @@ def get_loan_list(db, book_id):
                          for x in borrower_list]
 
     return list_of_borrowers
+
+def get_loan_history(db, book_id):
+    loan_history_row = db.execute("""SELECT copy.id, first_name, last_name, 
+                                    checkout_date, due_date, returned, 
+                                    returned_date FROM loan 
+                                    JOIN copy ON copy_id=copy.id 
+                                    LEFT JOIN user ON user.id=borrower_id 
+                                    WHERE book_id=?;""",(book_id,)).fetchall()
+
+    return loan_history_row

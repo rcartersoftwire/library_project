@@ -104,3 +104,25 @@
     color: inherit;
     text-decoration: none;
 }
+
+.book_loans_table {
+    width: 70%;
+}
+
+.book_loans_table th{
+    width: auto;
+    text-align: left;
+    font-weight: normal;
+    font-variant: small-caps;
+    padding: 0 0.5em;
+    font-size: 1.2em;
+}
+
+.book_loans_table td{
+    padding: 0 0.5em;
+}
+
+.book_loans_table td a{
+    color: inherit;
+    text-decoration: none;
+}
