@@ -3,14 +3,14 @@ import os
 from datetime import datetime as dt
 
 # Module Function Imports
-import db_helper
-import author
-import book
-import user
-import loan
-import librarian
-import cookies
-import utils 
+import helper.db_helper
+import helper.author
+import helper.book
+import helper.user
+import helper.loan
+import helper.librarian
+import helper.cookies
+import helper.tools
 from constants import (AUTH_COOKIE, AUTH_COOKIE_SECRET, PWD_KEY, LOGIN_COOKIE, JOIN_COOKIE, TOKEN_LIST)
 
 # Bottle and Database imports
@@ -41,41 +41,41 @@ def serve_static(filename):
 def home(db):
     user_id = bottle.request.get_cookie(AUTH_COOKIE, secret=AUTH_COOKIE_SECRET)
     if user_id is not None:
-        db_helper.redirect_to_home(db)
+        helper.db_helper.redirect_to_home(db)
 
-    books = book.get_book_list(db)
-    message = cookies.get_cookie(LOGIN_COOKIE)
+    books = helper.book.get_book_list(db)
+    message = helper.cookies.get_cookie(LOGIN_COOKIE)
 
     return bottle.template('visitor_pages/home', books=books, message=message)
 
 @general_app.post('/search')
 def search(db):
     search_query = bottle.request.forms.get('search_query')
-    results = db_helper.get_search_results(db, search_query)
+    results = helper.db_helper.get_search_results(db, search_query)
 
     return bottle.template('visitor_pages/search', search_query=search_query,
                     results=results)
 
 @general_app.get('/book/<book_id>')
 def book_details(db, book_id):
-    book_details = book.get_book_details(db, book_id)
-    copy_availability_details = book.check_copies_available(db, book_id)
+    book_details = helper.book.get_book_details(db, book_id)
+    copy_availability_details = helper.book.check_copies_available(db, book_id)
 
     return bottle.template('visitor_pages/book_page', book_details=book_details,
                     copy_availability_details=copy_availability_details)
 
 @general_app.get('/browse/titles')
 def browse_titles(db):
-    books = book.get_title_list(db)
+    books = helper.book.get_title_list(db)
 
     return bottle.template('visitor_pages/visitor_browse_titles', books=books)
 
 @general_app.get('/browse/authors')
 def browse_authors(db):
-    authors = author.get_author_list(db)
+    authors = helper.author.get_author_list(db)
 
     for each in authors:
-        author_books = book.get_books_by_author(db, each['id'])
+        author_books = helper.book.get_books_by_author(db, each['id'])
         each['books'] = author_books
 
     return bottle.template('visitor_pages/visitor_browse_authors', authors=authors)
@@ -89,11 +89,11 @@ def login(db):
                             """, (username,)).fetchone()
 
 
-    if not check_user or check_user['password'] != utils.encode(PWD_KEY, password):
-        cookies.set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
+    if not check_user or check_user['password'] != helper.tools.encode(PWD_KEY, password):
+        helper.cookies.set_cookie(LOGIN_COOKIE, 'Incorrect username or password.')
         bottle.redirect('/')
         
-    db_helper.check_fines(db, check_user["id"])
+    helper.db_helper.check_fines(db, check_user["id"])
 
     bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
     bottle.redirect('/')
@@ -105,7 +105,7 @@ def logout(db):
 
 @general_app.get('/join')
 def join_library(db):
-    message = cookies.get_cookie(JOIN_COOKIE)
+    message = helper.cookies.get_cookie(JOIN_COOKIE)
     return bottle.template('visitor_pages/join_library', message=message)
 
 @general_app.post('/join')
@@ -125,7 +125,7 @@ def join(db):
         name, ext = os.path.splitext(prof_pic.filename)
 
         if ext not in ('.png', '.jpg', '.jpeg'):
-            cookies.set_cookie(JOIN_COOKIE,
+            helper.cookies.set_cookie(JOIN_COOKIE,
                                 'File extension not allowed. Join library failed.')
             bottle.redirect('/join')
 
@@ -147,28 +147,28 @@ def join(db):
                                 (username,)).fetchall()
 
     if len(password) < 8:
-        cookies.set_cookie(JOIN_COOKIE, '''Password must be at least 8 characters.
+        helper.cookies.set_cookie(JOIN_COOKIE, '''Password must be at least 8 characters.
                    Join library failed.''')
         bottle.redirect('/join')
 
     if password != conf_password:
-        cookies.set_cookie(JOIN_COOKIE, '''Your passwords do not match.
+        helper.cookies.set_cookie(JOIN_COOKIE, '''Your passwords do not match.
                    Join library failed.''')
         bottle.redirect('/join')
 
     elif username_in_db:
-        cookies.set_cookie(JOIN_COOKIE, '''This username is already taken.
+        helper.cookies.set_cookie(JOIN_COOKIE, '''This username is already taken.
                    Join library failed.''')
         bottle.redirect('/join')
 
     elif token is not None and token not in TOKEN_LIST:
-        cookies.set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
+        helper.cookies.set_cookie(JOIN_COOKIE, '''Librarian token incorrect.
                     Join library failed.''')
         bottle.redirect('/join')
 
     # Insert into Database
     else:
-        password = utils.encode(PWD_KEY, password)
+        password = helper.tools.encode(PWD_KEY, password)
         db.execute("""INSERT INTO user (first_name, last_name, username,
                    password, type, join_date, prof_pic)
                    VALUES (?, ?, ?, ?, ?, ?, ?);""", (first_name, last_name,
@@ -178,5 +178,5 @@ def join(db):
                              (username,)).fetchone()[0]
 
         bottle.response.set_cookie(AUTH_COOKIE, str(user_id), secret=AUTH_COOKIE_SECRET)
-        db_helper.redirect_to_home(db)
+        helper.db_helper.redirect_to_home(db)
 

@@ -1,8 +1,7 @@
 # Book based functions
-
 from datetime import datetime as dt
 import os
-from author import get_author_name_from_id
+from helper.author import get_author_name_from_id
 
 
 def get_book_list(db):

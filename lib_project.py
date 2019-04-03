@@ -5,11 +5,11 @@ from bottle_sqlite import SQLitePlugin
 import caribou
 
 # All Paths
-import error_paths
-import js_request_paths
-import general_paths
-import user_paths
-import librarian_paths
+import paths.error_paths as error_paths
+import paths.js_request_paths as js_request_paths
+import paths.general_paths as general_paths
+import paths.user_paths as user_paths
+import paths.librarian_paths as librarian_paths
 
 # Create Bottle Object
 app = bottle.Bottle()

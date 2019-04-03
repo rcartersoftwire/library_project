@@ -1,6 +1,4 @@
 # User based functions
-
-
 def get_user_details(db, id):
     user_details = db.execute("""SELECT id, first_name, last_name FROM user
                       WHERE user.id = ?;""", (id,)).fetchone()
