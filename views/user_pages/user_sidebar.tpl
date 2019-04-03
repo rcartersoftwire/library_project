@@ -19,7 +19,11 @@
         <div class="current_loans_summary">
             <ul>
                 % for loan in user.loans:
-                    <li><a href="/user/{{user.id}}/book/{{loan['book_id']}}">{{loan['title']}}, due {{loan['due_date']}}</a></li>
+                    % if not loan['late']:
+                        <li><a href="/user/{{user.id}}/book/{{loan['book_id']}}">{{loan['title']}}, due {{loan['due_date']}}</a></li>
+                    % else:
+                        <li><a href="/user/{{user.id}}/book/{{loan['book_id']}}"><span class="red">{{loan['title']}}, due {{loan['due_date']}}</span></a></li>
+                    % end
                 % end
             </ul>
         </div>
