@@ -9,11 +9,6 @@ request_app = bottle.Bottle()
 
 # Database Configuration
 database_file = 'library_project.db'
-migrations_path = 'migrations/'
-caribou.upgrade(database_file, migrations_path)
-
-# Install Plugins
-request_app.install(message_plugin)
 request_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 

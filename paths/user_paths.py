@@ -2,11 +2,12 @@
 import models.author
 import models.book
 from models.user import User
+from models.acc_types import AccType
+
 import services.db_helper
 import services.loan
 import services.cookies
 import services.tools
-from acc_types import AccType
 
 # Bottle and Database imports
 import bottle
@@ -19,11 +20,6 @@ user_app = bottle.Bottle()
 
 # Database Configuration
 database_file = 'library_project.db'
-migrations_path = 'migrations/'
-caribou.upgrade(database_file, migrations_path)
-
-# Install Plugins
-user_app.install(message_plugin)
 user_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # ====================================================

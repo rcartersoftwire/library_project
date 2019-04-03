@@ -1,6 +1,6 @@
 import bottle
 from datetime import date
-from acc_types import AccType
+from models.acc_types import AccType
 import services.cookies
 
 def redirect_to_home(db):

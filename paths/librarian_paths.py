@@ -5,13 +5,14 @@ import os
 import models.author
 import models.book
 import models.user
+from models.acc_types import AccType
+
 import services.db_helper
 import services.loan
 import services.librarian
 import services.cookies
 import services.tools
 from services.cookies import BOOK_COOKIE, ADD_BOOK_COOKIE
-from acc_types import AccType
 
 # Bottle and Database imports
 import bottle

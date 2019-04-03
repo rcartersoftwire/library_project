@@ -9,11 +9,6 @@ error_app = bottle.Bottle()
 
 # Database Configuration
 database_file = 'library_project.db'
-migrations_path = 'migrations/'
-caribou.upgrade(database_file, migrations_path)
-
-# Install Plugins
-error_app.install(message_plugin)
 error_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # HTML Errors
