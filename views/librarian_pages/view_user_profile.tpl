@@ -8,6 +8,9 @@
             % else:
                 <p>Fees Owed: <span class='red'>{{user.balance_str}}</span></p>
             % end
+            
+            <hr>
+
             <h3><u>Current Loans</u></h4>
             % if user.loan_count > 0:
             <table class="user_loans_table">
@@ -24,7 +27,11 @@
                     <td><a href="/user/{{user.id}}/book/{{loan['book_id']}}">{{loan['title']}}</a></td>
                     <td>{{loan['author']}}</td>
                     <td>{{loan['checkout_date']}}</td>
-                    <td>{{loan['due_date']}}</td>
+                    % if not loan['late']:
+                        <td>{{loan['due_date']}}</td>
+                    % else:
+                        <td><span class="red">{{loan['due_date']}}</span></td>
+                    % end
                 </tr>
                 % end
             </table>
@@ -40,6 +47,7 @@
                         <th>Title</th>
                         <th>Author</th>
                         <th>Checkout Date</th>
+                        <th>Due Date</th>
                         <th>Returned Date</th>
                     </tr>
                     % for loan in user.past_loans:
@@ -48,7 +56,13 @@
                         <td><a href="/user/{{user.id}}/book/{{loan['book_id']}}">{{loan['title']}}</a></td>
                         <td>{{loan['author']}}</td>
                         <td>{{loan['checkout_date']}}</td>
-                        <td>{{loan['returned_date']}}</td>
+                        % if not loan['late']:
+                            <td>{{loan['due_date']}}</td>
+                            <td>{{loan['returned_date']}}</td>
+                        % else:
+                            <td><span class="red">{{loan['due_date']}}</span></td>
+                            <td><span class="red">{{loan['returned_date']}}</span></td>
+                        % end
                     </tr>
                     % end
                 </table>
