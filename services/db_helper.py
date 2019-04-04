@@ -37,6 +37,17 @@ def check_auth(user_id, acc_type, db):
     else:
         raise bottle.HTTPError(401, 'Unauthorized Error')
 
+def get_users_search_results(db, search_query):
+    search_queries = search_query.split(' ')
+    search_pattern = '%'.join(search_queries)
+    search_pattern = '%' + search_pattern + '%'
+    search_results = db.execute("""SELECT user.id
+                                FROM user WHERE type=0 AND 
+                                (first_name LIKE ?
+                                OR last_name LIKE ?) ORDER BY last_name;""",
+                                (search_pattern, search_pattern)).fetchall()
+    return search_results
+
 def get_search_results(db, search_query):
     search_queries = search_query.split(' ')
     search_pattern = '%'.join(search_queries)

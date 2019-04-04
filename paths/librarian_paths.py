@@ -54,6 +54,24 @@ def librarian_search(db, user_id):
                     search_query=search_query,
                     results=results, name=name, user_id=user_id)
 
+@librarian_app.post('/librarian/<user_id>/users/search')
+def librarian_user_search(db, user_id):
+    services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    name = services.librarian.get_librarian_name(db, user_id)
+
+    search_query = bottle.request.forms.get('search_query')
+
+    if search_query == '':
+        bottle.redirect(f'/librarian/{user_id}/users/view')
+        
+    filtered_ids = services.db_helper.get_users_search_results(db, search_query)
+    user_list = models.user.User.get_user_list(db, filtered_ids)
+
+
+    return bottle.template('librarian_pages/view_users', name=name, user_id=user_id,
+                    user_list=user_list)
+
+
 @librarian_app.get('/librarian/<user_id>/browse/titles')
 def librarian_browse_titles(db, user_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
@@ -327,11 +345,6 @@ def view_users(db, user_id):
     name = libr_names['first_name'] + ' ' + libr_names['last_name']
 
     user_list = models.user.User.get_user_list(db)
-    for each_user in user_list:
-        services.db_helper.check_fines(db, each_user['id'])
-        user_balance = models.user.User.get_user_balance(db, each_user['id'])
-        each_user['owe'] = True if user_balance < 0 else False
-        each_user['balance_str'] = '£{:.2f}'.format(abs(user_balance))
 
     return bottle.template('librarian_pages/view_users', name=name, user_id=user_id,
                     user_list=user_list)

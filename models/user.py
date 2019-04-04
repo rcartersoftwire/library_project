@@ -5,6 +5,7 @@ class User:
     def __init__(self, db, user_id):
         (self.id, self.first_name, self.last_name, self.loan_count,
             self.loans, self.prof_pic) = User.get_user_details(db, user_id)
+        self.name = " ".join([self.first_name, self.last_name])
         self.join_date = User.get_user_join_date(db, user_id)
         self.past_loans = User.get_user_past_loans(db, user_id)
         self.username = User.get_user_username(db, user_id)
@@ -59,21 +60,26 @@ class User:
         return db.execute("SELECT username FROM user WHERE id=?;",(user_id,)).fetchone()['username']
 
     @staticmethod
-    def get_user_list(db):
-        user_results = db.execute("""SELECT id FROM user WHERE type = 0 ORDER BY last_name;
-                                """).fetchall()
+    def get_user_list(db, list_of_ids=None):
+        if list_of_ids is not None:
+            user_results = list_of_ids
+        else:
+            user_results = db.execute("""SELECT id FROM user WHERE type = 0 ORDER BY last_name;
+                        """).fetchall()
 
         user_list = []
 
         for user in user_results:
-            (user_id, user_first_name, user_last_name, user_loan_count,
-            user_loans, user_prof_pic) = User.get_user_details(db, user['id'])
+            # (user_id, user_first_name, user_last_name, user_loan_count,
+            # user_loans, user_prof_pic) = User.get_user_details(db, user['id'])
 
-            user_name = user_first_name + ' ' + user_last_name
+            # user_name = user_first_name + ' ' + user_last_name
 
-            user_list.append({'id': user_id, 'name': user_name,
-                            'loan_count': user_loan_count,
-                            'loans': user_loans, 'prof_pic': user_prof_pic})
+            # user_list.append({'id': user_id, 'name': user_name,
+            #                 'loan_count': user_loan_count,
+            #                 'loans': user_loans, 'prof_pic': user_prof_pic})
+
+            user_list.append(User(db, user['id']))
 
         return user_list
 
