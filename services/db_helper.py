@@ -45,8 +45,8 @@ def get_users_search_results(db, search_query, sort_query='last_name', order_que
     search_pattern = '%' + search_pattern + '%'
     search_results = db.execute(f"""SELECT user.id
                                 FROM user WHERE type=0 AND 
-                                ((first_name || ' ' || last_name LIKE ?) OR (last_name || ' ' || first_name LIKE ?)) ORDER BY {sort_query} {order_query};""",
-                                (search_pattern,search_pattern)).fetchall()
+                                (user.id LIKE ? OR (first_name || ' ' || last_name LIKE ?) OR (last_name || ' ' || first_name LIKE ?)) ORDER BY {sort_query} {order_query};""",
+                                (search_pattern,search_pattern,search_pattern)).fetchall()
     return search_results
 
 def get_search_results(db, search_query):

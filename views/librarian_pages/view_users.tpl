@@ -6,16 +6,15 @@
         <button type="submit" id="search_button">Search</button>
     </form>
     Sort By:
-    <div class="grid-container" style="width: 300px; grid-column-template: 50% 50%; grid-padding:10%">
-        % if order == 'ASC' and sort == 'first_name':
-            <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=first_name&order=DESC">First Name</a>
-        % else:
+    <div class="grid-container" style="width: 300px; grid-column-template: 33% 33%; grid-padding:10%">
+        % if order == 'DESC':
+            <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=id&order=ASC">User ID</a>
             <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=first_name&order=ASC">First Name</a>
-        % end
-        % if order == 'ASC' and sort == 'last_name':
-            <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=last_name&order=DESC">Last Name</a>
-        % else:
             <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=last_name&order=ASC">Last Name</a>
+        % else:
+            <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=id&order=DESC">User ID</a>
+            <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=first_name&order=DESC">First Name</a>
+            <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=last_name&order=DESC">Last Name</a>
         % end
     </div>
 </div>
@@ -30,11 +29,12 @@
     % for user in user_list:
         <div class="user_info">
             <div class="grid-container" style="grid-template-columns: 10% 80%; grid-gap:100px;">
-                <div class="left-info" style="grid-column-end:1; max-width:unset; width:120px; height:100%">
+                <div class="left-info" style="grid-column-end:1; max-width:unset; width:140px; height:100%">
                     <img class ="user_prof_pic_list" src="{{user.prof_pic}}" style="max-width: unset; width: 100%;">
                 </div>
                 <div class="right-info" style="padding: 0;">
-                    <a href="/librarian/{{user_id}}/users/view/{{user.id}}"><h3>{{user.name}}</h3></a>
+                    <p style="font-size: 0.9em">ID:            {{user.id}}</p>
+                    <a style="font-size: 1.2em" href="/librarian/{{user_id}}/users/view/{{user.id}}"><h3>{{user.name}}</h3></a>
                     % if not user.owe:
                         <p>No pending fees</p>
                     % else:
