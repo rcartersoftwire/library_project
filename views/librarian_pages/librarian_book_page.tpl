@@ -75,7 +75,7 @@
                 <td>{{loan['first_name'] + ' ' + loan['last_name']}}</td>
                 <td>{{loan['checkout_date']}}</td>
                 <td>{{loan['due_date']}}</td>
-                <td>{{loan['returned']}}</td>
+                <td>{{'Yes' if loan['returned'] == 1 else 'No'}}</td>
                 <td>{{loan['returned_date']}}</td>
 
             </tr>
