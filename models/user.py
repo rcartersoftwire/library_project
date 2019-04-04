@@ -60,25 +60,19 @@ class User:
         return db.execute("SELECT username FROM user WHERE id=?;",(user_id,)).fetchone()['username']
 
     @staticmethod
-    def get_user_list(db, list_of_ids=None):
+    def get_user_list(db, list_of_ids=None, sort=None):
         if list_of_ids is not None:
             user_results = list_of_ids
         else:
-            user_results = db.execute("""SELECT id FROM user WHERE type = 0 ORDER BY last_name;
-                        """).fetchall()
-
+            if sort is not None:
+                user_results = db.execute(f"""SELECT id FROM user WHERE type = 0 ORDER BY {sort};
+                            """).fetchall()
+            else:
+                user_results = db.execute("""SELECT id FROM user WHERE type = 0 ORDER BY last_name;
+                            """).fetchall()
         user_list = []
 
         for user in user_results:
-            # (user_id, user_first_name, user_last_name, user_loan_count,
-            # user_loans, user_prof_pic) = User.get_user_details(db, user['id'])
-
-            # user_name = user_first_name + ' ' + user_last_name
-
-            # user_list.append({'id': user_id, 'name': user_name,
-            #                 'loan_count': user_loan_count,
-            #                 'loans': user_loans, 'prof_pic': user_prof_pic})
-
             user_list.append(User(db, user['id']))
 
         return user_list

@@ -1,17 +1,22 @@
 % rebase('librarian_pages/librarian_base.tpl', subtitle='View Users')
 <h2>Library Users</h2>
-<div class ="search_container" style="width: 50%">
+<div class ="search_container" style="width: 60%">
     <form action="/librarian/{{user_id}}/users/search" method="POST" class="search_bar">
-        <input type="search" id="search_input" name="search_query" placeholder="Search for Library User" value="{{search_query}}">
+        <input type="search" id="search_input" name="search_query" placeholder="Search for Library User" value="{{search}}">
         <button type="submit" id="search_button">Search</button>
     </form>
+    Sort By:
+    <div class="grid-container" style="grid-column-template: 50% 50%; grid-padding:10%">
+        <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=first_name">First Name</a>
+        <a href="/librarian/{{user_id}}/users/view?search={{search}}&sort=last_name">Last Name</a>
+    </div>
 </div>
 <div id="users_display">
-    % if len(search_query) > 0:
+    % if len(search) > 0:
         % if len(user_list) == 0:
-            <h3>No users found with keyword "{{search_query}}"</h3>
+            <h3>No users found with keyword "{{search}}"</h3>
         % else:
-            <h3>{{len(user_list)}} user(s) found with keyword "{{search_query}}"</h3>
+            <h3>{{len(user_list)}} user(s) found with keyword "{{search}}"</h3>
         % end 
     % end
     % for user in user_list:
