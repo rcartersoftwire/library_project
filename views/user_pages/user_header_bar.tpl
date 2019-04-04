@@ -5,7 +5,7 @@
     </a></div>
     <div class ="search_container">
         <form action="/user/{{user.id}}/search" method="POST" class="search_bar">
-            <input type="search" id="search_input" name="search_query">
+            <input type="search" id="search_input" name="search_query" placeholder="Search by Book Title or Author">
             <button type="submit" id="search_button">Search</button>
         </form>
     </div>
