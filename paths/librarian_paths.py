@@ -335,21 +335,20 @@ def view_users(db, user_id):
 
     sort_query = bottle.request.params.get('sort')
     search_query = bottle.request.params.get('search')
+    order_query = bottle.request.params.get('order')
+    
+    if order_query is None or order_query == '':
+        order_query = 'ASC'
+
     if search_query != '' and search_query is not None:
-        filtered_ids = services.db_helper.get_users_search_results(db, search_query, sort_query=sort_query)
-        if sort_query is None:
-            user_list = models.user.User.get_user_list(db, filtered_ids)
-        else:
-            user_list = models.user.User.get_user_list(db, filtered_ids)
+        filtered_ids = services.db_helper.get_users_search_results(db, search_query, sort_query=sort_query, order_query=order_query)
+        user_list = models.user.User.get_user_list(db, list_of_ids=filtered_ids)
     else:
         search_query = ''
-        user_list = models.user.User.get_user_list(db, sort=sort_query)
-
-
-        
+        user_list = models.user.User.get_user_list(db, sort=sort_query, order=order_query)
 
     return bottle.template('librarian_pages/view_users', name=libr_name, user_id=user_id,
-                    user_list=user_list, search=search_query)
+                    user_list=user_list, search=search_query, order=order_query, sort=sort_query)
 
 @librarian_app.get('/librarian/<librarian_id>/users/view/<view_user_profile_id>')
 def view_user_profile(db, librarian_id, view_user_profile_id):

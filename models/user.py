@@ -60,15 +60,15 @@ class User:
         return db.execute("SELECT username FROM user WHERE id=?;",(user_id,)).fetchone()['username']
 
     @staticmethod
-    def get_user_list(db, list_of_ids=None, sort=None):
+    def get_user_list(db, list_of_ids=None, sort=None, order='ASC'):
         if list_of_ids is not None:
             user_results = list_of_ids
         else:
             if sort is not None:
-                user_results = db.execute(f"""SELECT id FROM user WHERE type = 0 ORDER BY {sort};
+                user_results = db.execute(f"""SELECT id FROM user WHERE type = 0 ORDER BY {sort} {order};
                             """).fetchall()
             else:
-                user_results = db.execute("""SELECT id FROM user WHERE type = 0 ORDER BY last_name;
+                user_results = db.execute(f"""SELECT id FROM user WHERE type = 0 ORDER BY last_name {order};
                             """).fetchall()
         user_list = []
 

@@ -37,7 +37,7 @@ def check_auth(user_id, acc_type, db):
     else:
         raise bottle.HTTPError(401, 'Unauthorized Error')
 
-def get_users_search_results(db, search_query, sort_query='last_name'):
+def get_users_search_results(db, search_query, sort_query='last_name', order_query='ASD'):
     if sort_query is None:
         sort_query = 'last_name'
     search_queries = search_query.split(' ')
@@ -45,7 +45,7 @@ def get_users_search_results(db, search_query, sort_query='last_name'):
     search_pattern = '%' + search_pattern + '%'
     search_results = db.execute(f"""SELECT user.id
                                 FROM user WHERE type=0 AND 
-                                ((first_name || ' ' || last_name LIKE ?) OR (last_name || ' ' || first_name LIKE ?)) ORDER BY {sort_query};""",
+                                ((first_name || ' ' || last_name LIKE ?) OR (last_name || ' ' || first_name LIKE ?)) ORDER BY {sort_query} {order_query};""",
                                 (search_pattern,search_pattern)).fetchall()
     return search_results
 
