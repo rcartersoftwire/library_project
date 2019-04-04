@@ -1,3 +1,11 @@
+var timeOut
+
+function delayCheckISBN() {
+    clearTimeout(timeOut)
+    timeOut = setTimeout(checkISBN, 500);
+}
+
+
 function checkISBN() {
     let autofill = $("#autofill").is(":checked");
 

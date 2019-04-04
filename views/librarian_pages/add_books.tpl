@@ -35,7 +35,7 @@
     <form action="/librarian/{{user_id}}/add" method="post" enctype="multipart/form-data">
     <div class="isbnrow">
         <label for="isbn">ISBN</label>
-        <input type="text" id ="isbn" name="isbn" required=required onfocusout="checkISBN()">                        
+        <input type="text" id ="isbn" name="isbn" required=required onChange="delayCheckISBN()">                        
         <div class = "checkbox">
             <input type="checkbox" id="autofill" name="autofill" value="autofill" onChange="checkISBN()">Autofill
         </div>
