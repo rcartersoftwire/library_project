@@ -44,7 +44,11 @@
                             <tr>
                                 <td><a href="/librarian/{{user_id}}/book/{{loan['book_id']}}">{{loan['title']}}</a></td>
                                 <td>{{loan['author']}}</td>
-                                <td>{{loan['due_date']}}</td>
+                                % if not loan['late']:
+                                    <td>{{loan['due_date']}}</td>
+                                % else:
+                                    <td><span class="red">{{loan['due_date']}}</span></td>
+                                % end                            
                             </tr>
                             % end
                         </table>
