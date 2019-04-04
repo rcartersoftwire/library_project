@@ -57,19 +57,12 @@ def librarian_search(db, user_id):
 @librarian_app.post('/librarian/<user_id>/users/search')
 def librarian_user_search(db, user_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    name = services.librarian.get_librarian_name(db, user_id)
-
     search_query = bottle.request.forms.get('search_query')
 
     if search_query == '':
         bottle.redirect(f'/librarian/{user_id}/users/view')
         
-    filtered_ids = services.db_helper.get_users_search_results(db, search_query)
-    user_list = models.user.User.get_user_list(db, filtered_ids)
-
-
-    return bottle.template('librarian_pages/view_users', name=name, user_id=user_id,
-                    user_list=user_list)
+    bottle.redirect(f'/librarian/{user_id}/users/view?search_query={search_query}')
 
 
 @librarian_app.get('/librarian/<user_id>/browse/titles')
@@ -338,16 +331,18 @@ def add_copy(db, user_id):
 @librarian_app.get('/librarian/<user_id>/users/view')
 def view_users(db, user_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
+    libr_name = services.librarian.get_librarian_name(db, user_id)
 
-    libr_names = db.execute("""SELECT first_name, last_name FROM  user
-                            WHERE id = ?;""", (user_id,)).fetchone()
+    search_query = bottle.request.params.get('search_query')
+    if search_query:
+        filtered_ids = services.db_helper.get_users_search_results(db, search_query)
+        user_list = models.user.User.get_user_list(db, filtered_ids)
+    else:
+        search_query = ''
+        user_list = models.user.User.get_user_list(db)
 
-    name = libr_names['first_name'] + ' ' + libr_names['last_name']
-
-    user_list = models.user.User.get_user_list(db)
-
-    return bottle.template('librarian_pages/view_users', name=name, user_id=user_id,
-                    user_list=user_list)
+    return bottle.template('librarian_pages/view_users', name=libr_name, user_id=user_id,
+                    user_list=user_list, search_query=search_query)
 
 @librarian_app.get('/librarian/<librarian_id>/users/view/<view_user_profile_id>')
 def view_user_profile(db, librarian_id, view_user_profile_id):

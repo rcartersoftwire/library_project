@@ -43,9 +43,8 @@ def get_users_search_results(db, search_query):
     search_pattern = '%' + search_pattern + '%'
     search_results = db.execute("""SELECT user.id
                                 FROM user WHERE type=0 AND 
-                                (first_name LIKE ?
-                                OR last_name LIKE ?) ORDER BY last_name;""",
-                                (search_pattern, search_pattern)).fetchall()
+                                ((first_name || ' ' || last_name LIKE ?) OR (last_name || ' ' || first_name LIKE ?)) ORDER BY last_name;""",
+                                (search_pattern,search_pattern)).fetchall()
     return search_results
 
 def get_search_results(db, search_query):

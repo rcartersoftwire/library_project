@@ -2,11 +2,18 @@
 <h2>Library Users</h2>
 <div class ="search_container" style="width: 50%">
     <form action="/librarian/{{user_id}}/users/search" method="POST" class="search_bar">
-        <input type="search" id="search_input" name="search_query" placeholder="Search for Library User">
+        <input type="search" id="search_input" name="search_query" placeholder="Search for Library User" value="{{search_query}}">
         <button type="submit" id="search_button">Search</button>
     </form>
 </div>
 <div id="users_display">
+    % if len(search_query) > 0:
+        % if len(user_list) == 0:
+            <h3>No users found with keyword "{{search_query}}"</h3>
+        % else:
+            <h3>{{len(user_list)}} user(s) found with keyword "{{search_query}}"</h3>
+        % end 
+    % end
     % for user in user_list:
         <div class="user_info">
             <div class="grid-container" style="grid-template-columns: 20% 80%; grid-gap:10%;">
