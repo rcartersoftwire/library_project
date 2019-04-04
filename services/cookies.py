@@ -5,6 +5,7 @@ JOIN_COOKIE = 'join_message'
 LOGIN_COOKIE = 'login_message'
 EDIT_ACC_COOKIE = 'edit_acc_message'
 AUTH_COOKIE = 'auth_user_id'
+ACCTYPE_COOKIE = 'acc_type'
 
 from config import AUTH_COOKIE_SECRET
 from bottle import request, response
@@ -14,6 +15,9 @@ def get_auth_cookie():
 
 def del_auth_cookie():
     response.delete_cookie(AUTH_COOKIE)
+
+def get_acctype_cookie():
+    return request.get_cookie(ACCTYPE_COOKIE, secret=AUTH_COOKIE_SECRET)
 
 def get_cookie(cookie_name, cookie_path=None):
     message = request.get_cookie(cookie_name)

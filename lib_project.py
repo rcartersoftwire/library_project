@@ -25,7 +25,7 @@ app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 # HTML Errors
 @app.error(404)
 def error404(error):
-    return bottle.template('page_not_found')
+    return bottle.template('visitor_pages/page_not_found')
 
 @app.error(401)
 def error401(error):

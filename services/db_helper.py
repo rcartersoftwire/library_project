@@ -17,6 +17,12 @@ def redirect_to_home(db):
 
     bottle.redirect('/')
 
+def check_session_acctype():
+    session_acctype = services.cookies.get_acctype_cookie()
+    if session_acctype:
+        return int(session_acctype)
+    return None
+
 def check_auth(user_id, acc_type, db):
     existing_user_id = services.cookies.get_auth_cookie()
     if existing_user_id is None:

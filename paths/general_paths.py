@@ -11,7 +11,7 @@ import services.loan
 import services.librarian
 import services.cookies
 import services.tools
-from services.cookies import (AUTH_COOKIE, LOGIN_COOKIE, JOIN_COOKIE)
+from services.cookies import (AUTH_COOKIE, LOGIN_COOKIE, JOIN_COOKIE, ACCTYPE_COOKIE)
 from config import AUTH_COOKIE_SECRET, PWD_KEY, TOKEN_LIST
 
 # Bottle and Database imports
@@ -96,6 +96,7 @@ def login(db):
     services.db_helper.check_fines(db, check_user["id"])
 
     bottle.response.set_cookie(AUTH_COOKIE, str(check_user["id"]), secret=AUTH_COOKIE_SECRET)
+    bottle.response.set_cookie(ACCTYPE_COOKIE, str(check_user['type']), secret=AUTH_COOKIE_SECRET)
     bottle.redirect('/')
 
 @general_app.get('/logout')
@@ -179,5 +180,6 @@ def join(db):
                              (username,)).fetchone()[0]
 
         bottle.response.set_cookie(AUTH_COOKIE, str(user_id), secret=AUTH_COOKIE_SECRET)
+        bottle.response.set_cookie(ACCTYPE_COOKIE, str(acc_type), secret=AUTH_COOKIE_SECRET)    
         services.db_helper.redirect_to_home(db)
 
