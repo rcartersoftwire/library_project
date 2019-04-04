@@ -5,6 +5,7 @@
             | {{subtitle}}
             % end
         </title>
+        <link rel="shortcut icon" type="image/png" href="/static/images/library_logo.png"/>
         <link rel="stylesheet" type="text/css" href="/static/style/global.css">
     </head>
     <body>
