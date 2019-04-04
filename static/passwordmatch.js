@@ -1,3 +1,10 @@
+var timeOut
+
+function queueCheckPasswordMatch() {
+    clearTimeout(timeOut);
+    timeOut = setTimeout(checkPasswordMatch, 500);
+}
+
 function checkPasswordMatch() {
     var password = $("#new_password").val();
     var confirmPassword = $("#conf_password").val();
@@ -19,7 +26,3 @@ function checkPasswordLength() {
     }
 }
 
-
-$(document).ready(function () {
-   $("#new_password, #conf_password").keyup(checkPasswordMatch);
-});

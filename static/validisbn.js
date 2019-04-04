@@ -1,6 +1,6 @@
 var timeOut
 
-function delayCheckISBN() {
+function queueCheckISBN() {
     clearTimeout(timeOut)
     timeOut = setTimeout(checkISBN, 500);
 }
@@ -68,7 +68,7 @@ function checkISBN() {
                     $("#description").html(response.items[0].volumeInfo.description);
                     $("#publisher").val(response.items[0].volumeInfo.publisher);
                     $("#year").val(response.items[0].volumeInfo.publishedDate);
-                    if (response.items[0].volumeInfo.imageLinks.thumbnail){
+                    if (response.items[0].volumeInfo.imageLinks != undefined){
                         $("#divCover").html("<label for=\"cover\">Cover</label>");
                         $("#divCover").append("<input type=\"text\" id=\"cover\" value=\"" + response.items[0].volumeInfo.imageLinks.thumbnail + "\" name=\"cover\">");
                         $("#divCover").append("</div>");

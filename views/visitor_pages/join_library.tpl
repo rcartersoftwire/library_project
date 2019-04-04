@@ -35,7 +35,7 @@
     </div>
     <div>
         <label for="username">Username</label>
-        <input type="text" id ="new_username" name="username" required=required onfocusout="checkUsernameMatch()">                        
+        <input type="text" id ="new_username" name="username" required=required onKeyUp="queueCheckUsernameMatch()">                        
     </div>
     <div>
         <label for="password">Password</label>
@@ -43,7 +43,7 @@
     </div>
     <div>
         <label for="conf_password">Confirm Password</label>
-        <input type="password" id="conf_password" name="conf_password" required=required onChange="checkPasswordMatch()">
+        <input type="password" id="conf_password" name="conf_password" required=required onKeyUp="queueCheckPasswordMatch()">
     </div>
     <div>
         <label for="acc_type">Account Type</label>

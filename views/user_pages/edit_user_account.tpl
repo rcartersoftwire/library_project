@@ -35,7 +35,7 @@
     </div>
     <div>
         <label for="username">Username</label>
-        <input type="text" id ="new_username" name="username" value={{user.username}} required=required onfocusout="checkUsernameMatch()">                        
+        <input type="text" id ="new_username" name="username" value={{user.username}} required=required onKeyUp="queueCheckPasswordMatch()">                        
     </div>
     <div>
         <label for="old_password">Old Password</label>
@@ -43,11 +43,11 @@
     </div>
     <div>
         <label for="password">New Password</label>
-        <input type="password" id="new_password" name="new_password">
+        <input type="password" id="new_password" name="new_password" onKeyUp="queueCheckPasswordMatch()">
     </div>
     <div>
         <label for="conf_password">Confirm Password</label>
-        <input type="password" id="conf_password" name="conf_password" onChange="checkPasswordMatch()">
+        <input type="password" id="conf_password" name="conf_password" onKeyUp="queueCheckPasswordMatch()">
     </div>
 
     <div class="registrationFormAlert" id="divCheckPassword"></div>
