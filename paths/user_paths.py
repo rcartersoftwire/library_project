@@ -25,23 +25,28 @@ user_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=True))
 
 # ====================================================
 # User Routes
-@user_app.route('/user/<id>/home')
-def user_home(db, id):
+@user_app.route('/user/<user_id>/home')
+def user_home(db, user_id):
+    services.db_helper.check_auth(user_id, AccType.USER, db)
+    user = User(db, user_id)
 
-    services.db_helper.check_auth(id, AccType.USER, db)
-
+    # Check for request book confirmation
     book_requested = bottle.request.params.get('book_requested')
     if book_requested is not None:
         book_requested = eval(book_requested)
     else:
         book_requested = False
 
-    user_dict = User(db, id)
+    # Check for search query parameter
+    search_query = bottle.request.params.get('search')
+    if search_query is not None:
+        books = services.db_helper.get_search_results(db, search_query)
+    else:
+        search_query = ''
+        books = models.book.Book.get_book_list(db)
 
-    books = models.book.Book.get_book_list(db)
-
-    return bottle.template('user_pages/user_home', books=books, user=user_dict,
-                    book_requested=book_requested)
+    return bottle.template('user_pages/user_home', books=books, user=user,
+                    book_requested=book_requested, search=search_query)
 
 @user_app.post('/user/<user_id>/account')
 def pay_fees(db, user_id):
@@ -72,11 +77,7 @@ def user_search(db, user_id):
     if search_query == '':
         services.db_helper.redirect_to_home(db)
     
-    results = services.db_helper.get_search_results(db, search_query)
-    user_dict = User(db, user_id)
-
-    return bottle.template('user_pages/user_search', search_query=search_query,
-                    results=results, user=user_dict)
+    bottle.redirect(f'/user/{user_id}/home?search={search_query}')
 
 
 @user_app.get('/user/<user_id>/browse/authors')

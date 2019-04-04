@@ -34,9 +34,17 @@ librarian_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=Tru
 def librarian_home(db, user_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
     name = services.librarian.get_librarian_name(db, user_id)
-    books = models.book.Book.get_book_list(db)
+    
+    # Check for search query parameter
+    search_query = bottle.request.params.get('search')
+    if search_query is not None:
+        books = services.db_helper.get_search_results(db, search_query)
+    else:
+        search_query = ''
+        books = models.book.Book.get_book_list(db)
+
     return bottle.template('librarian_pages/librarian_home', user_id=user_id,
-                    books=books, name=name,)
+                    books=books, name=name, search=search_query)
 
 @librarian_app.post('/librarian/<user_id>/search')
 def librarian_search(db, user_id):
@@ -46,13 +54,7 @@ def librarian_search(db, user_id):
     if search_query == '':
         services.db_helper.redirect_to_home(db)
         
-    results = services.db_helper.get_search_results(db, search_query)
-
-    name = services.librarian.get_librarian_name(db, user_id)
-
-    return bottle.template('librarian_pages/librarian_search',
-                    search_query=search_query,
-                    results=results, name=name, user_id=user_id)
+    bottle.redirect(f'/librarian/{user_id}/home?search={search_query}')
 
 @librarian_app.post('/librarian/<user_id>/users/search')
 def librarian_user_search(db, user_id):

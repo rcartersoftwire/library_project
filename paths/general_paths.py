@@ -45,11 +45,12 @@ def home(db):
     if search_query is not None:
         books = services.db_helper.get_search_results(db, search_query)
     else:
+        search_query = ''
         books = models.book.Book.get_book_list(db)
 
     message = services.cookies.get_cookie(LOGIN_COOKIE)
 
-    return bottle.template('visitor_pages/home', books=books, message=message)
+    return bottle.template('visitor_pages/home', books=books, message=message, search=search_query)
 
 @general_app.post('/search')
 def search(db):
@@ -58,10 +59,6 @@ def search(db):
         services.db_helper.redirect_to_home(db)
 
     bottle.redirect(f'/?search={search_query}')
-    # results = services.db_helper.get_search_results(db, search_query)
-
-    # return bottle.template('visitor_pages/search', search_query=search_query,
-    #                 results=results)
 
 @general_app.get('/book/<book_id>')
 def book_details(db, book_id):

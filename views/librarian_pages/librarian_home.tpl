@@ -8,15 +8,15 @@
 <div class="book_display">
     % for book in books:
         <div class="book_tile">
-            % if book['cover']:
-                <img class ="book_cover" src="{{book['cover']}}">
+            % if book.cover:
+                <img class ="book_cover" src="{{book.cover}}">
             % else:
                 <img class="book_cover" src="/static/images/missing_book_cover.jpg">
             % end    
             <div class="tile_details">
-                <a href="/librarian/{{user_id}}/book/{{book['id']}}"><h3>{{book['title']}}</h3></a>
-                <h4>{{book['author']}}</h4>
-                <p>{{book['available']}}</p>
+                <a href="/librarian/{{user_id}}/book/{{book.id}}"><h3>{{book.title}}</h3></a>
+                <h4>{{book.author}}</h4>
+                <p>{{book.available}}</p>
             </div>
         </div>  
     % end

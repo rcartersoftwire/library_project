@@ -30,7 +30,7 @@
         <div class="user_info">
             <div class="grid-container" style="grid-template-columns: 10% 80%; grid-gap:100px;">
                 <div class="left-info" style="grid-column-end:1; max-width:unset; width:140px; height:100%">
-                    <img class ="user_prof_pic_list" src="{{user.prof_pic}}" style="max-width: unset; width: 100%;">
+                    <img class ="user_list_prof_pic" src="{{user.prof_pic}}">
                 </div>
                 <div class="right-info" style="padding: 0;">
                     <p style="font-size: 0.9em">ID:            {{user.id}}</p>
