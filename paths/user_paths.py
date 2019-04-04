@@ -38,7 +38,7 @@ def user_home(db, id):
 
     user_dict = User(db, id)
 
-    books = models.book.get_book_list(db)
+    books = models.book.Book.get_book_list(db)
 
     return bottle.template('user_pages/user_home', books=books, user=user_dict,
                     book_requested=book_requested)
@@ -85,7 +85,7 @@ def user_browse_authors(db, user_id):
     authors = models.author.get_author_list(db)
 
     for each in authors:
-        author_books = models.book.get_books_by_author(db, each['id'])
+        author_books = models.book.Book.get_books_by_author(db, each['id'])
         each['books'] = author_books
 
     user_dict = User(db, user_id)
@@ -97,8 +97,8 @@ def user_browse_authors(db, user_id):
 @user_app.get('/user/<user_id>/book/<book_id>')
 def user_book_details(db, user_id, book_id):
     services.db_helper.check_auth(user_id, AccType.USER, db)
-    book_details = models.book.get_book_details(db, book_id)
-    copy_availability_details = models.book.check_copies_available(db, book_id)
+    book_details = models.book.Book.get_book_details(db, book_id)
+    copy_availability_details = models.book.Book.check_copies_available(db, book_id)
     book_loaned, due_date = services.loan.get_user_book_details(db, user_id, book_id)
 
     user_dict = User(db, user_id)
@@ -111,7 +111,7 @@ def user_book_details(db, user_id, book_id):
 @user_app.get('/user/<user_id>/browse/titles')
 def user_browse_titles(db, user_id):
     services.db_helper.check_auth(user_id, AccType.USER, db)
-    books = models.book.get_title_list(db)
+    books = models.book.Book.get_title_list(db)
 
     user_dict = User(db, user_id)
 
@@ -138,7 +138,7 @@ def return_book(db, user_id, book_id):
 @user_app.get('/user/<user_id>/renew/<book_id>')
 def renew_book(db, user_id, book_id):
     services.db_helper.check_auth(user_id, AccType.USER, db)
-    loan_id = models.book.find_loan_id(db, user_id, book_id)
+    loan_id = models.book.Book.find_loan_id(db, user_id, book_id)
 
     services.loan.renew_loan(db, loan_id)
 

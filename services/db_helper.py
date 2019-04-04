@@ -1,6 +1,7 @@
 import bottle
 from datetime import date
 from models.acc_types import AccType
+import models.book
 import services.cookies
 
 def redirect_to_home(db):
@@ -53,9 +54,7 @@ def get_search_results(db, search_query):
     search_queries = search_query.split(' ')
     search_pattern = '%'.join(search_queries)
     search_pattern = '%' + search_pattern + '%'
-    search_results = db.execute("""SELECT book.id as book_id, book.title as title,
-                                author.first_name as first_name,
-                                author.last_name as last_name
+    search_results = db.execute("""SELECT book.id
                                 FROM book
                                 INNER JOIN author on author.id = book.author_id
                                 WHERE book.title LIKE ?
@@ -63,28 +62,26 @@ def get_search_results(db, search_query):
                                 author.last_name LIKE ?;""",
                                 (search_pattern, search_pattern)).fetchall()
 
-    results = [{'id': b['book_id'], 'title': b['title'],
-                'author': b['first_name'] + ' ' + b['last_name']}
-               for b in search_results]
+    book_list = []
+    for book in search_results:
+        # num_copies = db.execute("""SELECT COUNT (copy.id)
+        #                         FROM book
+        #                         INNER JOIN copy on copy.book_id = book.id;
+        #                         """).fetchone()[0]
 
-    for book in results:
-        num_copies = db.execute("""SELECT COUNT (copy.id)
-                                FROM book
-                                INNER JOIN copy on copy.book_id = book.id;
-                                """).fetchone()[0]
+        # active_loans = db.execute("""SELECT COUNT(loan.id)
+        #                           FROM book
+        #                           INNER JOIN copy on copy.book_id = ?
+        #                           INNER JOIN loan on loan.copy_id = copy.id
+        #                           WHERE loan.returned = 0;""",
+        #                           (book['id'],)).fetchone()[0]
+        # if num_copies != 0 and num_copies > active_loans:
+        #     book['available'] = 'Available'
+        # else:
+        #     book['available'] = 'Unvailable'
+        book_list.append(models.book.Book(db, book['id']))
 
-        active_loans = db.execute("""SELECT COUNT(loan.id)
-                                  FROM book
-                                  INNER JOIN copy on copy.book_id = ?
-                                  INNER JOIN loan on loan.copy_id = copy.id
-                                  WHERE loan.returned = 0;""",
-                                  (book['id'],)).fetchone()[0]
-        if num_copies != 0 and num_copies > active_loans:
-            book['available'] = 'Available'
-        else:
-            book['available'] = 'Unvailable'
-
-    return results
+    return book_list
 
 def check_fines(db, user_id):
     # Check current and past loans

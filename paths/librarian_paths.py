@@ -34,7 +34,7 @@ librarian_app.install(SQLitePlugin(dbfile=database_file, pragma_foreign_keys=Tru
 def librarian_home(db, user_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
     name = services.librarian.get_librarian_name(db, user_id)
-    books = models.book.get_book_list(db)
+    books = models.book.Book.get_book_list(db)
     return bottle.template('librarian_pages/librarian_home', user_id=user_id,
                     books=books, name=name,)
 
@@ -68,7 +68,7 @@ def librarian_user_search(db, user_id):
 @librarian_app.get('/librarian/<user_id>/browse/titles')
 def librarian_browse_titles(db, user_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    books = models.book.get_title_list(db)
+    books = models.book.Book.get_title_list(db)
 
     name = services.librarian.get_librarian_name(db, user_id)
 
@@ -81,7 +81,7 @@ def librarian_browse_authors(db, user_id):
     authors = models.author.get_author_list(db)
 
     for each in authors:
-        author_books = models.book.get_books_by_author(db, each['id'])
+        author_books = models.book.Book.get_books_by_author(db, each['id'])
         each['books'] = author_books
 
     name = services.librarian.get_librarian_name(db, user_id)
@@ -92,8 +92,8 @@ def librarian_browse_authors(db, user_id):
 @librarian_app.get('/librarian/<user_id>/book/<book_id>')
 def librarian_book_details(db, user_id, book_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
-    book_details = models.book.get_book_details(db, book_id)
-    copy_availability_details = models.book.check_copies_available(db, book_id)
+    book_details = models.book.Book.get_book_details(db, book_id)
+    copy_availability_details = models.book.Book.check_copies_available(db, book_id)
     name = services.librarian.get_librarian_name(db, user_id)
 
     message = services.cookies.get_cookie(BOOK_COOKIE, f'/librarian/{user_id}/')
@@ -154,7 +154,7 @@ def add_book(db, user_id):
     hire_period = bottle.request.forms.get('hire_period')
 
     author_id = models.author.find_author_id(db, author_name)
-    valid_isbn, isbn_message = models.book.check_isbn(db, isbn, title, author_id)
+    valid_isbn, isbn_message = models.book.Book.check_isbn(db, isbn, title, author_id)
 
     if not valid_isbn:
         services.cookies.set_cookie(ADD_BOOK_COOKIE, f'{isbn_message}. Add Book failed.',
@@ -172,7 +172,7 @@ def add_book(db, user_id):
                         'File extension not allowed. Add Book failed.')
                 bottle.redirect(f'/librarian/{user_id}/books/add')
 
-            cover_save_path = models.book.get_cover_save_path(title, author_name)
+            cover_save_path = models.book.Book.get_cover_save_path(title, author_name)
             cover_path = cover_save_path + '/' + cover.filename
 
             if os.path.exists(cover_path):
@@ -189,10 +189,10 @@ def add_book(db, user_id):
         cover_path = bottle.request.forms.get('cover') 
 
 
-    book_id = models.book.find_book_id(db, title, author_id, isbn, description,
+    book_id = models.book.Book.find_book_id(db, title, author_id, isbn, description,
                            publisher, year, cover_path)
 
-    models.book.insert_copy(db, book_id, hire_period, location)
+    models.book.Book.insert_copy(db, book_id, hire_period, location)
 
     bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
@@ -262,7 +262,7 @@ def edit_book(db, user_id, book_id):
 
     name = services.librarian.get_librarian_name(db, user_id)
 
-    book_details = models.book.get_book_details(db, book_id)
+    book_details = models.book.Book.get_book_details(db, book_id)
 
     return bottle.template('librarian_pages/edit_book', user_id=user_id, name=name,
                     book_details=book_details)
@@ -288,7 +288,7 @@ def edit_book_details(db, user_id):
                        cookie_path=f"/librarian/{user_id}/")
             bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 
-        cover_save_path = models.book.get_cover_save_path(title, author_name)
+        cover_save_path = models.book.Book.get_cover_save_path(title, author_name)
         cover_path = cover_save_path + '/' + cover.filename
 
         if os.path.exists(cover_path):
@@ -324,7 +324,7 @@ def add_copy(db, user_id):
     location = bottle.request.forms.get('location')
 
     for i in range(num_of_copies):
-        models.book.insert_copy(db, book_id, hire_period, location)
+        models.book.Book.insert_copy(db, book_id, hire_period, location)
 
     bottle.redirect(f'/librarian/{user_id}/book/{book_id}')
 

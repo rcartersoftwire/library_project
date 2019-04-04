@@ -40,7 +40,13 @@ def home(db):
     if user_id is not None:
         services.db_helper.redirect_to_home(db)
 
-    books = models.book.get_book_list(db)
+    search_query = bottle.request.params.get('search')
+
+    if search_query is not None:
+        books = services.db_helper.get_search_results(db, search_query)
+    else:
+        books = models.book.Book.get_book_list(db)
+
     message = services.cookies.get_cookie(LOGIN_COOKIE)
 
     return bottle.template('visitor_pages/home', books=books, message=message)
@@ -51,22 +57,23 @@ def search(db):
     if search_query == '':
         services.db_helper.redirect_to_home(db)
 
-    results = services.db_helper.get_search_results(db, search_query)
+    bottle.redirect(f'/?search={search_query}')
+    # results = services.db_helper.get_search_results(db, search_query)
 
-    return bottle.template('visitor_pages/search', search_query=search_query,
-                    results=results)
+    # return bottle.template('visitor_pages/search', search_query=search_query,
+    #                 results=results)
 
 @general_app.get('/book/<book_id>')
 def book_details(db, book_id):
-    book_details = models.book.get_book_details(db, book_id)
-    copy_availability_details = models.book.check_copies_available(db, book_id)
+    book_details = models.book.Book.get_book_details(db, book_id)
+    copy_availability_details = models.book.Book.check_copies_available(db, book_id)
 
     return bottle.template('visitor_pages/book_page', book_details=book_details,
                     copy_availability_details=copy_availability_details)
 
 @general_app.get('/browse/titles')
 def browse_titles(db):
-    books = models.book.get_title_list(db)
+    books = models.book.Book.get_title_list(db)
 
     return bottle.template('visitor_pages/visitor_browse_titles', books=books)
 
@@ -75,7 +82,7 @@ def browse_authors(db):
     authors = models.author.get_author_list(db)
 
     for each in authors:
-        author_books = models.book.get_books_by_author(db, each['id'])
+        author_books = models.book.Book.get_books_by_author(db, each['id'])
         each['books'] = author_books
 
     return bottle.template('visitor_pages/visitor_browse_authors', authors=authors)
