@@ -69,8 +69,10 @@ def user_account(db, user_id):
 def user_search(db, user_id):
     services.db_helper.check_auth(user_id, AccType.USER, db)
     search_query = bottle.request.forms.get('search_query')
+    if search_query == '':
+        services.db_helper.redirect_to_home(db)
+    
     results = services.db_helper.get_search_results(db, search_query)
-
     user_dict = User(db, user_id)
 
     return bottle.template('user_pages/user_search', search_query=search_query,

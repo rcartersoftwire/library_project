@@ -48,6 +48,9 @@ def home(db):
 @general_app.post('/search')
 def search(db):
     search_query = bottle.request.forms.get('search_query')
+    if search_query == '':
+        services.db_helper.redirect_to_home(db)
+
     results = services.db_helper.get_search_results(db, search_query)
 
     return bottle.template('visitor_pages/search', search_query=search_query,

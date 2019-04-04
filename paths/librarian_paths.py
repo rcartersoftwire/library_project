@@ -42,6 +42,10 @@ def librarian_home(db, user_id):
 def librarian_search(db, user_id):
     services.db_helper.check_auth(user_id, AccType.LIBRARIAN, db)
     search_query = bottle.request.forms.get('search_query')
+
+    if search_query == '':
+        services.db_helper.redirect_to_home(db)
+        
     results = services.db_helper.get_search_results(db, search_query)
 
     name = services.librarian.get_librarian_name(db, user_id)
