@@ -111,7 +111,7 @@ def logout(db):
 @general_app.get('/join')
 def join_library(db):
     message = services.cookies.get_cookie(JOIN_COOKIE)
-    return bottle.template('visitor_pages/join_library', message=message)
+    return bottle.template('visitor_pages/join_library', message=message, search='')
 
 @general_app.post('/join')
 def join(db):
