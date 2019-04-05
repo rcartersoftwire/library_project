@@ -10,11 +10,12 @@ import paths.general_paths as general_paths
 import paths.user_paths as user_paths
 import paths.librarian_paths as librarian_paths
 
+from config import database_file, HOST
+
 # Create Bottle Object
 app = bottle.Bottle()
 
 # Database Configuration
-database_file = 'library_project.db'
 migrations_path = 'migrations/'
 caribou.upgrade(database_file, migrations_path)
 
@@ -44,4 +45,4 @@ app.merge(user_paths.user_app)
 app.merge(librarian_paths.librarian_app)
 
 
-app.run(host='localhost', port=8080, debug=True)
+app.run(host=HOST, port=8080, debug=True)
