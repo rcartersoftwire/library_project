@@ -1,6 +1,8 @@
 /* Book Page */
 .large_book_cover{
     display: inline-block;
+    width: 200px;
+    align-self: center;
 }
 .large_book_cover img{
     display: block;
