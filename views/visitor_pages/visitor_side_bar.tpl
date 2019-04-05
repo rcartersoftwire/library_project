@@ -3,25 +3,26 @@
         <div class="login_container">
             <form action="/login" method="POST" class="login_form">
                 <div>
-                    <label for="username" style="width: 20%">Username</label>
-                    <input type="text" id ="username" name="username">                      
+                    <label for="username">Username</label>
                 </div>
                 <div>
-                    <label for="password" style="width: 20%">Password</label>
-                    <input type="password" id="password" name="password">
+                    <input type="text" id ="username" name="username" placeholder="Username">                      
                 </div>
                 <div>
+                    <label for="password">Password</label>
+                </div>
+                <div>
+                    <input type="password" id="password" name="password" placeholder="Password">
+                </div>
+                <br><br>
+                <div class="visitor_sidebar_buttons">
                     <button type="submit" id="login_button">Log In</button>
+                    <button class="signup" type="button" onclick="location.href='/join';" value="Join the library">Sign Up</button>                
                 </div>
             </form>
             % if defined('message'):
             <p class="flash">{{ message }}</p>
             % end
-        </div>
-        <div class="sidebar_links">
-            <ul>
-                <li><a href="/join">Join the Library</a></li>
-            </ul>
         </div>
     </div>
     <div class="library_info">

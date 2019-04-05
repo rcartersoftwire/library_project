@@ -66,13 +66,13 @@ def book_details(db, book_id):
     copy_availability_details = models.book.Book.check_copies_available(db, book_id)
 
     return bottle.template('visitor_pages/book_page', book_details=book_details,
-                    copy_availability_details=copy_availability_details, search='')
+                    copy_availability_details=copy_availability_details)
 
 @general_app.get('/browse/titles')
 def browse_titles(db):
     books = models.book.Book.get_title_list(db)
 
-    return bottle.template('visitor_pages/visitor_browse_titles', books=books, search='')
+    return bottle.template('visitor_pages/visitor_browse_titles', books=books)
 
 @general_app.get('/browse/authors')
 def browse_authors(db):

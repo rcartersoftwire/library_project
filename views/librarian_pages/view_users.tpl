@@ -31,7 +31,7 @@
             <div class="user_list_container">
                 <img class ="user_list_prof_pic" src="{{user.prof_pic}}">
                 <div class="user_list_details">
-                    <p>ID:            {{user.id}}</p>
+                    <p>ID: {{user.id}}</p>
                     <a href="/librarian/{{user_id}}/users/view/{{user.id}}"><h3>{{user.name}}</h3></a>
                     % if not user.owe:
                         <p>No pending fees</p>
@@ -47,22 +47,26 @@
                 <div class="loan_details">
                     % if user.loan_count > 0:
                     <table class="user_loans_table">
-                        <tr>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Due Date</th>
-                        </tr>
-                        % for loan in user.loans:
-                        <tr>
-                            <td><a href="/librarian/{{user_id}}/book/{{loan['book_id']}}">{{loan['title']}}</a></td>
-                            <td>{{loan['author']}}</td>
-                            % if not loan['late']:
-                                <td>{{loan['due_date']}}</td>
-                            % else:
-                                <td><span class="red">{{loan['due_date']}}</span></td>
-                            % end                            
-                        </tr>
-                        % end
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            % for loan in user.loans:
+                            <tr>
+                                <td><a href="/librarian/{{user_id}}/book/{{loan['book_id']}}">{{loan['title']}}</a></td>
+                                <td>{{loan['author']}}</td>
+                                % if not loan['late']:
+                                    <td>{{loan['due_date']}}</td>
+                                % else:
+                                    <td><span class="red">{{loan['due_date']}}</span></td>
+                                % end                            
+                            </tr>
+                            % end
+                        </tbody>
                     </table>
                     % end
                 </div>

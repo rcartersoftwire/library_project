@@ -1,8 +1,10 @@
 % rebase('user_pages/user_base.tpl', subtitle=book_details['title'])
-    <div class="user_book_details">
-        % include('book_details', book_details=book_details)
-    
-        <div class="user_book_info">
+    <div class="book_details_container">
+
+        <div class="book_details">
+            % include('book_details', book_details=book_details)
+        </div>
+        <div class="librarian_book_options">
             % if book_loaned == 1:
                 <p>You currently have this book on loan. <br>
                 Due Date: {{due_date}}
@@ -24,6 +26,7 @@
             %end
             
         </div>
+
     </div>
     % include('copy_book_details.tpl', copy_availability_details=copy_availability_details)
         

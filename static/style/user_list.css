@@ -7,20 +7,31 @@
 .user_info h3 {
     font-variant: small-caps;
 }
-.loan_details{
-    display: none;
+
+.user_info:hover { 
+    background-color: #eff5ff;
 }
+
+
 .user_info .loan_count {
     cursor: pointer;
 }
 
-.active .loan_details{
+.loan_details{
     display: block;
-    grid-column: 2 /span 1;
-    grid-row: 2 / span 1;
-    padding-left: 5%;
+    grid-column: 3 /span 1;
+    grid-row: 1 / span 1;
     align-self: center;
+    padding-left: 5%;
+    overflow: hidden;
+    max-width: 0px;
+    transition: all 0.5s;
 }
+
+.active .loan_details{
+    max-width: 1000px;
+}
+
 .loan_details ul{
     list-style-type: none;
     padding: 0.1em;
@@ -28,10 +39,8 @@
 
 .user_list_container {
     display: grid;
-    grid-template-columns: 200px auto;
-    grid-template-rows: 200px auto;
+    grid-template-columns: 200px auto auto;
 }
-
 
 .user_list_prof_pic {
     grid-column: 1 / span 1;
@@ -39,6 +48,7 @@
     width:160px; 
     height:auto;
     align-self: center;
+    border-radius: 50%;
 }
 
 .user_list_details {

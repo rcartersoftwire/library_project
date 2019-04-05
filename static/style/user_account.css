@@ -1,29 +1,70 @@
 .user_loans_table {
     max-width: 90%;
-    
+    border-color: #4C7281;
+    border: 2px solid #4C7281;
+    border-radius: 5px;
+    border-spacing: 0px
+}
+
+.user_loans_table thead{
+    background-color: #4C7281;
 }
 
 .user_loans_table th{
     text-align: left;
     font-weight: normal;
     font-variant: small-caps;
-    padding: 0 0.5em;
+    padding:0.2em 1.0em;
     font-size: 1.1em;
+    color: white;
+    white-space: nowrap; 
+
+}
+
+.user_loans_table tbody tr:nth-child(2n) {
+    background-color: #cfdde3;
+}
+.user_loans_table tbody tr:nth-child(2n-1) {
+    background-color: white;
 }
 
 .user_loans_table td{
-    padding: 0 0.5em;
+    padding:0.2em 1.0em;
+    white-space: nowrap; 
 }
 
 .user_loans_table td a{
     color: inherit;
     text-decoration: none;
+
 }
 
-.user_prof_pic {
-    display: inline-block;
-    max-width: 10%;
+.user_acc_container {
+    display: grid;
+    grid-template-columns: 200px auto auto;
+    grid-template-rows: auto;
 }
+
+.user_acc_container .user_prof_pic{
+    grid-column: 1 / span 1;
+    width: 160px;
+    height: auto;
+    align-self: center;
+    border-radius: 50%;
+
+}
+
+.user_acc_details {
+    grid-column: 2 / span 1;
+    padding: 2%;
+}
+
+.user_acc_options {
+    grid-column: 3 / span 1;
+    padding: 2%;
+    align-content: right;
+}
+
 
 .grid-container {
     display: grid;

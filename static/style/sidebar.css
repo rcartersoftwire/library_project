@@ -44,17 +44,57 @@
     border: none;
     border-bottom: var(--sidebar-text-color) 1.1px solid;
     color: var(--sidebar-text-color);
+    width: 100%;
+    align-self: center;
+    height: 30px;
+    font-size: 1.1em;
+    text-indent: 0.5em;
+}
+.login_container .visitor_sidebar_buttons{
+    display: grid;
+    grid-template-columns: 47.5% 47.5%;
+    grid-template-rows: auto;
+    grid-gap: 5%;
+    overflow: hidden;
 }
 
 .login_container button {
-    float: right;
+    grid-column: 1 /span 1;
     background-color: transparent;
-    border: none;  
-    color: var(--sidebar-text-color);
+    color: #eff4f6;
+    align-self: center;
+    font-size: 1.0em;
+    padding: 15% 5% 15% 5%;
+    border-radius: 20%;
+    border: 20%;
+    border-color: #eff4f6;
+    border-width: 20%;
 }
 
+
 .login_container button:hover {
-    text-decoration: underline;
+    background-color: #395560;
+    border-color: #395560;
+    color: #eff4f6;
+}
+
+.login_container .signup{
+    grid-column: 2 /span 1;
+    background-color: transparent;
+    color: #eff4f6;
+    align-self: center;
+    font-size: 1.0em;
+    padding: 15% 5% 15% 5%;
+    border-radius: 20%;
+    border: 20%;
+    border-color: #eff4f6;
+    border-width: 20%;
+}
+
+.login_container .signup:hover{
+    background-color: #395560;
+    border-color: #395560;
+    color: #eff4f6;
 }
 
 .sidebar_links {

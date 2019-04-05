@@ -1,7 +1,5 @@
-<div class="large_book_cover">
-    <img src={{book_details['cover']}}>
-</div>
-<div class="book_details">
+<img class="large_book_cover" src={{book_details['cover']}}>
+<div class="book_info">
     <h2>{{book_details['title']}}</h2>
     <h3>{{book_details['author']}}</h3>
     % if book_details['publisher'] is not None:

@@ -32,6 +32,10 @@
     padding: 0.5em;
 }
 
+.book_tile:hover{
+    background-color: #eff5ff;
+}
+
 .book_cover{
     max-width: 75px;
     float: left;
