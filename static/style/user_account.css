@@ -25,10 +25,6 @@
     max-width: 10%;
 }
 
-.user_list_prof_pic {
-    width: 100%;
-}
-
 .grid-container {
     display: grid;
     grid-template-columns: auto auto auto;

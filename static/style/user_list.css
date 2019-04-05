@@ -10,15 +10,50 @@
 .loan_details{
     display: none;
 }
+.user_info .loan_count {
+    cursor: pointer;
+}
 
 .active .loan_details{
     display: block;
+    grid-column: 2 /span 1;
+    grid-row: 2 / span 1;
+    padding-left: 5%;
+    align-self: center;
 }
 .loan_details ul{
     list-style-type: none;
     padding: 0.1em;
 }
 
-.user_info .loan_count {
-    cursor: pointer;
+.user_list_container {
+    display: grid;
+    grid-template-columns: 200px auto;
+    grid-template-rows: 200px auto;
 }
+
+
+.user_list_prof_pic {
+    grid-column: 1 / span 1;
+    grid-row:1 / span 1;
+    width:160px; 
+    height:auto;
+    align-self: center;
+}
+
+.user_list_details {
+    grid-column: 2 / span 1;
+    grid-row:1 / span 1;
+    padding-left: 5%;
+    align-self: center
+}
+
+.user_list_details p{
+    font-size: 0.9em;
+}
+
+.user_list_details a{
+    font-size: 1.2em;
+}
+
+
