@@ -92,7 +92,7 @@ def user_browse_authors(db, user_id):
     user_dict = User(db, user_id)
 
     return bottle.template('user_pages/user_browse_authors', authors=authors,
-                    user=user_dict)
+                    user=user_dict, search='')
 
 
 @user_app.get('/user/<user_id>/book/<book_id>')
@@ -106,7 +106,7 @@ def user_book_details(db, user_id, book_id):
 
     return bottle.template('user_pages/user_book_page', book_details=book_details,
                     user=user_dict, book_loaned=book_loaned, due_date=due_date,
-                    copy_availability_details=copy_availability_details)
+                    copy_availability_details=copy_availability_details, search='')
 
 
 @user_app.get('/user/<user_id>/browse/titles')
@@ -117,7 +117,7 @@ def user_browse_titles(db, user_id):
     user_dict = User(db, user_id)
 
     return bottle.template('user_pages/user_browse_titles', books=books,
-                    user=user_dict)
+                    user=user_dict, search='')
 
 
 @user_app.get('/user/<user_id>/borrow/<book_id>')

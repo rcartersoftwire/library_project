@@ -75,7 +75,7 @@ def librarian_browse_titles(db, user_id):
     name = services.librarian.get_librarian_name(db, user_id)
 
     return bottle.template('librarian_pages/librarian_browse_titles', books=books,
-                    user_id=user_id, name=name)
+                    user_id=user_id, name=name, search='')
 
 @librarian_app.get('/librarian/<user_id>/browse/authors')
 def librarian_browse_authors(db, user_id):
@@ -89,7 +89,7 @@ def librarian_browse_authors(db, user_id):
     name = services.librarian.get_librarian_name(db, user_id)
 
     return bottle.template('librarian_pages/librarian_browse_authors',
-                    authors=authors, name=name, user_id=user_id)
+                    authors=authors, name=name, user_id=user_id, search='')
 
 @librarian_app.get('/librarian/<user_id>/book/<book_id>')
 def librarian_book_details(db, user_id, book_id):
@@ -107,7 +107,7 @@ def librarian_book_details(db, user_id, book_id):
                     book_details=book_details,
                     copy_availability_details=copy_availability_details,
                     name=name, user_id=user_id, loan_list=loan_list, loan_history=loan_history,
-                    message=message)
+                    message=message, search='')
 
 @librarian_app.get('/librarian/<user_id>/book_requests')
 def view_book_requests(db, user_id):
